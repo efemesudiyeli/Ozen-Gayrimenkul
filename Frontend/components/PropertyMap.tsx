@@ -14,6 +14,15 @@ let DefaultIcon = L.icon({
 L.Marker.prototype.options.icon = DefaultIcon;
 
 
+const markerIcon = new L.Icon({
+  iconUrl: '/marker-icon.png', // public klasörüne kopyalayacağımız dosyanın yolu
+  shadowUrl: '/marker-shadow.png', // public klasörüne kopyalayacağımız dosyanın yolu
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+
 interface PropertyMapProps {
   coordinates: {
     lat: number;
@@ -21,6 +30,8 @@ interface PropertyMapProps {
   };
   isApproximate: boolean;
 }
+
+
 
 const PropertyMap = ({ coordinates, isApproximate }: PropertyMapProps) => {
   const position: [number, number] = [coordinates.lat, coordinates.lng];
@@ -38,7 +49,8 @@ const PropertyMap = ({ coordinates, isApproximate }: PropertyMapProps) => {
           <Circle center={position} radius={radius} pathOptions={{ color: 'blue', fillColor: 'blue' }} />
         </>
       ) : (
-        <Marker position={position} />
+        <Marker position={position} icon={markerIcon} />
+
       )}
     </MapContainer>
   );

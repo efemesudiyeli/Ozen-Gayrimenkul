@@ -13,8 +13,9 @@ import PropertyGallery from '@/components/PropertyGallery'
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }): Promise<Metadata> {
+  const { slug } = await params
   const query = `*[_type == "property" && slug.current == $slug][0]{
     title,
     description
@@ -23,7 +24,7 @@ export async function generateMetadata({
   const property = await client.fetch<{ title: string; description: string }>(
     query,
     {
-      slug: params.slug,
+      slug: slug,
     }
   )
 
@@ -55,7 +56,7 @@ function urlFor(source: SanityImageSource) {
   return builder.image(source)
 }
 
-const query = `*[_type == "property" && slug.current == $slug][0]{
+const propertyPageQuery = `*[_type == "property" && slug.current == $slug][0]{
   _id,
   title,
   price,
@@ -90,10 +91,11 @@ interface PropertyDetail {
 export default async function PropertyPage({
   params,
 }: {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }) {
-  const property: PropertyDetail = await client.fetch(query, {
-    slug: params.slug,
+  const { slug } = await params
+  const property: PropertyDetail = await client.fetch(propertyPageQuery, {
+    slug: slug,
   })
 
   if (!property) {
