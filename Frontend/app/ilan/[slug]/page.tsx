@@ -35,6 +35,15 @@ export async function generateMetadata({
   }
 }
 
+export async function generateStaticParams() {
+  const query = `*[_type == "property"]{ "slug": slug.current }`;
+  const properties = await client.fetch<{ slug: string }[]>(query);
+
+  return properties.map((property) => ({
+    slug: property.slug,
+  }));
+}
+
 const builder = imageUrlBuilder(client)
 function urlFor(source: SanityImageSource) {
   return builder.image(source)
