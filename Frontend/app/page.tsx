@@ -12,15 +12,15 @@ function urlFor(source: SanityImageSource) {
   return builder.image(source);
 }
 
-const query = `*[_type == "property"]{
-  _id,
-  title,
-  slug,
-  price,
-  mainImage,
-  location,
-  area,
-  propertyType
+const query = `*[_type == "property" && status == 'aktif']{
+_id,
+title,
+slug,
+price,
+mainImage,
+location,
+area,
+propertyType
 }`;
 
 interface Property {

@@ -23,6 +23,13 @@ const Header = () => {
                             Ana Sayfa
                         </Link>
                         <Link
+                            href="/portfolyo"
+                            className="font-medium text-gray-500 hover:text-gray-900 transition-colors"
+                        >
+                            Portfolyo
+                        </Link>
+
+                        <Link
                             href="/danismanlarimiz"
                             className="font-medium text-gray-500 hover:text-gray-900 transition-colors"
                         >
@@ -42,9 +49,7 @@ const Header = () => {
                         </Link>
                     </nav>
 
-                    {/* Mobil Menü Butonu (İleride eklenebilir) */}
                     <div className="md:hidden">
-                        {/* Şimdilik boş, istersen buraya bir mobil menü butonu eklenebilir */}
                     </div>
                 </div>
             </div>

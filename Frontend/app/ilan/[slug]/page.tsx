@@ -1,5 +1,3 @@
-// Frontend/app/ilan/[slug]/page.tsx - TASARIMI DÜZELTİLMİŞ
-
 import { client } from '@/sanity/client'
 import imageUrlBuilder from '@sanity/image-url'
 import { SanityImageSource } from '@sanity/image-url/lib/types/types'
@@ -9,6 +7,7 @@ import { Metadata } from 'next'
 import Image from 'next/image'
 import MapLoader from '@/components/MapLoader';
 import PropertyGallery from '@/components/PropertyGallery'
+import PropertyPolygonMapLoader from '@/components/PropertyPolygonMapLoader';
 
 export async function generateMetadata({
   params,
@@ -34,9 +33,13 @@ export async function generateMetadata({
     }
   }
 
+  const description = property.description
+  ? property.description.substring(0, 160)
+  : 'Özen Gayrimenkul | Antalya bölgesindeki en güncel gayrimenkul ilanları.'; 
+
   return {
     title: `${property.title} | Özen Gayrimenkul`,
-    description: property.description.substring(0, 160),
+    description: description,
   }
 }
 
@@ -69,7 +72,8 @@ const propertyPageQuery = `*[_type == "property" && slug.current == $slug][0]{
   area,
   description,
   locationMap,
-  showApproximateLocation
+  showApproximateLocation,
+  polygon
 }`
 
 interface PropertyDetail {
@@ -86,6 +90,7 @@ interface PropertyDetail {
   description: string
   locationMap?: { lat: number; lng: number };
   showApproximateLocation?: boolean;
+  polygon?: { lat: number; lng: number; _type: 'geopoint' }[]; // Polygon tipi
 }
 
 export default async function PropertyPage({
@@ -101,8 +106,12 @@ export default async function PropertyPage({
   if (!property) {
     notFound()
   }
-  const allImages = [property.mainImage, ...(property.images || [])];
 
+  const allImages = [property.mainImage, ...(property.images || [])].filter(Boolean) as SanityImageSource[];
+
+  const displayDescription = property.description
+  ? property.description
+  : 'Bu ilan için henüz bir açıklama girilmemiştir.';
 
   return (
     <main className="container mx-auto p-4 md:p-8 bg-white">
@@ -119,27 +128,41 @@ export default async function PropertyPage({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Sol Sütun: Galeri, Açıklama ve Harita */}
         <div className="lg:col-span-2">
-        <PropertyGallery images={allImages} />
+        {allImages && allImages.length > 0 ? (
+            // Eğer resim varsa galeriyi göster
+            <PropertyGallery images={allImages} />
+          ) : (
+            // Eğer hiç resim yoksa bir placeholder göster
+            <div className="relative w-full aspect-video bg-gray-200 rounded-lg flex items-center justify-center">
+              <span className="text-gray-500">Bu ilan için fotoğraf mevcut değil.</span>
+            </div>
+          )}
 
 
           {/* Açıklama */}
           <h2 className="text-3xl font-bold text-gray-800 mb-4 border-b pb-2">
             İlan Açıklaması
           </h2>
-          <p className="text-gray-700 leading-relaxed mb-8">{property.description}</p>
+          <p className="text-gray-700 leading-relaxed mb-8">{displayDescription}</p>
 
           
-          {property.locationMap && (
-            <div className="mt-8">
-              <h2 className="text-3xl font-bold text-gray-800 mb-4 border-b pb-2">
-                Konum
-              </h2>
+          <div className="mt-8">
+            <h2 className="text-3xl font-bold text-gray-800 mb-4 border-b pb-2">
+              Konum
+            </h2>
+            {/* Eğer ilan arsa ise ve poligon verisi varsa, poligon haritasını göster */}
+            {property.propertyType === 'arsa' && property.polygon && property.polygon.length > 0 ? (
+              <PropertyPolygonMapLoader coordinates={property.polygon} />
+            ) : 
+            property.locationMap ? (
               <MapLoader 
                 coordinates={property.locationMap} 
                 isApproximate={property.showApproximateLocation || false} 
               />
-            </div>
-          )}
+            ) : (
+              <p className="text-gray-500">Bu ilan için harita bilgisi mevcut değil.</p>
+            )}
+          </div>
         </div>
 
 
