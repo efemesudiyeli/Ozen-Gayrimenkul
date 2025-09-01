@@ -8,8 +8,8 @@ import Link from 'next/link'
 import { Metadata } from 'next'
 import Image from 'next/image'
 import MapLoader from '@/components/MapLoader';
+import PropertyGallery from '@/components/PropertyGallery'
 
-// ... generateMetadata, generateStaticParams, urlFor, query ve interface kısımları aynı ...
 export async function generateMetadata({
   params,
 }: {
@@ -99,6 +99,8 @@ export default async function PropertyPage({
   if (!property) {
     notFound()
   }
+  const allImages = [property.mainImage, ...(property.images || [])];
+
 
   return (
     <main className="container mx-auto p-4 md:p-8 bg-white">
@@ -115,34 +117,8 @@ export default async function PropertyPage({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Sol Sütun: Galeri, Açıklama ve Harita */}
         <div className="lg:col-span-2">
-          {/* Ana Resim */}
-          <div className="relative mb-4 w-full aspect-video rounded-lg overflow-hidden shadow-lg">
-            <Image
-              src={urlFor(property.mainImage).url()}
-              alt={property.title}
-              fill
-              sizes="(max-width: 1024px) 100vw, 66vw"
-              className="object-cover"
-              priority
-            />
-          </div>
+        <PropertyGallery images={allImages} />
 
-          {/* Galeri */}
-          {property.images && property.images.length > 0 && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-8">
-              {property.images.map((image, index) => (
-                <div key={index} className="relative aspect-square rounded-lg overflow-hidden shadow-md">
-                  <Image
-                    src={urlFor(image).url()}
-                    alt={`${property.title} galeri fotoğrafı ${index + 1}`}
-                    fill
-                    sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
-                    className="object-cover"
-                  />
-                </div>
-              ))}
-            </div>
-          )}
 
           {/* Açıklama */}
           <h2 className="text-3xl font-bold text-gray-800 mb-4 border-b pb-2">
@@ -150,7 +126,7 @@ export default async function PropertyPage({
           </h2>
           <p className="text-gray-700 leading-relaxed mb-8">{property.description}</p>
 
-          {/* --- DEĞİŞİKLİK BURADA: Harita bölümü, sol sütunun içine, açıklamanın altına taşındı --- */}
+          
           {property.locationMap && (
             <div className="mt-8">
               <h2 className="text-3xl font-bold text-gray-800 mb-4 border-b pb-2">
@@ -164,7 +140,6 @@ export default async function PropertyPage({
           )}
         </div>
 
-        {/* HARİTA BURADAN TAŞINDI */}
 
         {/* Sağ Sütun: Fiyat ve Özellikler */}
         <div className="lg:col-span-1">
