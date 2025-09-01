@@ -41,9 +41,13 @@ export default function HomePage() {
 
   useEffect(() => {
     const fetchProperties = async () => {
-      const properties: Property[] = await client.fetch(query);
+      const properties: Property[] = await client.fetch(
+        query, 
+        {},
+        { next: { revalidate: 10 } }
+      );
       setAllProperties(properties);
-      setFilteredProperties(properties);
+      setFilteredProperties(properties); 
     };
     fetchProperties();
   }, []);
