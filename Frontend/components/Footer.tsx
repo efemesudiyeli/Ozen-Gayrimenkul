@@ -1,5 +1,6 @@
 // components/Footer.tsx
 
+import Link from 'next/link'
 const Footer = () => {
     return (
       <footer className="bg-gray-800 text-white">
@@ -15,13 +16,14 @@ const Footer = () => {
             
             {/* Hızlı Linkler */}
             <div>
-              <h3 className="text-lg font-bold">Hızlı Erişim</h3>
-              <ul className="mt-2 space-y-1">
-                <li><a href="/" className="text-gray-400 hover:text-white">Ana Sayfa</a></li>
-                <li><a href="/hakkimizda" className="text-gray-400 hover:text-white">Hakkımızda</a></li>
-                <li><a href="/iletisim" className="text-gray-400 hover:text-white">İletişim</a></li>
-              </ul>
-            </div>
+            <h3 className="text-lg font-bold">Hızlı Erişim</h3>
+            <ul className="mt-2 space-y-1">
+              <li><Link href="/" className="text-gray-400 hover:text-white">Ana Sayfa</Link></li>
+              <li><Link href="/danismanlarimiz" className="text-gray-400 hover:text-white">Ekibimiz</Link></li>
+              <li><Link href="/hakkimizda" className="text-gray-400 hover:text-white">Hakkımızda</Link></li>
+              <li><Link href="/iletisim" className="text-gray-400 hover:text-white">İletişim</Link></li>
+            </ul>
+          </div>
   
             {/* İletişim */}
             <div>

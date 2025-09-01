@@ -1,20 +1,20 @@
+
 import { client } from '@/sanity/client'
 import imageUrlBuilder from '@sanity/image-url'
 import { SanityImageSource } from '@sanity/image-url/lib/types/types'
 import { Metadata } from 'next'
+import Image from 'next/image'
 
 export const metadata: Metadata = {
   title: 'Ekibimiz | Özen Gayrimenkul',
   description: 'Alanında uzman, profesyonel gayrimenkul danışmanlarımızla tanışın.',
 }
 
-// Sanity resimleri için yardımcı fonksiyon
 const builder = imageUrlBuilder(client)
 function urlFor(source: SanityImageSource) {
   return builder.image(source)
 }
 
-// Sanity'den tüm danışmanları çekecek sorgu
 const query = `*[_type == "agent"]{
   _id,
   name,
@@ -25,7 +25,6 @@ const query = `*[_type == "agent"]{
   email
 }`
 
-// Agent (Danışman) verisinin tip tanımı
 interface Agent {
   _id: string
   name: string
@@ -54,11 +53,15 @@ const AgentsPage = async () => {
         <div className="mt-12 grid gap-12 sm:grid-cols-2 lg:grid-cols-3">
           {agents.map((agent) => (
             <div key={agent._id} className="text-center">
-              <img
-                className="mx-auto h-48 w-48 rounded-full object-cover shadow-lg"
-                src={urlFor(agent.image).width(400).height(400).url()}
-                alt={agent.name}
-              />
+              <div className="mx-auto h-48 w-48 rounded-full overflow-hidden relative shadow-lg"> 
+                <Image
+                  src={urlFor(agent.image).width(400).height(400).url()}
+                  alt={agent.name}
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  className="object-cover"
+                />
+              </div>
               <div className="mt-6">
                 <h3 className="text-xl font-semibold text-gray-900">{agent.name}</h3>
                 <p className="text-blue-600">{agent.position}</p>

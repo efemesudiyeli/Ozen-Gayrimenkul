@@ -1,17 +1,38 @@
+
+
 import {defineConfig} from 'sanity'
-import {structureTool} from 'sanity/structure' 
+import {structureTool, StructureBuilder} from 'sanity/structure'
 import {visionTool} from '@sanity/vision'
-import {schemaTypes} from './schemaTypes' 
+import {schemaTypes} from './schemaTypes'
+
+export const myStructure = (S: StructureBuilder) =>
+  S.list()
+    .title('İçerikler')
+    .items([
+      S.listItem()
+        .title('Hakkımızda Sayfası')
+        .child(
+          S.document()
+            .schemaType('aboutPage')
+            .documentId('aboutPage')
+        ),
+      S.divider(),
+      ...S.documentTypeListItems().filter(
+        (listItem) => !['aboutPage'].includes(listItem.getId()!)
+      ),
+    ])
 
 export default defineConfig({
   name: 'default',
-  title: 'emlak-projesi',
-
+  title: 'ozengayrimenkul',
   projectId: 'jy06mayv',
   dataset: 'production',
-
-  plugins: [structureTool(), visionTool()],
-
+  plugins: [
+    structureTool({
+      structure: myStructure,
+    }),
+    visionTool(),
+  ],
   schema: {
     types: schemaTypes,
   },

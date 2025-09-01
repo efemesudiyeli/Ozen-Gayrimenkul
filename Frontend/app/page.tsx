@@ -1,12 +1,11 @@
-// Frontend/app/page.tsx
-
-"use client"; // Component'i interaktif hale getirir
+"use client";
 
 import Link from 'next/link';
 import { client } from '@/sanity/client';
 import imageUrlBuilder from '@sanity/image-url';
 import { SanityImageSource } from '@sanity/image-url/lib/types/types';
-import { useState, useEffect } from 'react'; // React'in temel hook'larını import ediyoruz
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
 
 const builder = imageUrlBuilder(client);
 function urlFor(source: SanityImageSource) {
@@ -35,13 +34,11 @@ interface Property {
   propertyType: 'daire' | 'villa' | 'mustakil' | 'isyeri';
 }
 
-// DİKKAT: Component artık "async" değil.
 export default function HomePage() {
   const [allProperties, setAllProperties] = useState<Property[]>([]);
   const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
   const [activeFilter, setActiveFilter] = useState<string>('tumu');
 
-  // Veri çekme işlemi "useEffect" içine taşındı.
   useEffect(() => {
     const fetchProperties = async () => {
       const properties: Property[] = await client.fetch(query);
@@ -101,13 +98,19 @@ export default function HomePage() {
             className="group block"
           >
             <div className="border rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 bg-white">
-              <div className="relative h-56 w-full">
-                {property.mainImage ? (
-                  <img src={urlFor(property.mainImage).width(600).height(400).url()} alt={property.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
-                ) : (
-                  <div className="w-full h-full bg-gray-200 flex items-center justify-center"><span className="text-gray-500">Fotoğraf Yok</span></div>
-                )}
-              </div>
+            <div className="relative h-56 w-full">
+        {property.mainImage ? (
+          <Image
+            src={urlFor(property.mainImage).width(600).height(400).url()}
+            alt={property.title}
+            fill 
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" 
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        ) : (
+          <div className="w-full h-full bg-gray-200 flex items-center justify-center"><span className="text-gray-500">Fotoğraf Yok</span></div>
+        )}
+      </div>
               <div className="p-4">
                 <h2 className="text-xl font-semibold truncate text-gray-900">{property.title}</h2>
                 <p className="text-gray-600 mt-1">{property.location}</p>
