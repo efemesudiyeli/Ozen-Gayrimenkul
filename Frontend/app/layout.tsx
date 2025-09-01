@@ -4,7 +4,6 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 
-// 1. Oluşturduğumuz component'leri import ediyoruz
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
@@ -22,15 +21,20 @@ export default function RootLayout({
 }) {
   return (
     <html lang="tr">
+       <head>
+        <link
+          rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossOrigin=""
+        />
+      </head>
       <body className={inter.className}>
         <div className="flex flex-col min-h-screen">
-          {/* 2. Header'ı buraya ekliyoruz */}
           <Header />
 
-          {/* children, o anki sayfanın içeriğini temsil eder. Ona dokunmuyoruz. */}
           <main className="flex-grow">{children}</main>
 
-          {/* 3. Footer'ı buraya ekliyoruz */}
           <Footer />
         </div>
       </body>

@@ -1,3 +1,5 @@
+// Frontend/app/ilan/[slug]/page.tsx - TASARIMI DÜZELTİLMİŞ
+
 import { client } from '@/sanity/client'
 import imageUrlBuilder from '@sanity/image-url'
 import { SanityImageSource } from '@sanity/image-url/lib/types/types'
@@ -5,7 +7,9 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Metadata } from 'next'
 import Image from 'next/image'
+import MapLoader from '@/components/MapLoader';
 
+// ... generateMetadata, generateStaticParams, urlFor, query ve interface kısımları aynı ...
 export async function generateMetadata({
   params,
 }: {
@@ -39,6 +43,8 @@ export async function generateStaticParams() {
   const query = `*[_type == "property"]{ "slug": slug.current }`;
   const properties = await client.fetch<{ slug: string }[]>(query);
 
+  if (!properties) return []
+
   return properties.map((property) => ({
     slug: property.slug,
   }));
@@ -60,7 +66,9 @@ const query = `*[_type == "property" && slug.current == $slug][0]{
   bedrooms,
   bathrooms,
   area,
-  description
+  description,
+  locationMap,
+  showApproximateLocation
 }`
 
 interface PropertyDetail {
@@ -75,6 +83,8 @@ interface PropertyDetail {
   bathrooms: number
   area: number
   description: string
+  locationMap?: { lat: number; lng: number };
+  showApproximateLocation?: boolean;
 }
 
 export default async function PropertyPage({
@@ -103,7 +113,7 @@ export default async function PropertyPage({
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Sol Sütun: Galeri ve Açıklama */}
+        {/* Sol Sütun: Galeri, Açıklama ve Harita */}
         <div className="lg:col-span-2">
           {/* Ana Resim */}
           <div className="relative mb-4 w-full aspect-video rounded-lg overflow-hidden shadow-lg">
@@ -138,8 +148,23 @@ export default async function PropertyPage({
           <h2 className="text-3xl font-bold text-gray-800 mb-4 border-b pb-2">
             İlan Açıklaması
           </h2>
-          <p className="text-gray-700 leading-relaxed">{property.description}</p>
+          <p className="text-gray-700 leading-relaxed mb-8">{property.description}</p>
+
+          {/* --- DEĞİŞİKLİK BURADA: Harita bölümü, sol sütunun içine, açıklamanın altına taşındı --- */}
+          {property.locationMap && (
+            <div className="mt-8">
+              <h2 className="text-3xl font-bold text-gray-800 mb-4 border-b pb-2">
+                Konum
+              </h2>
+              <MapLoader 
+                coordinates={property.locationMap} 
+                isApproximate={property.showApproximateLocation || false} 
+              />
+            </div>
+          )}
         </div>
+
+        {/* HARİTA BURADAN TAŞINDI */}
 
         {/* Sağ Sütun: Fiyat ve Özellikler */}
         <div className="lg:col-span-1">
@@ -176,5 +201,4 @@ export default async function PropertyPage({
   )
 }
 
-// Bu satır, verilerin taze kalmasını sağlar
 export const revalidate = 10
