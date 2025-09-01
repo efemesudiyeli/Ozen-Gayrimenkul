@@ -3,15 +3,42 @@ import imageUrlBuilder from '@sanity/image-url'
 import { SanityImageSource } from '@sanity/image-url/lib/types/types'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import { Metadata } from 'next'
 
-// Resim URL'lerini oluşturan yardımcı fonksiyonlarımızı tekrar tanımlıyoruz
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string }
+}): Promise<Metadata> {
+  const query = `*[_type == "property" && slug.current == $slug][0]{
+    title,
+    description
+  }`
+
+  const property = await client.fetch<{ title: string; description: string }>(
+    query,
+    {
+      slug: params.slug,
+    }
+  )
+
+  if (!property) {
+    return {
+      title: 'İlan Bulunamadı',
+    }
+  }
+
+  return {
+    title: `${property.title} | Özen Gayrimenkul`,
+    description: property.description.substring(0, 160),
+  }
+}
+
 const builder = imageUrlBuilder(client)
 function urlFor(source: SanityImageSource) {
   return builder.image(source)
 }
 
-// Tek bir ilanı 'slug' değerine göre çekecek olan yeni sorgumuz
-// slug.current alanı, URL'den gelen $slug parametresiyle eşleşen ilanı bulur
 const query = `*[_type == "property" && slug.current == $slug][0]{
   _id,
   title,
@@ -26,7 +53,6 @@ const query = `*[_type == "property" && slug.current == $slug][0]{
   description
 }`
 
-// Detay sayfasındaki ilanın daha zengin veri yapısını tanımlıyoruz
 interface PropertyDetail {
   _id: string
   title: string
@@ -41,18 +67,15 @@ interface PropertyDetail {
   description: string
 }
 
-// Sayfa component'i URL'den gelen parametreleri 'params' objesiyle alır
 export default async function PropertyPage({
   params,
 }: {
   params: { slug: string }
 }) {
-  // Sorguyu çalıştırırken, URL'den gelen slug'ı parametre olarak gönderiyoruz
   const property: PropertyDetail = await client.fetch(query, {
     slug: params.slug,
   })
 
-  // Eğer o slug'a sahip bir ilan bulunamazsa, 404 sayfasına yönlendir
   if (!property) {
     notFound()
   }
