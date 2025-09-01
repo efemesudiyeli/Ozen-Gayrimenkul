@@ -9,14 +9,14 @@ export const metadata: Metadata = {
   description: 'Başarıyla tamamladığımız satış ve kiralama işlemlerimizden bazıları.',
 }
 
-// Sanity resimleri için yardımcı fonksiyon
 import imageUrlBuilder from '@sanity/image-url'
 const builder = imageUrlBuilder(client)
 function urlFor(source: SanityImageSource) {
   return builder.image(source)
 }
 
-const query = `*[_type == "property" && status != 'aktif'] | order(_updatedAt desc){
+// Sorgu, sadece "Satıldı" veya "Kiralandı" ilanları çekecek şekilde güncellendi
+const query = `*[_type == "property" && (status == 'satildi' || status == 'kiralandi')] | order(_updatedAt desc){
   _id,
   title,
   slug,
@@ -55,22 +55,24 @@ const PortfolioPage = async () => {
             href={`/ilan/${property.slug.current}`}
             className="group block"
           >
-            <div className="border rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 bg-white">
+            <div className="relative border rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 bg-white">
               <div className="relative h-56 w-full">
                 <Image
                   src={urlFor(property.mainImage).width(600).height(400).url()}
                   alt={property.title}
                   fill
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="object-cover transition-transform duration-300 group-hover:scale-105"
                 />
-                {/* Durum Etiketi */}
-                <div className={`absolute top-2 right-2 px-2 py-1 text-xs font-bold text-white rounded-md ${
-                  property.status === 'satildi' ? 'bg-green-600' : 'bg-yellow-600'
-                }`}>
-                  {property.status === 'satildi' ? 'SATILDI' : 'KİRALANDI'}
-                </div>
               </div>
+              
+
+              <div className={`absolute top-10 right-[-70px] rotate-[45deg] w-64 py-1 text-xl font-bold uppercase text-white shadow-lg border-2 border-white text-center ${
+                  'bg-green-600/90'
+                }`}>
+                  {property.status === 'satildi' ? 'Satıldı' : 'Kiralandı'}
+              </div>
+
               <div className="p-4">
                 <h2 className="text-xl font-semibold truncate text-gray-900">
                   {property.title}

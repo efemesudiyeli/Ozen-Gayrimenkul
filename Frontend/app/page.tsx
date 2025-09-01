@@ -12,15 +12,15 @@ function urlFor(source: SanityImageSource) {
   return builder.image(source);
 }
 
-const query = `*[_type == "property" && status == 'aktif']{
-_id,
-title,
-slug,
-price,
-mainImage,
-location,
-area,
-propertyType
+const query = `*[_type == "property" && (status == 'satilik' || status == 'kiralik')]{
+  _id,
+  title,
+  slug,
+  price,
+  mainImage,
+  location,
+  area,
+  propertyType
 }`;
 
 interface Property {
@@ -31,7 +31,7 @@ interface Property {
   mainImage: SanityImageSource;
   location: string;
   area: number;
-  propertyType: 'daire' | 'villa' | 'mustakil' | 'isyeri';
+  propertyType: 'daire' | 'villa' | 'mustakil' | 'isyeri' | 'arsa';
 }
 
 export default function HomePage() {
@@ -50,7 +50,7 @@ export default function HomePage() {
       setFilteredProperties(properties); 
     };
     fetchProperties();
-  }, []);
+  }, []); 
 
   const handleFilter = (filter: string) => {
     setActiveFilter(filter);
@@ -64,12 +64,14 @@ export default function HomePage() {
     }
   };
 
+
   const filterOptions = [
     { key: 'tumu', label: 'Tümü' },
     { key: 'daire', label: 'Daire' },
     { key: 'villa', label: 'Villa' },
     { key: 'mustakil', label: 'Müstakil' },
     { key: 'isyeri', label: 'İş Yeri' },
+    { key: 'arsa', label: 'Arsa' },
   ];
 
   return (
