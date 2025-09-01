@@ -3,6 +3,7 @@
 import { client } from '@/sanity/client'
 import { Metadata } from 'next'
 import { PortableText } from 'next-sanity' 
+import { PortableTextBlock } from 'sanity'
 
 export async function generateMetadata(): Promise<Metadata> {
   const about = await client.fetch<AboutPageData>(query)
@@ -20,7 +21,7 @@ const query = `*[_type == "aboutPage" && _id == "aboutPage"][0]{
 interface AboutPageData {
   title: string
   heading: string
-  content: any
+  content: PortableTextBlock[]
 }
 
 const HakkimizdaPage = async () => {

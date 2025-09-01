@@ -4,6 +4,7 @@ import { SanityImageSource } from '@sanity/image-url/lib/types/types'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Metadata } from 'next'
+import Image from 'next/image'
 
 export async function generateMetadata({
   params,
@@ -96,11 +97,14 @@ export default async function PropertyPage({
         {/* Sol Sütun: Galeri ve Açıklama */}
         <div className="lg:col-span-2">
           {/* Ana Resim */}
-          <div className="mb-4">
-            <img
-              src={urlFor(property.mainImage).width(1200).height(800).url()}
+          <div className="relative mb-4 w-full aspect-video rounded-lg overflow-hidden shadow-lg">
+            <Image
+              src={urlFor(property.mainImage).url()}
               alt={property.title}
-              className="w-full h-auto object-cover rounded-lg shadow-lg"
+              fill
+              sizes="(max-width: 1024px) 100vw, 66vw"
+              className="object-cover"
+              priority
             />
           </div>
 
@@ -108,12 +112,15 @@ export default async function PropertyPage({
           {property.images && property.images.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-8">
               {property.images.map((image, index) => (
-                <img
-                  key={index}
-                  src={urlFor(image).width(400).height(300).url()}
-                  alt={`${property.title} galeri fotoğrafı ${index + 1}`}
-                  className="rounded-lg shadow-md"
-                />
+                <div key={index} className="relative aspect-square rounded-lg overflow-hidden shadow-md">
+                  <Image
+                    src={urlFor(image).url()}
+                    alt={`${property.title} galeri fotoğrafı ${index + 1}`}
+                    fill
+                    sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
+                    className="object-cover"
+                  />
+                </div>
               ))}
             </div>
           )}
