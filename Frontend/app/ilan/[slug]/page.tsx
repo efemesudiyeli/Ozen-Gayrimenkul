@@ -1,10 +1,8 @@
 import { client } from '@/sanity/client'
-import imageUrlBuilder from '@sanity/image-url'
 import { SanityImageSource } from '@sanity/image-url/lib/types/types'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Metadata } from 'next'
-import Image from 'next/image'
 import MapLoader from '@/components/MapLoader';
 import PropertyGallery from '@/components/PropertyGallery'
 import PropertyPolygonMapLoader from '@/components/PropertyPolygonMapLoader';
@@ -52,11 +50,6 @@ export async function generateStaticParams() {
   return properties.map((property) => ({
     slug: property.slug,
   }));
-}
-
-const builder = imageUrlBuilder(client)
-function urlFor(source: SanityImageSource) {
-  return builder.image(source)
 }
 
 const propertyPageQuery = `*[_type == "property" && slug.current == $slug][0]{
