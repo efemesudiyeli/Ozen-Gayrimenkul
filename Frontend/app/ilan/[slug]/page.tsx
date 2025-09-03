@@ -165,7 +165,7 @@ export default async function PropertyPage({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
             Tüm İlanlara Geri Dön
-          </Link>
+        </Link>
         </div>
       </div>
 
@@ -175,7 +175,7 @@ export default async function PropertyPage({
           <div className="xl:col-span-3 space-y-8">
             {/* Galeri */}
             <div className="bg-white border border-gray-200 shadow-lg overflow-hidden">
-              <PropertyGallery images={allImages} />
+          <PropertyGallery images={allImages} />
             </div>
 
             {/* İlan Bilgileri Grid */}
@@ -375,23 +375,23 @@ export default async function PropertyPage({
                   </svg>
                   <h2 className="text-xl font-bold text-gray-900">Konum</h2>
                 </div>
-              </div>
+          </div>
               <div className="h-96">
-                {property.propertyType === 'arsa' && property.polygon && property.polygon.length > 0 ? (
-                  <PropertyPolygonMapLoader coordinates={property.polygon} />
-                ) : 
-                property.locationMap ? (
-                  <MapLoader 
-                    coordinates={property.locationMap} 
-                    isApproximate={property.showApproximateLocation || false} 
-                  />
-                ) : (
+            {property.propertyType === 'arsa' && property.polygon && property.polygon.length > 0 ? (
+              <PropertyPolygonMapLoader coordinates={property.polygon} />
+            ) : 
+            property.locationMap ? (
+              <MapLoader 
+                coordinates={property.locationMap} 
+                isApproximate={property.showApproximateLocation || false} 
+              />
+            ) : (
                   <div className="h-full flex items-center justify-center bg-gray-100">
-                    <p className="text-gray-500">Bu ilan için harita bilgisi mevcut değil.</p>
+              <p className="text-gray-500">Bu ilan için harita bilgisi mevcut değil.</p>
                   </div>
-                )}
-              </div>
-            </div>
+            )}
+          </div>
+        </div>
           </div>
 
           {/* Sağ Sidebar */}
@@ -400,12 +400,12 @@ export default async function PropertyPage({
               {/* Fiyat ve Temel Bilgiler */}
               <div className="relative overflow-hidden bg-white border border-gray-200 shadow-lg">
                 {/* Status Damgası */}
-                {(property.status === 'satildi' || property.status === 'kiralandi') && (
+            {(property.status === 'satildi' || property.status === 'kiralandi') && (
                   <div className="absolute top-6 right-[-60px] rotate-[45deg] w-52 py-2 text-sm font-bold uppercase text-white shadow-lg bg-red-600 text-center z-10">
                     {property.status === 'satildi' ? 'SATILDI' : 'KİRALANDI'}
-                  </div>
-                )}
-
+              </div>
+            )}
+            
                 <div className="p-6">
                   {/* İlan No ve Status */}
                   <div className="flex justify-between items-start mb-4">
@@ -424,8 +424,8 @@ export default async function PropertyPage({
 
                   {/* Başlık */}
                   <h1 className="text-2xl font-bold text-gray-900 mb-2 leading-tight">
-                    {property.title}
-                  </h1>
+              {property.title}
+            </h1>
 
                   {/* Konum */}
                   <div className="flex items-center text-gray-600 mb-4">
@@ -438,11 +438,11 @@ export default async function PropertyPage({
                   </div>
 
                   {/* Fiyat */}
-                  {(property.status === 'satilik' || property.status === 'kiralik') && (
+            {(property.status === 'satilik' || property.status === 'kiralik') && (
                     <div className="bg-blue-50 border border-blue-200 p-4 mb-6">
                       <p className="text-3xl font-bold text-blue-600 text-center">
-                        {property.price?.toLocaleString('tr-TR')} ₺
-                      </p>
+                {property.price?.toLocaleString('tr-TR')} ₺
+              </p>
                       <p className="text-sm text-blue-600 text-center mt-1">
                         {property.status === 'satilik' ? 'Satış Fiyatı' : 'Aylık Kira'}
                       </p>
