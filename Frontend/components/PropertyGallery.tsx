@@ -1,18 +1,20 @@
-// Frontend/components/PropertyGallery.tsx
-
 "use client";
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { SanityImageSource } from '@sanity/image-url/lib/types/types';
+// YENİ EKLENEN IMPORT: TypeScript'e SanityImageSource'un ne olduğunu öğretiyoruz
+import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
 
+// Swiper componentlerini ve stillerini import ediyoruz
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Thumbs } from 'swiper/modules';
-import type { Swiper as SwiperType } from 'swiper';
+import { Navigation, Thumbs, FreeMode } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/thumbs';
+import 'swiper/css/free-mode';
 
+
+// Sanity resim URL'si için yardımcı fonksiyon
 import { client } from '@/sanity/client';
 import imageUrlBuilder from '@sanity/image-url';
 const builder = imageUrlBuilder(client);
@@ -20,57 +22,70 @@ function urlFor(source: SanityImageSource) {
   return builder.image(source);
 }
 
+// Sanity'den gelen resim objesinin, boyut bilgilerini de içerecek şekilde tipini güncelliyoruz.
+type SanityImageWithMeta = SanityImageSource & {
+  asset?: {
+    metadata?: {
+      dimensions: {
+        aspectRatio: number;
+      };
+    };
+  };
+}
+
+// Component'in alacağı props'ların tip tanımı
 interface PropertyGalleryProps {
-  images: SanityImageSource[];
+  images: SanityImageWithMeta[];
 }
 
 const PropertyGallery = ({ images }: PropertyGalleryProps) => {
-  const [thumbsSwiper, setThumbsSwiper] = useState<SwiperType | null>(null);
+  const [thumbsSwiper, setThumbsSwiper] = useState<any>(null);
 
   return (
     <div>
       {/* Ana Fotoğraf Slider'ı */}
       <Swiper
-        modules={[Navigation, Thumbs]}
+        modules={[Navigation, Thumbs, FreeMode]}
         spaceBetween={10}
         navigation
         thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
-        className="rounded-lg shadow-lg"
+        className="shadow-lg rounded-lg bg-black aspect-video cursor-pointer"
       >
-        {images.map((image, index) => (
-          <SwiperSlide key={index}>
-            <div className="relative w-full aspect-video">
+        {images.map((image, index) => {
+          return (
+            <SwiperSlide key={index}>
               <Image
                 src={urlFor(image).url()}
                 alt={`İlan Fotoğrafı ${index + 1}`}
                 fill
                 sizes="(max-width: 1024px) 100vw, 66vw"
-                className="object-cover"
+                className="object-contain" 
                 priority={index === 0}
               />
-            </div>
-          </SwiperSlide>
-        ))}
+            </SwiperSlide>
+          );
+        })}
       </Swiper>
 
       {/* Thumbnail Slider'ı */}
       <Swiper
         onSwiper={setThumbsSwiper}
-        modules={[Thumbs]}
+        modules={[Thumbs, FreeMode]}
         spaceBetween={10}
         slidesPerView={4}
+        freeMode={true}
         watchSlidesProgress
         className="mt-4"
       >
         {images.map((image, index) => (
-          <SwiperSlide key={index} className="cursor-pointer rounded-md overflow-hidden opacity-60 hover:opacity-100 transition-opacity">
+                     <SwiperSlide key={index} className="cursor-pointer rounded-md overflow-hidden opacity-60 hover:opacity-100 transition-opacity bg-black">
              <div className="relative w-full aspect-square">
                 <Image
                     src={urlFor(image).url()}
                     alt={`Thumbnail ${index + 1}`}
                     fill
                     sizes="25vw"
-                    className="object-cover"
+                    className="object-contain" // GÜNCELLEME: Thumbnail'lar için de 'object-contain' kullanılıyor
                 />
              </div>
           </SwiperSlide>
@@ -81,3 +96,4 @@ const PropertyGallery = ({ images }: PropertyGalleryProps) => {
 };
 
 export default PropertyGallery;
+

@@ -63,9 +63,20 @@ const propertyPageQuery = `*[_type == "property" && slug.current == $slug][0]{
   price,
   location,
   propertyType,
-  status,
-  mainImage,
-  images,
+  "mainImage": mainImage{
+    ...,
+    asset->{
+      ...,
+      metadata
+    }
+  },
+  "images": images[]{
+    ...,
+    asset->{
+      ...,
+      metadata
+    }
+  },
   bedrooms,
   bathrooms,
   area,
