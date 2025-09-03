@@ -1,9 +1,9 @@
-"use client"; // State yönetimi için client component'e çeviriyoruz
+"use client";
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
-// Linkler component dışında tanımlanarak her render'da yeniden oluşturulması engellendi.
 const navLinks = [
     { href: "/", label: "Ana Sayfa" },
     { href: "/portfolyo", label: "Portfolyo" },
@@ -14,6 +14,11 @@ const navLinks = [
 
 const Header = () => {
     const [isOpen, setIsOpen] = useState(false);
+    const [isScrolled, setIsScrolled] = useState(false);
+    const pathname = usePathname();
+    const isHomePage = pathname === '/';
+
+    const isTransparent = isHomePage && !isScrolled;
 
     const toggleMenu = () => {
         setIsOpen(!isOpen);
@@ -23,27 +28,47 @@ const Header = () => {
         setIsOpen(false);
     }
 
-    // YENİ: Menü açıkken arkadaki sayfanın kaymasını engellemek için useEffect eklendi.
     useEffect(() => {
-        if (isOpen) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = 'auto';
-        }
-        // Component unmount olduğunda stilin sıfırlanmasını sağlar.
+        const handleScroll = () => {
+            setIsScrolled(window.scrollY > 50);
+        };
+        handleScroll(); // Sayfa yüklendiğinde anlık kontrol
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    useEffect(() => {
+        document.body.style.overflow = isOpen ? 'hidden' : 'auto';
         return () => {
             document.body.style.overflow = 'auto';
         };
     }, [isOpen]);
 
+    // Dinamik olarak atanacak sınıflar
+    const headerClasses = `fixed top-0 w-full z-50 transition-all duration-500 ${
+        isTransparent
+            ? 'bg-gradient-to-b from-black/30 via-black/10 to-transparent text-white'
+            : 'bg-white/90 text-gray-900 shadow-lg backdrop-blur-md'
+    }`;
+    
+    const logoClasses = `text-2xl font-bold font-roboto transition-colors duration-300 ${
+        isTransparent ? 'text-white' : 'text-blue-600'
+    }`;
+
+    const navLinkClasses = (transparent: boolean) => 
+        `relative font-light transition-colors duration-300 py-2 ${
+            transparent 
+                ? 'text-white hover:text-gray-200' 
+                : 'text-gray-600 hover:text-gray-900'
+        } after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-blue-600 after:transition-all after:duration-300 hover:after:w-full`;
+
     return (
         <>
-            {/* GÜNCELLEME: Header'ın z-index'i 40 yapıldı. */}
-            <header className="bg-white shadow-md sticky top-0 z-40">
+            <header className={headerClasses}>
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between h-16">
+                    <div className="flex items-center justify-between h-20">
                         <div className="flex-shrink-0">
-                            <Link href="/" onClick={closeMenu} className="text-2xl font-bold text-blue-600">
+                            <Link href="/" onClick={closeMenu} className={logoClasses}>
                                 Özen Gayrimenkul
                             </Link>
                         </div>
@@ -53,7 +78,7 @@ const Header = () => {
                                 <Link
                                     key={link.href}
                                     href={link.href}
-                                    className="font-medium text-gray-500 hover:text-gray-900 transition-colors"
+                                    className={navLinkClasses(isTransparent)}
                                 >
                                     {link.label}
                                 </Link>
@@ -63,32 +88,42 @@ const Header = () => {
                         <div className="md:hidden">
                             <button
                                 onClick={toggleMenu}
-                                className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+                                className="inline-flex items-center justify-center p-2 rounded-md focus:outline-none"
                                 aria-expanded={isOpen}
                             >
                                 <span className="sr-only">Menüyü aç</span>
-                                <svg className={`${isOpen ? 'hidden' : 'block'} h-6 w-6`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-                                </svg>
-                                <svg className={`${isOpen ? 'block' : 'hidden'} h-6 w-6`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
+                                <div className="w-6 h-6 flex flex-col justify-around">
+                                    <span className={`block h-0.5 w-full bg-current transform transition duration-300 ease-in-out ${isOpen ? 'rotate-45 translate-y-[5px]' : ''}`}></span>
+                                    <span className={`block h-0.5 w-full bg-current transition duration-300 ease-in-out ${isOpen ? 'opacity-0' : ''}`}></span>
+                                    <span className={`block h-0.5 w-full bg-current transform transition duration-300 ease-in-out ${isOpen ? '-rotate-45 -translate-y-[5px]' : ''}`}></span>
+                                </div>
                             </button>
                         </div>
                     </div>
                 </div>
             </header>
 
-            {/* GÜNCELLEME: Mobil menünün z-index'i 50 yapıldı (header'ın üstüne çıkması için). */}
-            <div className={`fixed inset-0 bg-white z-50 transform ${isOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300 ease-in-out md:hidden`}>
-                <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-24">
-                    <nav className="flex flex-col items-center space-y-8">
+            {/* Mobil Menü Overlay */}
+            <div 
+                className={`fixed inset-0 bg-black/40 z-40 md:hidden transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                onClick={closeMenu}
+            ></div>
+            
+            {/* Mobil Menü Panel */}
+            <div className={`fixed top-0 right-0 h-full w-72 bg-white z-50 transform shadow-xl ${isOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300 ease-in-out md:hidden`}>
+                <div className="p-8 flex flex-col h-full">
+                     <div className="flex-shrink-0 mb-10">
+                        <Link href="/" onClick={closeMenu} className="text-2xl font-bold text-blue-600 font-roboto">
+                            Özen Gayrimenkul
+                        </Link>
+                    </div>
+                    <nav className="flex flex-col items-start space-y-6">
                         {navLinks.map((link) => (
                             <Link
                                 key={link.href}
                                 href={link.href}
                                 onClick={closeMenu}
-                                className="text-2xl font-medium text-gray-700 hover:text-blue-600 transition-colors"
+                                className="text-xl font-medium text-gray-700 hover:text-blue-600 transition-colors"
                             >
                                 {link.label}
                             </Link>
