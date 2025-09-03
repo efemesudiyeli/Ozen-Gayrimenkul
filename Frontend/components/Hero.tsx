@@ -1,5 +1,6 @@
 // components/Hero.tsx
 import Link from 'next/link';
+import Image from 'next/image';
 import { client } from '@/sanity/client';
 import imageUrlBuilder from '@sanity/image-url';
 import { SanityImageSource } from '@sanity/image-url/lib/types/types';
@@ -34,10 +35,12 @@ const Hero = ({ data }: HeroProps) => {
   return (
     <div className="relative bg-gray-900 text-white h-screen">
       <div className="absolute inset-0">
-        <img
+        <Image
           className="w-full h-full object-cover"
-          src={urlFor(data.backgroundImage).url()} // Dinamik URL Sanity'den geliyor
+          src={urlFor(data.backgroundImage).url()}
           alt="Modern bir evin dış cephesi"
+          fill
+          priority
         />
         <div className="absolute inset-0 bg-black opacity-50"></div>
       </div>

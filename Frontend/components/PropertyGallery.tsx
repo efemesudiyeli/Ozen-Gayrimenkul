@@ -8,6 +8,7 @@ import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
 // Swiper componentlerini ve stillerini import ediyoruz
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Thumbs, FreeMode } from 'swiper/modules';
+import type { Swiper as SwiperType } from 'swiper';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/thumbs';
@@ -39,7 +40,7 @@ interface PropertyGalleryProps {
 }
 
 const PropertyGallery = ({ images }: PropertyGalleryProps) => {
-  const [thumbsSwiper, setThumbsSwiper] = useState<any>(null);
+  const [thumbsSwiper, setThumbsSwiper] = useState<SwiperType | null>(null);
 
   return (
     <div>

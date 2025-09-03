@@ -95,7 +95,7 @@ export default function HomePage() {
       }
     };
     fetchData();
-  }, []); 
+  }, [sortBy]); 
 
   const sortProperties = (properties: Property[], sortType: string): Property[] => {
     const sorted = [...properties];
