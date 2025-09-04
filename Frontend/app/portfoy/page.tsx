@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 
 export const metadata: Metadata = {
-  title: 'Portfolyo | Özen Gayrimenkul',
+  title: 'Portföy | Özen Gayrimenkul',
   description: 'Başarıyla tamamladığımız satış ve kiralama işlemlerimizden bazıları.',
 }
 
@@ -85,7 +85,7 @@ const PortfolioPage = async () => {
       <div className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 text-white py-20 mt-20">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-5xl md:text-6xl font-extrabold mb-6 font-inter">
-            Başarılarımız
+            Portföy
           </h1>
           <p className="text-xl md:text-2xl text-blue-100 max-w-4xl mx-auto leading-relaxed font-inter">
             Başarıyla tamamladığımız satış ve kiralama işlemlerimizden bazıları.
