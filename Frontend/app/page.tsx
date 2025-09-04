@@ -222,7 +222,7 @@ export default function HomePage() {
             </p>
             {searchTerm && (
               <p className="text-lg text-blue-600 mt-4 font-medium">
-                "{searchTerm}" için {filteredProperties.length} sonuç bulundu
+                &quot;{searchTerm}&quot; için {filteredProperties.length} sonuç bulundu
               </p>
             )}
           </div>
