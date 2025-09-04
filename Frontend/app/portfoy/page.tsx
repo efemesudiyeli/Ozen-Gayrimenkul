@@ -4,9 +4,39 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
 
-export const metadata: Metadata = {
-  title: 'Portföy | Özen Gayrimenkul',
-  description: 'Başarıyla tamamladığımız satış ve kiralama işlemlerimizden bazıları.',
+interface PortfolioPageData {
+  title: string;
+  heroTitle: string;
+  heroDescription: string;
+  metaDescription: string;
+  emptyStateMessage: {
+    title: string;
+    description: string;
+    buttonText: string;
+  };
+}
+
+const portfolioPageQuery = `*[_type == "portfolioPage"][0]{
+  title,
+  heroTitle,
+  heroDescription,
+  metaDescription,
+  emptyStateMessage
+}`;
+
+export async function generateMetadata(): Promise<Metadata> {
+  try {
+    const portfolioData = await client.fetch<PortfolioPageData>(portfolioPageQuery);
+    return {
+      title: `${portfolioData.title || 'Portföy'} | Özen Gayrimenkul`,
+      description: portfolioData.metaDescription || 'Başarıyla tamamladığımız satış ve kiralama işlemlerimizden bazıları.',
+    };
+  } catch (error) {
+    return {
+      title: 'Portföy | Özen Gayrimenkul',
+      description: 'Başarıyla tamamladığımız satış ve kiralama işlemlerimizden bazıları.',
+    };
+  }
 }
 
 import imageUrlBuilder from '@sanity/image-url'
@@ -78,6 +108,29 @@ interface PortfolioProperty {
 
 const PortfolioPage = async () => {
   const properties: PortfolioProperty[] = await client.fetch(query);
+  
+  const defaultPortfolioData: PortfolioPageData = {
+    title: 'Portföy',
+    heroTitle: 'Portföy',
+    heroDescription: 'Başarıyla tamamladığımız satış ve kiralama işlemlerimizden bazıları.',
+    metaDescription: 'Başarıyla tamamladığımız satış ve kiralama işlemlerimizden bazıları.',
+    emptyStateMessage: {
+      title: 'Henüz Tamamlanan İşlem Yok',
+      description: 'Başarıyla tamamladığımız satış ve kiralama işlemlerimiz burada görünecek.',
+      buttonText: 'Güncel İlanları Görüntüle'
+    }
+  };
+
+  let portfolioData = defaultPortfolioData;
+  
+  try {
+    const fetchedPortfolioData = await client.fetch<PortfolioPageData>(portfolioPageQuery);
+    if (fetchedPortfolioData) {
+      portfolioData = fetchedPortfolioData;
+    }
+  } catch (error) {
+    console.error('Portfolio page data fetch error:', error);
+  }
 
   return (
     <main className="bg-gray-50 min-h-screen">
@@ -85,10 +138,10 @@ const PortfolioPage = async () => {
       <div className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 text-white py-20 mt-20">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-5xl md:text-6xl font-extrabold mb-6 font-inter">
-            Portföy
+            {portfolioData.heroTitle}
           </h1>
           <p className="text-xl md:text-2xl text-blue-100 max-w-4xl mx-auto leading-relaxed font-inter">
-            Başarıyla tamamladığımız satış ve kiralama işlemlerimizden bazıları.
+            {portfolioData.heroDescription}
           </p>
         </div>
       </div>
@@ -251,16 +304,16 @@ const PortfolioPage = async () => {
           <div className="text-center py-20">
             <div className="text-6xl mb-6">🏆</div>
             <h3 className="text-2xl font-bold text-gray-900 mb-4">
-              Henüz Tamamlanan İşlem Yok
+              {portfolioData.emptyStateMessage.title}
             </h3>
             <p className="text-gray-600 mb-8 max-w-md mx-auto">
-              Başarıyla tamamladığımız satış ve kiralama işlemlerimiz burada görünecek.
+              {portfolioData.emptyStateMessage.description}
             </p>
             <Link
               href="/"
               className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors duration-300"
             >
-              Güncel İlanları Görüntüle
+              {portfolioData.emptyStateMessage.buttonText}
             </Link>
           </div>
         )}

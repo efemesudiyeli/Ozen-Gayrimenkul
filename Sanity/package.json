@@ -9,16 +9,22 @@
     "start": "sanity start",
     "build": "sanity build",
     "deploy": "sanity deploy",
-    "deploy-graphql": "sanity graphql deploy"
+    "deploy-graphql": "sanity graphql deploy",
+    "import-locations": "node scripts/importLocations.mjs"
   },
   "keywords": [
     "sanity"
   ],
   "dependencies": {
-    "@sanity/vision": "^4.6.0",
+    "@sanity/vision": "^4.6.1",
+    "@types/leaflet": "^1.9.20",
+    "geopoint": "^1.0.1",
+    "leaflet": "^1.9.4",
+    "node-fetch": "^3.3.2",
     "react": "^19.1",
     "react-dom": "^19.1",
-    "sanity": "^4.6.0",
+    "react-leaflet": "^5.0.0",
+    "sanity": "^4.6.1",
     "styled-components": "^6.1.18"
   },
   "devDependencies": {

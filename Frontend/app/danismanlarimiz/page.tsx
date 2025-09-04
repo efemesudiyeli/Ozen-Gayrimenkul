@@ -5,9 +5,33 @@ import { SanityImageSource } from '@sanity/image-url/lib/types/types'
 import { Metadata } from 'next'
 import Image from 'next/image'
 
-export const metadata: Metadata = {
-  title: 'Danışmanlarımız | Özen Gayrimenkul',
-  description: 'Alanında uzman, profesyonel gayrimenkul danışmanlarımızla tanışın.',
+interface TeamPageData {
+  title: string;
+  heroTitle: string;
+  heroDescription: string;
+  metaDescription: string;
+}
+
+const teamPageQuery = `*[_type == "teamPage"][0]{
+  title,
+  heroTitle,
+  heroDescription,
+  metaDescription
+}`;
+
+export async function generateMetadata(): Promise<Metadata> {
+  try {
+    const teamData = await client.fetch<TeamPageData>(teamPageQuery);
+    return {
+      title: `${teamData.title || 'Danışmanlarımız'} | Özen Gayrimenkul`,
+      description: teamData.metaDescription || 'Alanında uzman, profesyonel gayrimenkul danışmanlarımızla tanışın.',
+    };
+  } catch (error) {
+    return {
+      title: 'Danışmanlarımız | Özen Gayrimenkul',
+      description: 'Alanında uzman, profesyonel gayrimenkul danışmanlarımızla tanışın.',
+    };
+  }
 }
 
 const builder = imageUrlBuilder(client)
@@ -36,7 +60,25 @@ interface Agent {
 }
 
 const AgentsPage = async () => {
-  const agents: Agent[] = await client.fetch(query)
+  const agents: Agent[] = await client.fetch(query);
+  
+  const defaultTeamData: TeamPageData = {
+    title: 'Danışmanlarımız',
+    heroTitle: 'Danışmanlarımız',
+    heroDescription: 'Alanında uzman, güvenilir ve dinamik danışmanlarımızla tanışın.',
+    metaDescription: 'Alanında uzman, profesyonel gayrimenkul danışmanlarımızla tanışın.'
+  };
+
+  let teamData = defaultTeamData;
+  
+  try {
+    const fetchedTeamData = await client.fetch<TeamPageData>(teamPageQuery);
+    if (fetchedTeamData) {
+      teamData = fetchedTeamData;
+    }
+  } catch (error) {
+    console.error('Team page data fetch error:', error);
+  }
 
   return (
     <div className="bg-white">
@@ -45,10 +87,10 @@ const AgentsPage = async () => {
       <div className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 text-white py-20 mt-20">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-5xl md:text-6xl font-extrabold mb-6 font-inter">
-            Danışmanlarımız
+            {teamData.heroTitle}
           </h1>
           <p className="text-xl md:text-2xl text-blue-100 max-w-4xl mx-auto leading-relaxed font-inter">
-            Alanında uzman, güvenilir ve dinamik danışmanlarımızla tanışın.
+            {teamData.heroDescription}
           </p>
         </div>
       </div>
