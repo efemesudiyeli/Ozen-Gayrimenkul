@@ -29,11 +29,20 @@ const HakkimizdaPage = async () => {
 
   return (
     <div className="bg-white">
-      <div className="container mx-auto px-4 py-16 sm:px-6 lg:px-8">
-        <div className="max-w-3xl mx-auto">
-          <h1 className="text-4xl font-bold text-center text-gray-900">
+      {/* Hero Section */}
+      <div className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 text-white py-20 mt-20">
+        <div className="container mx-auto px-4 text-center">
+          <h1 className="text-5xl md:text-6xl font-extrabold mb-6 font-inter">
             {data.heading}
           </h1>
+          <p className="text-xl md:text-2xl text-blue-100 max-w-4xl mx-auto leading-relaxed font-inter">
+            Özen Gayrimenkul olarak hikayemizi ve değerlerimizi keşfedin.
+          </p>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-16 sm:px-6 lg:px-8">
+        <div className="max-w-3xl mx-auto">
           
           <div className="mt-12 text-gray-700 space-y-6 leading-relaxed prose prose-lg max-w-none">
             <PortableText value={data.content} />

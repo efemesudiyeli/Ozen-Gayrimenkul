@@ -40,41 +40,44 @@ const AgentsPage = async () => {
 
   return (
     <div className="bg-white">
-      <div className="container mx-auto px-4 py-16 sm:px-6 lg:px-8">
-        <div className="max-w-3xl mx-auto text-center">
-          <h1 className="text-4xl font-bold text-gray-900">
-            Profesyonel Ekibimiz
+
+      {/* Hero Section */}
+      <div className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 text-white py-20 mt-20">
+        <div className="container mx-auto px-4 text-center">
+          <h1 className="text-5xl md:text-6xl font-extrabold mb-6 font-inter">
+            Danışmanlarımız
           </h1>
-          <p className="mt-4 text-lg text-gray-600">
-            Sizlere en iyi hizmeti sunmak için buradayız. Alanında uzman, güvenilir ve dinamik danışmanlarımızla tanışın.
+          <p className="text-xl md:text-2xl text-blue-100 max-w-4xl mx-auto leading-relaxed font-inter">
+            Alanında uzman, güvenilir ve dinamik danışmanlarımızla tanışın.
           </p>
         </div>
+      </div>
 
-        <div className="mt-12 grid gap-12 sm:grid-cols-2 lg:grid-cols-3">
-          {agents.map((agent) => (
-            <div key={agent._id} className="text-center">
-              <div className="mx-auto h-48 w-48 rounded-full overflow-hidden relative shadow-lg"> 
-                <Image
-                  src={urlFor(agent.image).width(400).height(400).url()}
-                  alt={agent.name}
-                  fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  className="object-contain"
-                />
-              </div>
-              <div className="mt-6">
-                <h3 className="text-xl font-semibold text-gray-900">{agent.name}</h3>
-                <p className="text-blue-600">{agent.position}</p>
-                <div className="mt-4 text-gray-600 space-y-1">
-                  {agent.phone && <p>{agent.phone}</p>}
-                  {agent.email && <a href={`mailto:${agent.email}`} className="hover:text-blue-700">{agent.email}</a>}
-                </div>
+      <div className="my-12 flex flex-wrap justify-center gap-24 max-w-4xl mx-auto px-4">
+        {agents.map((agent) => (
+          <div key={agent._id} className="text-center w-72">
+            <div className="mx-auto h-48 w-48 rounded-full overflow-hidden relative shadow-lg">
+              <Image
+                src={urlFor(agent.image).width(400).height(400).url()}
+                alt={agent.name}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="object-contain"
+              />
+            </div>
+            <div className="mt-6">
+              <h3 className="text-xl font-semibold text-gray-900">{agent.name}</h3>
+              <p className="text-blue-600">{agent.position}</p>
+              <div className="mt-4 text-gray-600 space-y-1">
+                {agent.phone && <p>{agent.phone}</p>}
+                {agent.email && <a href={`mailto:${agent.email}`} className="hover:text-blue-700">{agent.email}</a>}
               </div>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
     </div>
+
   )
 }
 

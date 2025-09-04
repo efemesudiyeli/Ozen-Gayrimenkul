@@ -8,13 +8,19 @@ export const metadata: Metadata = {
 const ContactPage = () => {
   return (
     <div className="bg-gray-50">
-      <div className="container mx-auto px-4 py-16 sm:px-6 lg:px-8">
-        <div className="max-w-lg mx-auto text-center">
-          <h1 className="text-4xl font-bold text-gray-900">Bize Ulaşın</h1>
-          <p className="mt-4 text-lg text-gray-600">
-            Sorularınız, talepleriniz veya randevu için aşağıdaki bilgilerden bize ulaşabilirsiniz.
+      {/* Hero Section */}
+      <div className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 text-white py-20 mt-20">
+        <div className="container mx-auto px-4 text-center">
+          <h1 className="text-5xl md:text-6xl font-extrabold mb-6 font-inter">
+            Bize Ulaşın
+          </h1>
+          <p className="text-xl md:text-2xl text-blue-100 max-w-4xl mx-auto leading-relaxed font-inter">
+            Sorularınız, talepleriniz veya randevu için bizimle iletişime geçin.
           </p>
         </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-16 sm:px-6 lg:px-8">
 
         <div className="mt-12 max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md">
           <div className="space-y-8">

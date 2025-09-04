@@ -88,7 +88,7 @@ const PortfolioPage = async () => {
             Başarılarımız
           </h1>
           <p className="text-xl md:text-2xl text-blue-100 max-w-4xl mx-auto leading-relaxed font-inter">
-            Müşterilerimizin hayallerine kavuşmasına yardımcı olduğumuz, başarıyla tamamladığımız satış ve kiralama işlemlerimizden bazıları.
+            Başarıyla tamamladığımız satış ve kiralama işlemlerimizden bazıları.
           </p>
         </div>
       </div>
