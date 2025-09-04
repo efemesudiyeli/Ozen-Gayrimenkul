@@ -6,7 +6,7 @@ import { Metadata } from 'next'
 import Image from 'next/image'
 
 export const metadata: Metadata = {
-  title: 'Ekibimiz | Özen Gayrimenkul',
+  title: 'Danışmanlarımız | Özen Gayrimenkul',
   description: 'Alanında uzman, profesyonel gayrimenkul danışmanlarımızla tanışın.',
 }
 

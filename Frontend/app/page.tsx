@@ -232,7 +232,7 @@ export default function HomePage() {
             <div className="relative">
               <input
                 type="text"
-                placeholder="İlan adı veya adrese göre arama yapın..."
+                placeholder="İlan adı veya konumu ile arayın..."
                 value={searchTerm}
                 onChange={(e) => handleSearch(e.target.value)}
                 className="w-full px-6 py-4 pl-12 text-lg border border-gray-200 shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
