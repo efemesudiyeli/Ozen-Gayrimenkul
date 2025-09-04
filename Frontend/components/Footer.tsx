@@ -19,6 +19,7 @@ const Footer = () => {
             <h3 className="text-lg font-bold">Hızlı Erişim</h3>
             <ul className="mt-2 space-y-1">
               <li><Link href="/" className="text-gray-400 hover:text-white">Ana Sayfa</Link></li>
+              <li><Link href="/portfoy" className="text-gray-400 hover:text-white">Portföy</Link></li>
               <li><Link href="/danismanlarimiz" className="text-gray-400 hover:text-white">Ekibimiz</Link></li>
               <li><Link href="/hakkimizda" className="text-gray-400 hover:text-white">Hakkımızda</Link></li>
               <li><Link href="/iletisim" className="text-gray-400 hover:text-white">İletişim</Link></li>

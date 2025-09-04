@@ -70,6 +70,7 @@ export default function HomePage() {
   const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
   const [activeFilter, setActiveFilter] = useState<string>('tumu');
   const [sortBy, setSortBy] = useState<string>('newest');
+  const [searchTerm, setSearchTerm] = useState<string>('');
   const [heroData, setHeroData] = useState<HeroData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -85,9 +86,10 @@ export default function HomePage() {
         ]);
         
         setAllProperties(properties);
-        const sortedProperties = sortProperties(properties, sortBy);
-        setFilteredProperties(sortedProperties); 
         setHeroData(hero);
+        // Apply current filters after data load - ensure initial display
+        const sortedProperties = sortProperties(properties, sortBy);
+        setFilteredProperties(sortedProperties);
       } catch (error) {
         console.error('Veri yükleme hatası:', error);
       } finally {
@@ -138,26 +140,47 @@ export default function HomePage() {
     }
   };
 
-  const handleFilter = (filter: string) => {
-    setActiveFilter(filter);
-    let filtered: Property[];
+  const applyFilters = (filter: string = activeFilter, search: string = searchTerm) => {
+    let filtered: Property[] = allProperties;
     
-    if (filter === 'tumu') {
-      filtered = allProperties;
-    } else {
-      filtered = allProperties.filter(
+    // Property type filter
+    if (filter !== 'tumu') {
+      filtered = filtered.filter(
         (property) => property.propertyType === filter
       );
+    }
+    
+    // Search filter
+    if (search.trim() !== '') {
+      const searchLower = search.toLowerCase().trim();
+      filtered = filtered.filter((property) => {
+        const title = property.title?.toLowerCase() || '';
+        const province = property.province?.toLowerCase() || '';
+        const district = property.district?.toLowerCase() || '';
+        const neighborhood = property.neighborhood?.toLowerCase() || '';
+        const fullAddress = `${neighborhood} ${district} ${province}`.toLowerCase();
+        
+        return title.includes(searchLower) || fullAddress.includes(searchLower);
+      });
     }
     
     const sortedFiltered = sortProperties(filtered, sortBy);
     setFilteredProperties(sortedFiltered);
   };
 
+  const handleFilter = (filter: string) => {
+    setActiveFilter(filter);
+    applyFilters(filter, searchTerm);
+  };
+
+  const handleSearch = (search: string) => {
+    setSearchTerm(search);
+    applyFilters(activeFilter, search);
+  };
+
   const handleSort = (sortType: string) => {
     setSortBy(sortType);
-    const sortedProperties = sortProperties(filteredProperties, sortType);
-    setFilteredProperties(sortedProperties);
+    applyFilters(activeFilter, searchTerm);
   };
 
 
@@ -197,6 +220,39 @@ export default function HomePage() {
             <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
               Size en uygun gayrimenkul seçeneklerini keşfedin
             </p>
+            {searchTerm && (
+              <p className="text-lg text-blue-600 mt-4 font-medium">
+                "{searchTerm}" için {filteredProperties.length} sonuç bulundu
+              </p>
+            )}
+          </div>
+
+          {/* Search Box */}
+          <div className="mb-8 max-w-2xl mx-auto">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="İlan adı veya adrese göre arama yapın..."
+                value={searchTerm}
+                onChange={(e) => handleSearch(e.target.value)}
+                className="w-full px-6 py-4 pl-12 text-lg border border-gray-200 shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+              />
+              <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              {searchTerm && (
+                <button
+                  onClick={() => handleSearch('')}
+                  className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Filter ve Sıralama */}
@@ -444,16 +500,34 @@ export default function HomePage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
               </div>
-              <h2 className="text-3xl font-bold text-gray-800 mb-4">Aradığınız Kriterlere Uygun İlan Bulunamadı</h2>
+              <h2 className="text-3xl font-bold text-gray-800 mb-4">
+                {searchTerm ? 'Arama Sonucu Bulunamadı' : 'Aradığınız Kriterlere Uygun İlan Bulunamadı'}
+              </h2>
               <p className="text-xl text-gray-600 mb-8 max-w-md mx-auto">
-                Lütfen farklı bir filtre seçeneği deneyin veya tüm ilanları görüntüleyin.
+                {searchTerm 
+                  ? `"${searchTerm}" araması için sonuç bulunamadı. Lütfen farklı bir arama terimi deneyin.`
+                  : 'Lütfen farklı bir filtre seçeneği deneyin veya tüm ilanları görüntüleyin.'
+                }
               </p>
-              <button
-                onClick={() => handleFilter('tumu')}
-                className="bg-blue-600 text-white px-8 py-3 font-medium hover:bg-blue-700 transition-colors duration-300 shadow-lg hover:shadow-xl"
-              >
-                Tüm İlanları Görüntüle
-              </button>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                {searchTerm && (
+                  <button
+                    onClick={() => handleSearch('')}
+                    className="bg-gray-600 text-white px-8 py-3 font-medium hover:bg-gray-700 transition-colors duration-300 shadow-lg hover:shadow-xl"
+                  >
+                    Aramayı Temizle
+                  </button>
+                )}
+                <button
+                  onClick={() => {
+                    handleFilter('tumu');
+                    handleSearch('');
+                  }}
+                  className="bg-blue-600 text-white px-8 py-3 font-medium hover:bg-blue-700 transition-colors duration-300 shadow-lg hover:shadow-xl"
+                >
+                  Tüm İlanları Görüntüle
+                </button>
+              </div>
             </div>
           </div>
         )}
