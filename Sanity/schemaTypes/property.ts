@@ -21,13 +21,12 @@ export default defineType({
   name: 'property',
   title: 'Emlak İlanı',
   type: 'document',
-  // Alanlar, Studio arayüzünde bu sekmeler altında gruplanacak
-  fieldsets: [
-    { name: 'basicInfo', title: 'Temel İlan Bilgileri', options: { collapsible: true, collapsed: false } },
-    { name: 'locationInfo', title: 'Adres ve Konum', options: { collapsible: true, collapsed: false } },
-    { name: 'details', title: 'İlan Detayları', options: { collapsible: true, collapsed: false } },
-    { name: 'features', title: 'İç ve Dış Özellikler', options: { collapsible: true, collapsed: false } },
-    { name: 'media', title: 'Görseller', options: { collapsible: true, collapsed: false } },
+  groups: [
+    { name: 'basicInfo', title: 'Temel Bilgiler' },
+    { name: 'locationInfo', title: 'Adres ve Konum' },
+    { name: 'details', title: 'İlan Detayları' },
+    { name: 'amenities', title: 'Özellik Kategorileri' },
+    { name: 'media', title: 'Görseller' },
   ],
   fields: [
     // --- TEMEL BİLGİLER ---
@@ -36,31 +35,47 @@ export default defineType({
       title: 'İlan Başlığı',
       type: 'string',
       description: 'Örn: "Lara\'da Deniz Manzaralı Lüks 3+1 Daire"',
-      fieldset: 'basicInfo',
+      group: 'basicInfo',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'listingId',
       title: 'İlan Numarası',
       type: 'string',
-      fieldset: 'basicInfo',
+      group: 'basicInfo',
       initialValue: () => `${Math.floor(100000 + Math.random() * 900000)}`, // Rastgele 6 haneli numara
       readOnly: true,
       description: 'Sistem tarafından otomatik olarak oluşturulur.',
+    }),
+    defineField({
+      name: 'listingDate',
+      title: 'İlan Tarihi',
+      type: 'string',
+      group: 'basicInfo',
+      validation: (Rule) => Rule.required(),
+      description: 'İlan tarihini girin (örn: 09/09/2025)',
+      placeholder: 'GG/AA/YYYY',
+      initialValue: () => {
+        const today = new Date()
+        const day = String(today.getDate()).padStart(2, '0')
+        const month = String(today.getMonth() + 1).padStart(2, '0')
+        const year = today.getFullYear()
+        return `${day}/${month}/${year}`
+      },
     }),
      defineField({
       name: 'agent',
       title: 'İlandan Sorumlu Danışman',
       type: 'reference',
       to: [{type: 'agent'}],
-      fieldset: 'basicInfo',
+      group: 'basicInfo',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'status',
       title: 'İlan Durumu',
       type: 'string',
-      fieldset: 'basicInfo',
+      group: 'basicInfo',
       options: {
         list: [
           {title: 'Satılık', value: 'satilik'},
@@ -77,7 +92,7 @@ export default defineType({
       name: 'propertyType',
       title: 'Emlak Tipi',
       type: 'string',
-      fieldset: 'basicInfo',
+      group: 'basicInfo',
       options: {
         list: [
           {title: 'Daire', value: 'daire'},
@@ -94,14 +109,14 @@ export default defineType({
       name: 'price',
       title: 'Fiyat (₺)',
       type: 'number',
-      fieldset: 'basicInfo',
+      group: 'basicInfo',
       validation: (Rule) => Rule.required(),
     }),
      defineField({
       name: 'slug',
       title: 'URL (Slug)',
       type: 'slug',
-      fieldset: 'basicInfo',
+      group: 'basicInfo',
       options: {
         source: 'title',
         maxLength: 96,
@@ -127,7 +142,7 @@ export default defineType({
       name: 'province',
       title: 'İl',
       type: 'string',
-      fieldset: 'locationInfo',
+      group: 'locationInfo',
       options: {
         list: [
             "Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Amasya", "Ankara", 
@@ -151,14 +166,14 @@ export default defineType({
       name: 'district',
       title: 'İlçe',
       type: 'string',
-      fieldset: 'locationInfo',
+      group: 'locationInfo',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'neighborhood',
       title: 'Mahalle',
       type: 'string',
-      fieldset: 'locationInfo',
+      group: 'locationInfo',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
@@ -166,7 +181,7 @@ export default defineType({
       title: 'Harita Konumu',
       type: 'geopoint',
       description: 'Haritadan konum seçin - tıklayarak işaretleyin. Arsa ilanları için zorunlu değildir.',
-      fieldset: 'locationInfo',
+      group: 'locationInfo',
       hidden: ({document}) => document?.propertyType === 'arsa',
       components: {
         input: LeafletMapInput as any
@@ -178,7 +193,7 @@ export default defineType({
       type: 'array',
       of: [{ type: 'geopoint' }],
       description: 'Sadece arsa ilanları için. Arsanın köşelerini haritaya tıklayarak işaretleyin.',
-      fieldset: 'locationInfo',
+      group: 'locationInfo',
       hidden: ({document}) => document?.propertyType !== 'arsa',
       components: {
         input: LeafletPolygonInput as any
@@ -189,7 +204,7 @@ export default defineType({
       title: 'Konumu Yaklaşık Göster',
       type: 'boolean',
       description: 'Aktif edilirse, haritada tam nokta yerine 500 metrelik bir daire gösterilir.',
-      fieldset: 'locationInfo',
+      group: 'locationInfo',
       initialValue: false,
       hidden: ({document}) => document?.propertyType === 'arsa',
     }),
@@ -199,7 +214,7 @@ export default defineType({
       name: 'description',
       title: 'Açıklama',
       type: 'text',
-      fieldset: 'details',
+      group: 'details',
       description: 'İlanla ilgili tüm detayları bu alana yazın.',
       validation: (Rule) => Rule.required(),
     }),
@@ -207,56 +222,68 @@ export default defineType({
       name: 'area',
       title: 'Net Metrekare (m²)',
       type: 'number',
-      fieldset: 'details',
+      group: 'details',
       validation: (Rule) => Rule.required(),
     }),
      defineField({
       name: 'grossArea',
       title: 'Brüt Metrekare (m²)',
       type: 'number',
-      fieldset: 'details',
+      group: 'details',
+      hidden: ({document}) => document?.propertyType === 'arsa',
     }),
     defineField({
       name: 'bedrooms',
       title: 'Oda Sayısı',
-      description: 'Örn: 3+1 için 3 girin.',
+      description: 'Örn: 3+1, 4+1, Stüdyo',
       type: 'string',
-      fieldset: 'details',
+      group: 'details',
       hidden: ({document}) => document?.propertyType === 'arsa' || document?.propertyType === 'isyeri',
     }),
     defineField({
       name: 'bathrooms',
       title: 'Banyo Sayısı',
       type: 'number',
-      fieldset: 'details',
+      group: 'details',
       hidden: ({document}) => document?.propertyType === 'arsa',
     }),
-     defineField({
+    defineField({
       name: 'buildingAge',
       title: 'Bina Yaşı',
-      type: 'number',
-      fieldset: 'details',
+      type: 'string',
+      group: 'details',
       hidden: ({document}) => document?.propertyType === 'arsa',
+      options: {
+        list: [
+          {title: '0 (Yeni)', value: '0'},
+          {title: '1-5 arası', value: '1-5'},
+          {title: '6-10 arası', value: '6-10'},
+          {title: '11-15 arası', value: '11-15'},
+          {title: '16-20 arası', value: '16-20'},
+          {title: '21 ve üzeri', value: '21+'},
+        ],
+      },
     }),
     defineField({
       name: 'floor',
       title: 'Bulunduğu Kat',
-      type: 'number',
-      fieldset: 'details',
+      type: 'string',
+      description: 'Örn: Bahçe Katı, Zemin Kat, 3. Kat',
+      group: 'details',
       hidden: ({document}) => document?.propertyType === 'arsa',
     }),
     defineField({
       name: 'totalFloors',
       title: 'Binanın Kat Sayısı',
       type: 'number',
-      fieldset: 'details',
+      group: 'details',
       hidden: ({document}) => document?.propertyType === 'arsa',
     }),
     defineField({
       name: 'heatingType',
       title: 'Isıtma Tipi',
       type: 'string',
-      fieldset: 'details',
+      group: 'details',
       options: {
         list: [
           {title: 'Kombi (Doğalgaz)', value: 'kombi'},
@@ -269,35 +296,422 @@ export default defineType({
       },
        hidden: ({document}) => document?.propertyType === 'arsa',
     }),
-
-    // --- ÖZELLİKLER ---
     defineField({
-      name: 'features',
-      title: 'Genel Özellikler',
-      type: 'array',
-      fieldset: 'features',
-      description: 'İlanın öne çıkan özelliklerini seçin.',
-      of: [{type: 'string'}],
+      name: 'kitchenType',
+      title: 'Mutfak',
+      type: 'string',
+      group: 'details',
       options: {
         list: [
-          {title: 'Eşyalı', value: 'furnished'},
-          {title: 'Balkon', value: 'balcony'},
-          {title: 'Asansör', value: 'elevator'},
-          {title: 'Otopark', value: 'parking'},
-          {title: 'Yüzme Havuzu', value: 'pool'},
-          {title: 'Bahçe', value: 'garden'},
-          {title: 'Güvenlik', value: 'security'},
-          {title: 'Site İçerisinde', value: 'inComplex'},
+          {title: 'Kapalı', value: 'kapali'},
+          {title: 'Amerikan Mutfak', value: 'amerikan'},
+          {title: 'Yok', value: 'yok'},
+        ],
+      },
+      hidden: ({document}) => document?.propertyType === 'arsa',
+    }),
+    defineField({
+      name: 'hasBalcony',
+      title: 'Balkon',
+      type: 'string',
+      group: 'details',
+      options: {
+        list: [
+          { title: 'Var', value: 'var' },
+          { title: 'Yok', value: 'yok' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'yok',
+      hidden: ({document}) => document?.propertyType === 'arsa',
+    }),
+    defineField({
+      name: 'hasElevator',
+      title: 'Asansör',
+      type: 'string',
+      group: 'details',
+      options: {
+        list: [
+          { title: 'Var', value: 'var' },
+          { title: 'Yok', value: 'yok' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'yok',
+      hidden: ({document}) => document?.propertyType === 'arsa',
+    }),
+    defineField({
+      name: 'hasParking',
+      title: 'Otopark',
+      type: 'string',
+      group: 'details',
+      options: {
+        list: [
+          { title: 'Var', value: 'var' },
+          { title: 'Yok', value: 'yok' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'yok',
+      hidden: ({document}) => document?.propertyType === 'arsa',
+    }),
+    defineField({
+      name: 'isFurnished',
+      title: 'Eşyalı',
+      type: 'string',
+      group: 'details',
+      options: {
+        list: [
+          { title: 'Evet', value: 'evet' },
+          { title: 'Hayır', value: 'hayir' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'hayir',
+      hidden: ({document}) => document?.propertyType === 'arsa',
+    }),
+    defineField({
+      name: 'isInComplex',
+      title: 'Site İçerisinde',
+      type: 'string',
+      group: 'details',
+      options: {
+        list: [
+          { title: 'Evet', value: 'evet' },
+          { title: 'Hayır', value: 'hayir' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'hayir',
+      hidden: ({document}) => document?.propertyType === 'arsa',
+    }),
+    defineField({
+      name: 'complexName',
+      title: 'Site Adı',
+      type: 'string',
+      group: 'details',
+      initialValue: 'Belirtilmemiş',
+      hidden: ({document}) => document?.isInComplex !== 'evet',
+    }),
+    defineField({
+      name: 'dues',
+      title: 'Aidat (TL)',
+      type: 'number',
+      group: 'details',
+      initialValue: 0,
+      hidden: ({document}) => document?.isInComplex !== 'evet',
+    }),
+    defineField({
+      name: 'usageStatus',
+      title: 'Kullanım Durumu',
+      type: 'string',
+      group: 'details',
+      options: {
+        list: [
+          {title: 'Boş', value: 'bos'},
+          {title: 'Kiracı Oturuyor', value: 'kiraci'},
+          {title: 'Mal Sahibi Oturuyor', value: 'mal-sahibi'},
+        ],
+      },
+      hidden: ({document}) => document?.propertyType === 'arsa',
+    }),
+    defineField({
+      name: 'deposit',
+      title: 'Depozito (TL)',
+      type: 'number',
+      group: 'details',
+      initialValue: 0,
+      hidden: ({document}) => document?.status !== 'kiralik',
+    }),
+    defineField({
+      name: 'titleDeedStatus',
+      title: 'Tapu Durumu',
+      type: 'string',
+      group: 'details',
+      options: {
+        list: [
+          {title: 'Kat Mülkiyetli', value: 'kat-mulkiyetli'},
+          {title: 'Kat İrtifaklı', value: 'kat-irtifakli'},
+          {title: 'Hisseli', value: 'hisseli'},
+          {title: 'Arsa Tapulu', value: 'arsa-tapulu'},
+          {title: 'Müstakil Tapulu', value: 'mustakil-tapulu'},
+          {title: 'Devre Mülk', value: 'devre-mulk'},
+        ],
+      },
+    }),
+
+    // --- ARSA ÖZEL ALANLARI ---
+    defineField({
+      name: 'imarDurumu',
+      title: 'İmar Durumu',
+      type: 'string',
+      group: 'details',
+      hidden: ({document}) => document?.propertyType !== 'arsa',
+      options: {
+        list: [
+          {title: 'Tarla', value: 'tarla'},
+          {title: 'Arsa', value: 'arsa'},
+          {title: 'İmar Durumu Yok', value: 'imar-yok'},
+          {title: 'Belirtilmemiş', value: 'belirtilmemis'},
+        ],
+      },
+    }),
+    defineField({
+      name: 'pricePerSquareMeter',
+      title: 'm² Fiyatı (₺)',
+      type: 'number',
+      group: 'details',
+      hidden: ({document}) => document?.propertyType !== 'arsa',
+    }),
+    defineField({
+      name: 'adaNo',
+      title: 'Ada No',
+      type: 'string',
+      group: 'details',
+      hidden: ({document}) => document?.propertyType !== 'arsa',
+      initialValue: 'Belirtilmemiş',
+    }),
+    defineField({
+      name: 'parselNo',
+      title: 'Parsel No',
+      type: 'string',
+      group: 'details',
+      hidden: ({document}) => document?.propertyType !== 'arsa',
+      initialValue: 'Belirtilmemiş',
+    }),
+    defineField({
+      name: 'paftaNo',
+      title: 'Pafta No',
+      type: 'string',
+      group: 'details',
+      hidden: ({document}) => document?.propertyType !== 'arsa',
+      initialValue: 'Belirtilmemiş',
+    }),
+    defineField({
+      name: 'kaks',
+      title: 'Kaks (Emsal)',
+      type: 'string',
+      group: 'details',
+      hidden: ({document}) => document?.propertyType !== 'arsa',
+      initialValue: 'Belirtilmemiş',
+    }),
+    defineField({
+      name: 'gabari',
+      title: 'Gabari',
+      type: 'string',
+      group: 'details',
+      hidden: ({document}) => document?.propertyType !== 'arsa',
+      initialValue: 'Belirtilmemiş',
+    }),
+    defineField({
+      name: 'krediyeUygunluk',
+      title: 'Krediye Uygunluk',
+      type: 'string',
+      group: 'details',
+      hidden: ({document}) => document?.propertyType !== 'arsa',
+      options: {
+        list: [
+          {title: 'Uygun', value: 'uygun'},
+          {title: 'Uygun Değil', value: 'uygun-degil'},
+          {title: 'Bilinmiyor', value: 'bilinmiyor'},
+        ],
+      },
+      initialValue: 'bilinmiyor',
+    }),
+    defineField({
+      name: 'takas',
+      title: 'Takas',
+      type: 'string',
+      group: 'details',
+      hidden: ({document}) => document?.propertyType !== 'arsa',
+      options: {
+        list: [
+          { title: 'Evet', value: 'evet' },
+          { title: 'Hayır', value: 'hayir' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'hayir',
+    }),
+    defineField({
+      name: 'sahibindenLink',
+      title: 'Sahibindene Git Linki',
+      type: 'url',
+      group: 'details',
+      description: 'İlanın sahibinden.com\'daki linkini buraya yapıştırın.',
+      validation: (Rule) => Rule.uri({
+        scheme: ['http', 'https']
+      }),
+    }),
+
+    // --- ÖZELLİK KATEGORİLERİ ---
+    defineField({
+      name: 'orientation',
+      title: 'Cephe',
+      type: 'array',
+      of: [{type: 'string'}],
+      group: 'amenities',
+      hidden: ({document}) => document?.propertyType === 'arsa',
+      options: {
+        list: [
+          {title: 'Batı', value: 'Batı'},
+          {title: 'Doğu', value: 'Doğu'},
+          {title: 'Güney', value: 'Güney'},
+          {title: 'Kuzey', value: 'Kuzey'},
         ]
       },
     }),
-    
+    defineField({
+      name: 'indoorFeatures',
+      title: 'İç Özellikler',
+      type: 'array',
+      of: [{type: 'string'}],
+      group: 'amenities',
+      hidden: ({document}) => document?.propertyType === 'arsa',
+      options: {
+        list: [
+          'ADSL','Ahşap Doğrama','Akıllı Ev','Alarm (Hırsız)','Alarm (Yangın)','Alaturka Tuvalet','Alüminyum Doğrama','Amerikan Kapı','Ankastre Fırın','Barbekü','Beyaz Eşya','Boyalı','Bulaşık Makinesi','Buzdolabı','Çamaşır Kurutma Makinesi','Çamaşır Makinesi','Çamaşır Odası','Çelik Kapı','Duşakabin','Duvar Kağıdı','Ebeveyn Banyosu','Fırın','Fiber İnternet','Giyinme Odası','Gömme Dolap','Görüntülü Diyafon','Hilton Banyo','Intercom Sistemi','Isıcam','Jakuzi','Kartonpiyer','Kiler','Klima','Küvet','Laminat Zemin','Marley','Mobilya','Mutfak (Ankastre)','Mutfak (Laminat)','Mutfak Doğalgazı','Panjur/Jaluzi','Parke Zemin','PVC Doğrama','Seramik Zemin','Set Üstü Ocak','Spot Aydınlatma','Şofben','Şömine','Teras','Termosifon','Vestiyer','Wi-Fi','Yüz Tanıma & Parmak İzi'
+        ].map((t) => ({title: t, value: t}))
+      }
+    }),
+    defineField({
+      name: 'outdoorFeatures',
+      title: 'Dış Özellikler',
+      type: 'array',
+      of: [{type: 'string'}],
+      group: 'amenities',
+      hidden: ({document}) => document?.propertyType === 'arsa',
+      options: {
+        list: [
+          'Araç Şarj İstasyonu','24 Saat Güvenlik','Apartman Görevlisi','Buhar Odası','Çocuk Oyun Parkı','Hamam','Hidrofor','Isı Yalıtımı','Jeneratör','Kablo TV','Kamera Sistemi','Kreş','Müstakil Havuzlu','Sauna','Ses Yalıtımı','Siding','Spor Alanı','Su Deposu','Tenis Kortu','Uydu','Yangın Merdiveni','Yüzme Havuzu (Açık)','Yüzme Havuzu (Kapalı)'
+        ].map((t) => ({title: t, value: t}))
+      }
+    }),
+    defineField({
+      name: 'surroundings',
+      title: 'Muhit',
+      type: 'array',
+      of: [{type: 'string'}],
+      group: 'amenities',
+      hidden: ({document}) => document?.propertyType === 'arsa',
+      options: {
+        list: [
+          'Alışveriş Merkezi','Belediye','Cami','Cemevi','Denize Sıfır','Eczane','Eğlence Merkezi','Fuar','Göle Sıfır','Hastane','Havra','İlkokul-Ortaokul','İtfaiye','Kilise','Lise','Market','Park','Plaj','Polis Merkezi','Sağlık Ocağı','Semt Pazarı','Spor Salonu','Şehir Merkezi','Üniversite'
+        ].map((t) => ({title: t, value: t}))
+      }
+    }),
+    defineField({
+      name: 'transportation',
+      title: 'Ulaşım',
+      type: 'array',
+      of: [{type: 'string'}],
+      group: 'amenities',
+      hidden: ({document}) => document?.propertyType === 'arsa',
+      options: {
+        list: [
+          'Anayol','Avrasya Tüneli','Boğaz Köprüleri','Cadde','Deniz Otobüsü','Dolmuş','E-5','Havaalanı','İskele','Marmaray','Metro','Metrobüs','Minibüs','Otobüs Durağı','Sahil','Teleferik','TEM','Tramvay','Tren İstasyonu','Troleybüs'
+        ].map((t) => ({title: t, value: t}))
+      }
+    }),
+    defineField({
+      name: 'view',
+      title: 'Manzara',
+      type: 'array',
+      of: [{type: 'string'}],
+      group: 'amenities',
+      hidden: ({document}) => document?.propertyType === 'arsa',
+      options: {
+        list: [
+          'Boğaz','Deniz','Doğa','Göl','Havuz','Park & Yeşil Alan','Şehir'
+        ].map((t) => ({title: t, value: t}))
+      }
+    }),
+    defineField({
+      name: 'residenceType',
+      title: 'Konut Tipi',
+      type: 'string',
+      group: 'amenities',
+      hidden: ({document}) => document?.propertyType === 'arsa',
+      options: {
+        list: [
+          'Dubleks','En Üst Kat','Ara Kat','Ara Kat Dubleks','Bahçe Dubleksi','Çatı Dubleksi','Forleks','Ters Dubleks','Tripleks'
+        ].map((t) => ({title: t, value: t}))
+      }
+    }),
+    defineField({
+      name: 'accessibility',
+      title: 'Engelliye ve Yaşlıya Uygun',
+      type: 'array',
+      of: [{type: 'string'}],
+      group: 'amenities',
+      hidden: ({document}) => document?.propertyType === 'arsa',
+      options: {
+        list: [
+          'Araç Park Yeri','Engelliye Uygun Asansör','Engelliye Uygun Banyo','Engelliye Uygun Mutfak','Engelliye Uygun Park','Geniş Koridor','Giriş / Rampa','Merdiven','Oda Kapısı','Priz / Elektrik Anahtarı','Tutamak / Korkuluk','Tuvalet','Yüzme Havuzu'
+        ].map((t) => ({title: t, value: t}))
+      }
+    }),
+
+    // --- ARSA ÖZEL ÖZELLİKLER ---
+    defineField({
+      name: 'altyapi',
+      title: 'Altyapı',
+      type: 'array',
+      of: [{type: 'string'}],
+      group: 'amenities',
+      hidden: ({document}) => document?.propertyType !== 'arsa',
+      options: {
+        list: [
+          'Elektrik','Sanayi Elektriği','Su','Telefon','Doğalgaz','Kanalizasyon','Arıtma','Sondaj & Kuyu','Zemin Etüdü','Yolu Açılmış','Yolu Açılmamış','Yolu Yok'
+        ].map((t) => ({title: t, value: t}))
+      }
+    }),
+    defineField({
+      name: 'konum',
+      title: 'Konum',
+      type: 'array',
+      of: [{type: 'string'}],
+      group: 'amenities',
+      hidden: ({document}) => document?.propertyType !== 'arsa',
+      options: {
+        list: [
+          'Ana Yola Yakın','Denize Sıfır','Denize Yakın','Havaalanına Yakın','Toplu Ulaşıma Yakın'
+        ].map((t) => ({title: t, value: t}))
+      }
+    }),
+    defineField({
+      name: 'genelOzellikler',
+      title: 'Genel Özellikler',
+      type: 'array',
+      of: [{type: 'string'}],
+      group: 'amenities',
+      hidden: ({document}) => document?.propertyType !== 'arsa',
+      options: {
+        list: [
+          'İfrazlı','Parselli','Projeli','Köşe Parsel'
+        ].map((t) => ({title: t, value: t}))
+      }
+    }),
+    defineField({
+      name: 'manzaraArsa',
+      title: 'Manzara',
+      type: 'array',
+      of: [{type: 'string'}],
+      group: 'amenities',
+      hidden: ({document}) => document?.propertyType !== 'arsa',
+      options: {
+        list: [
+          'Şehir','Deniz','Doğa','Boğaz','Göl'
+        ].map((t) => ({title: t, value: t}))
+      }
+    }),
+
     // --- GÖRSELLER ---
     defineField({
       name: 'mainImage',
       title: 'Ana Fotoğraf',
       type: 'image',
-      fieldset: 'media',
+      group: 'media',
       options: {
         hotspot: true, 
       },
@@ -307,7 +721,7 @@ export default defineType({
       name: 'images',
       title: 'Diğer Fotoğraflar (Galeri)',
       type: 'array',
-      fieldset: 'media',
+      group: 'media',
       of: [{type: 'image', options: { hotspot: true }}],
     }),
 

@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import { client } from '@/sanity/client'
+import ContactForm from '@/components/ContactForm'
 
 interface ContactInfo {
   address: {
@@ -100,53 +101,28 @@ const ContactPage = async () => {
       </div>
 
       <div className="container mx-auto px-4 py-16 sm:px-6 lg:px-8">
-
-        <div className="mt-12 max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md">
-          <div className="space-y-8">
-            {/* Adres */}
-            <div className="flex items-start">
-              <div className="flex-shrink-0">
-                <div className="flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white">
-                  <span className="text-2xl">{contactData.contactInfo.address.icon}</span>
-                </div>
-              </div>
-              <div className="ml-4">
-                <h3 className="text-lg font-medium text-gray-900">{contactData.contactInfo.address.title}</h3>
-                <p className="mt-1 text-gray-600">
-                  {contactData.contactInfo.address.content}
-                </p>
-              </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          {/* Konumumuz */}
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-8">Konumumuz</h2>
+            <div className="w-full h-96 overflow-hidden shadow-lg">
+              <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3191.6083630738244!2d30.643865375330254!3d36.8757920634356!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14c39156cab78b6f%3A0xef3d5f2e46cdc856!2sHatice%20%C3%B6zen%20gayrimenkul!5e0!3m2!1str!2str!4v1757514027255!5m2!1str!2str" 
+                width="100%" 
+                height="100%" 
+                style={{border: 0}} 
+                allowFullScreen 
+                loading="lazy" 
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Özen Gayrimenkul Konumu"
+              />
             </div>
+          </div>
 
-            {/* Telefon */}
-            <div className="flex items-start">
-              <div className="flex-shrink-0">
-                <div className="flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white">
-                  <span className="text-2xl">{contactData.contactInfo.phone.icon}</span>
-                </div>
-              </div>
-              <div className="ml-4">
-                <h3 className="text-lg font-medium text-gray-900">{contactData.contactInfo.phone.title}</h3>
-                <a href={`tel:${contactData.contactInfo.phone.number}`} className="mt-1 text-blue-600 hover:text-blue-800">
-                  {contactData.contactInfo.phone.displayNumber}
-                </a>
-              </div>
-            </div>
-
-            {/* E-posta */}
-            <div className="flex items-start">
-              <div className="flex-shrink-0">
-                <div className="flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white">
-                  <span className="text-2xl">{contactData.contactInfo.email.icon}</span>
-                </div>
-              </div>
-              <div className="ml-4">
-                <h3 className="text-lg font-medium text-gray-900">{contactData.contactInfo.email.title}</h3>
-                <a href={`mailto:${contactData.contactInfo.email.address}`} className="mt-1 text-blue-600 hover:text-blue-800">
-                  {contactData.contactInfo.email.address}
-                </a>
-              </div>
-            </div>
+          {/* İletişim Formu */}
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-8">Bize Mesaj Gönderin</h2>
+            <ContactForm />
           </div>
         </div>
       </div>
