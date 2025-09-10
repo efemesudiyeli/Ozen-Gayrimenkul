@@ -28,12 +28,12 @@ export async function generateMetadata(): Promise<Metadata> {
   try {
     const portfolioData = await client.fetch<PortfolioPageData>(portfolioPageQuery);
     return {
-      title: `${portfolioData.title || 'Portföy'} | Özen Gayrimenkul`,
+      title: `${portfolioData.title || 'Portföy'} | Hatice Özen Gayrimenkul`,
       description: portfolioData.metaDescription || 'Başarıyla tamamladığımız satış ve kiralama işlemlerimizden bazıları.',
     };
-  } catch (error) {
+  } catch {
     return {
-      title: 'Portföy | Özen Gayrimenkul',
+      title: 'Portföy | Hatice Özen Gayrimenkul',
       description: 'Başarıyla tamamladığımız satış ve kiralama işlemlerimizden bazıları.',
     };
   }

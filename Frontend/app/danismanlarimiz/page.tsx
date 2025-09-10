@@ -23,12 +23,12 @@ export async function generateMetadata(): Promise<Metadata> {
   try {
     const teamData = await client.fetch<TeamPageData>(teamPageQuery);
     return {
-      title: `${teamData.title || 'Danışmanlarımız'} | Özen Gayrimenkul`,
+      title: `${teamData.title || 'Danışmanlarımız'} | Hatice Özen Gayrimenkul`,
       description: teamData.metaDescription || 'Alanında uzman, profesyonel gayrimenkul danışmanlarımızla tanışın.',
     };
-  } catch (error) {
+  } catch {
     return {
-      title: 'Danışmanlarımız | Özen Gayrimenkul',
+      title: 'Danışmanlarımız | Hatice Özen Gayrimenkul',
       description: 'Alanında uzman, profesyonel gayrimenkul danışmanlarımızla tanışın.',
     };
   }

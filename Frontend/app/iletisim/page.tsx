@@ -39,12 +39,12 @@ export async function generateMetadata(): Promise<Metadata> {
   try {
     const contactData = await client.fetch<ContactPageData>(contactQuery);
     return {
-      title: `${contactData.title || 'İletişim'} | Özen Gayrimenkul`,
+      title: `${contactData.title || 'İletişim'} | Hatice Özen Gayrimenkul`,
       description: contactData.heroDescription || 'Bizimle iletişime geçin. Adres, telefon ve e-posta bilgilerimiz.',
     };
-  } catch (error) {
+  } catch {
     return {
-      title: 'İletişim | Özen Gayrimenkul',
+      title: 'İletişim | Hatice Özen Gayrimenkul',
       description: 'Bizimle iletişime geçin. Adres, telefon ve e-posta bilgilerimiz.',
     };
   }
@@ -63,8 +63,8 @@ const ContactPage = async () => {
       },
       phone: {
         title: 'Telefon',
-        number: '+905555555555',
-        displayNumber: '+90 555 555 55 55',
+        number: '+905321202489',
+        displayNumber: '+90 532 120 24 89',
         icon: '📞'
       },
       email: {

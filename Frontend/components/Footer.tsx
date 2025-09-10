@@ -8,7 +8,7 @@ const Footer = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
             {/* Şirket Bilgileri */}
             <div>
-              <h3 className="text-lg font-bold">Özen Gayrimenkul</h3>
+              <h3 className="text-lg font-bold">Hatice Özen Gayrimenkul</h3>
               <p className="mt-2 text-gray-400">
                 Hayallerinizdeki yuvaya kavuşmanız için çalışıyoruz.
               </p>
@@ -30,15 +30,14 @@ const Footer = () => {
             <div>
               <h3 className="text-lg font-bold">Bize Ulaşın</h3>
               <address className="mt-2 text-gray-400 not-italic">
-                Antalya, Türkiye<br />
-                <a href="tel:+905555555555" className="hover:text-white">0555 555 55 55</a><br />
-                <a href="mailto:info@ozengayrimenkul.com" className="hover:text-white">info@ozengayrimenkul.com</a>
+              Arapsuyu, 660. Sk. No:7 B blok D:2, 07070 Konyaaltı/Antalya<br />
+                <a href="tel:+905321202489" className="hover:text-white">0532 120 24 89</a><br />
               </address>
             </div>
           </div>
   
           <div className="mt-8 border-t border-gray-700 pt-4 text-center text-gray-500">
-            <p>&copy; {new Date().getFullYear()} Özen Gayrimenkul. Tüm hakları saklıdır.</p>
+            <p>&copy; {new Date().getFullYear()} Hatice Özen Gayrimenkul. Tüm hakları saklıdır.</p>
           </div>
         </div>
       </footer>

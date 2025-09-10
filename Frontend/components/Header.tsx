@@ -69,7 +69,7 @@ const Header = () => {
                     <div className="flex items-center justify-between h-20">
                         <div className="flex-shrink-0">
                             <Link href="/" onClick={closeMenu} className={logoClasses}>
-                                Özen Gayrimenkul
+                                Hatice Özen Gayrimenkul
                             </Link>
                         </div>
 
@@ -114,7 +114,7 @@ const Header = () => {
                 <div className="p-8 flex flex-col h-full">
                      <div className="flex-shrink-0 mb-10">
                         <Link href="/" onClick={closeMenu} className="text-2xl font-bold text-blue-600 font-roboto">
-                            Özen Gayrimenkul
+                            Hatice Özen Gayrimenkul
                         </Link>
                     </div>
                     <nav className="flex flex-col items-start space-y-6">

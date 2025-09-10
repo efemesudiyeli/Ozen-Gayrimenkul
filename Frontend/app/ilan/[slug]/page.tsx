@@ -32,11 +32,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   
   const description = property.description
   ? property.description.substring(0, 160)
-  : 'Özen Gayrimenkul | Antalya bölgesindeki en güncel gayrimenkul ilanları.'; 
+  : 'Hatice Özen Gayrimenkul | Antalya bölgesindeki en güncel gayrimenkul ilanları.'; 
 
 
   return {
-    title: `${property.title} | Özen Gayrimenkul`,
+    title: `${property.title} | Hatice Özen Gayrimenkul`,
     description: description,
   }
 }
@@ -629,7 +629,7 @@ export default async function PropertyPage({
                       sahibinden.com
                     </a>
                     <p className="mt-2 text-xs text-gray-500">
-                      Bu ilanı sahibinden.com'da görüntülemek için tıklayın
+                      Bu ilanı sahibinden.com&apos;da görüntülemek için tıklayın
                     </p>
                   </div>
                 </div>

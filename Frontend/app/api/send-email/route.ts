@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
           
           <div style="margin-top: 20px; padding: 15px; background-color: #f0f9ff; border-left: 4px solid #1e40af; border-radius: 4px;">
             <p style="margin: 0; color: #1e40af; font-size: 14px;">
-              Bu mesaj Özen Gayrimenkul web sitesindeki iletişim formundan gönderilmiştir.
+              Bu mesaj Hatice Özen Gayrimenkul web sitesindeki iletişim formundan gönderilmiştir.
             </p>
           </div>
         </div>

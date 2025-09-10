@@ -8,7 +8,7 @@ import { PortableTextBlock } from 'sanity'
 export async function generateMetadata(): Promise<Metadata> {
   const about = await client.fetch<AboutPageData>(query)
   return {
-    title: `${about.title} | Özen Gayrimenkul`,
+    title: `${about.title} | Hatice Özen Gayrimenkul`,
   }
 }
 
@@ -36,7 +36,7 @@ const HakkimizdaPage = async () => {
             {data.heading}
           </h1>
           <p className="text-xl md:text-2xl text-blue-100 max-w-4xl mx-auto leading-relaxed font-inter">
-            Özen Gayrimenkul olarak hikayemizi ve değerlerimizi keşfedin.
+            Hatice Özen Gayrimenkul olarak hikayemizi ve değerlerimizi keşfedin.
           </p>
         </div>
       </div>

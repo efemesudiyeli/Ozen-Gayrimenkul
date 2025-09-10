@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { client } from '@/sanity/client';
 import imageUrlBuilder from '@sanity/image-url';
 import { SanityImageSource } from '@sanity/image-url/lib/types/types';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Hero, { HeroData } from '@/components/Hero';
 
@@ -73,33 +73,23 @@ export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [heroData, setHeroData] = useState<HeroData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Advanced filters
+  const [minPrice, setMinPrice] = useState<string>('');
+  const [maxPrice, setMaxPrice] = useState<string>('');
+  const [roomCount, setRoomCount] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [provinceFilter, setProvinceFilter] = useState<string>('Antalya');
+  const [districtFilter, setDistrictFilter] = useState<string>('');
+  const [neighborhoodFilter, setNeighborhoodFilter] = useState<string>('');
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState<boolean>(false);
+  
+  // Pagination
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const itemsPerPage = 12; // Test için 3 ilan - normalde 12 olmalı
 
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        // İlan ve hero verilerini aynı anda çekerek performansı artırıyoruz
-        const [properties, hero]: [Property[], HeroData] = await Promise.all([
-          client.fetch(query, {}, { next: { revalidate: 10 } }),
-          client.fetch(heroQuery, {}, { next: { revalidate: 10 } })
-        ]);
-        
-        setAllProperties(properties);
-        setHeroData(hero);
-        // Apply current filters after data load - ensure initial display
-        const sortedProperties = sortProperties(properties, sortBy);
-        setFilteredProperties(sortedProperties);
-      } catch (error) {
-        console.error('Veri yükleme hatası:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
-  }, [sortBy]); 
-
-  const sortProperties = (properties: Property[], sortType: string): Property[] => {
+  const sortProperties = useCallback((properties: Property[], sortType: string): Property[] => {
     const sorted = [...properties];
     
     switch (sortType) {
@@ -138,9 +128,33 @@ export default function HomePage() {
       default:
         return sorted;
     }
-  };
+  }, []);
 
-  const applyFilters = (filter: string = activeFilter, search: string = searchTerm) => {
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        // İlan ve hero verilerini aynı anda çekerek performansı artırıyoruz
+        const [properties, hero]: [Property[], HeroData] = await Promise.all([
+          client.fetch(query, {}, { next: { revalidate: 10 } }),
+          client.fetch(heroQuery, {}, { next: { revalidate: 10 } })
+        ]);
+        
+        setAllProperties(properties);
+        setHeroData(hero);
+        // Apply current filters after data load - ensure initial display
+        const sortedProperties = sortProperties(properties, sortBy);
+        setFilteredProperties(sortedProperties);
+      } catch (error) {
+        console.error('Veri yükleme hatası:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, [sortBy, sortProperties]);
+
+  const applyFilters = useCallback((filter: string = activeFilter, search: string = searchTerm) => {
     let filtered: Property[] = allProperties;
     
     // Property type filter
@@ -164,23 +178,155 @@ export default function HomePage() {
       });
     }
     
+    // Price range filter
+    if (minPrice) {
+      const min = parseInt(minPrice.replace(/[^\d]/g, ''));
+      filtered = filtered.filter((property) => property.price >= min);
+    }
+    if (maxPrice) {
+      const max = parseInt(maxPrice.replace(/[^\d]/g, ''));
+      filtered = filtered.filter((property) => property.price <= max);
+    }
+    
+    // Room count filter
+    if (roomCount) {
+      filtered = filtered.filter((property) => property.bedrooms === roomCount);
+    }
+    
+    // Status filter
+    if (statusFilter) {
+      filtered = filtered.filter((property) => property.status === statusFilter);
+    }
+    
+    // Location filters
+    if (provinceFilter) {
+      filtered = filtered.filter((property) => property.province === provinceFilter);
+    }
+    if (districtFilter) {
+      filtered = filtered.filter((property) => property.district === districtFilter);
+    }
+    if (neighborhoodFilter) {
+      filtered = filtered.filter((property) => property.neighborhood === neighborhoodFilter);
+    }
+    
     const sortedFiltered = sortProperties(filtered, sortBy);
     setFilteredProperties(sortedFiltered);
-  };
+  }, [allProperties, activeFilter, searchTerm, minPrice, maxPrice, roomCount, statusFilter, provinceFilter, districtFilter, neighborhoodFilter, sortBy, sortProperties]);
+
+  // Apply filters when advanced filter values change
+  useEffect(() => {
+    if (allProperties.length > 0) {
+      applyFilters(activeFilter, searchTerm);
+    }
+  }, [minPrice, maxPrice, roomCount, statusFilter, provinceFilter, districtFilter, neighborhoodFilter, activeFilter, allProperties.length, applyFilters, searchTerm]);
 
   const handleFilter = (filter: string) => {
     setActiveFilter(filter);
+    setCurrentPage(1);
     applyFilters(filter, searchTerm);
   };
 
   const handleSearch = (search: string) => {
     setSearchTerm(search);
+    setCurrentPage(1);
     applyFilters(activeFilter, search);
   };
 
   const handleSort = (sortType: string) => {
     setSortBy(sortType);
+    setCurrentPage(1);
     applyFilters(activeFilter, searchTerm);
+  };
+
+  // Helper functions to get unique values for dropdowns
+  const getUniqueProvinces = () => {
+    return [...new Set(allProperties.map(p => p.province).filter(Boolean))].sort();
+  };
+
+  const getUniqueDistricts = () => {
+    const filtered = provinceFilter 
+      ? allProperties.filter(p => p.province === provinceFilter)
+      : allProperties;
+    return [...new Set(filtered.map(p => p.district).filter(Boolean))].sort();
+  };
+
+  const getUniqueNeighborhoods = () => {
+    const filtered = districtFilter 
+      ? allProperties.filter(p => p.district === districtFilter)
+      : allProperties;
+    return [...new Set(filtered.map(p => p.neighborhood).filter(Boolean))].sort();
+  };
+
+  const getUniqueRoomCounts = () => {
+    return [...new Set(allProperties.map(p => p.bedrooms).filter(Boolean))].sort();
+  };
+
+  // Advanced filter handlers
+  const handleAdvancedFilter = (filterType: string, value: string) => {
+    setCurrentPage(1);
+    switch (filterType) {
+      case 'minPrice':
+        setMinPrice(value);
+        break;
+      case 'maxPrice':
+        setMaxPrice(value);
+        break;
+      case 'roomCount':
+        setRoomCount(value);
+        break;
+      case 'status':
+        setStatusFilter(value);
+        break;
+      case 'province':
+        setProvinceFilter(value);
+        setDistrictFilter('');
+        setNeighborhoodFilter('');
+        break;
+      case 'district':
+        setDistrictFilter(value);
+        setNeighborhoodFilter('');
+        break;
+      case 'neighborhood':
+        setNeighborhoodFilter(value);
+        break;
+    }
+  };
+
+  const clearAllFilters = () => {
+    setMinPrice('');
+    setMaxPrice('');
+    setRoomCount('');
+    setStatusFilter('');
+    setProvinceFilter('Antalya');
+    setDistrictFilter('');
+    setNeighborhoodFilter('');
+    setSearchTerm('');
+    setActiveFilter('tumu');
+    setCurrentPage(1);
+    applyFilters('tumu', '');
+  };
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredProperties.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentProperties = filteredProperties.slice(startIndex, endIndex);
+
+  // Pagination handlers
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
   };
 
 
@@ -258,7 +404,7 @@ export default function HomePage() {
           {/* Filter ve Sıralama */}
           <div className="flex flex-col lg:flex-row justify-center items-center gap-6">
             {/* Modern Filter Buttons */}
-            <div className="bg-white p-2 shadow-lg border border-gray-100">
+            <div className="bg-white border border-gray-200 shadow-lg border border-gray-100">
               <div className="flex flex-wrap gap-1">
                 {filterOptions.map((option) => (
                   <button
@@ -296,7 +442,138 @@ export default function HomePage() {
                 </svg>
               </div>
             </div>
+
+            {/* Advanced Filters Toggle */}
+            <button
+              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+              className="bg-gray-600 text-white px-6 py-3 text-sm font-medium hover:bg-gray-700 transition-colors duration-300 shadow-lg flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
+              </svg>
+              Gelişmiş Filtreler
+            </button>
           </div>
+
+          {/* Advanced Filters Panel */}
+          {showAdvancedFilters && (
+            <div className="mt-8 bg-white p-6 shadow-lg border border-gray-100">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {/* Price Range */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">Fiyat Aralığı</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Min TL"
+                      value={minPrice}
+                      onChange={(e) => handleAdvancedFilter('minPrice', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Max TL"
+                      value={maxPrice}
+                      onChange={(e) => handleAdvancedFilter('maxPrice', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Room Count */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">Oda Sayısı</label>
+                  <select
+                    value={roomCount}
+                    onChange={(e) => handleAdvancedFilter('roomCount', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Tümü</option>
+                    {getUniqueRoomCounts().map((rooms) => (
+                      <option key={rooms} value={rooms}>
+                        {rooms} Oda
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Status */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">Durum</label>
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => handleAdvancedFilter('status', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Tümü</option>
+                    <option value="satilik">Satılık</option>
+                    <option value="kiralik">Kiralık</option>
+                  </select>
+                </div>
+
+                {/* Province */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">İl</label>
+                  <select
+                    value={provinceFilter}
+                    onChange={(e) => handleAdvancedFilter('province', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Tümü</option>
+                    {getUniqueProvinces().map((province) => (
+                      <option key={province} value={province}>
+                        {province}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* District */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">İlçe</label>
+                  <select
+                    value={districtFilter}
+                    onChange={(e) => handleAdvancedFilter('district', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Tümü</option>
+                    {getUniqueDistricts().map((district) => (
+                      <option key={district} value={district}>
+                        {district}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Neighborhood */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">Mahalle</label>
+                  <select
+                    value={neighborhoodFilter}
+                    onChange={(e) => handleAdvancedFilter('neighborhood', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Tümü</option>
+                    {getUniqueNeighborhoods().map((neighborhood) => (
+                      <option key={neighborhood} value={neighborhood}>
+                        {neighborhood}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Clear Filters */}
+                <div className="flex items-end">
+                  <button
+                    onClick={clearAllFilters}
+                    className="w-full bg-red-600 text-white px-4 py-2 text-sm font-medium hover:bg-red-700 transition-colors duration-300"
+                  >
+                    Filtreleri Temizle
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Properties Grid */}
@@ -347,7 +624,7 @@ export default function HomePage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-              {filteredProperties.map((property) => (
+              {currentProperties.map((property) => (
               <Link
                 key={property._id}
                 href={`/ilan/${property.slug.current}`}
@@ -487,6 +764,83 @@ export default function HomePage() {
                 </div>
                 </Link>
               ))}
+            </div>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center mt-12 mb-8">
+              <div className="flex items-center space-x-2">
+                {/* Previous Button */}
+                <button
+                  onClick={handlePreviousPage}
+                  disabled={currentPage === 1}
+                  className={`px-4 py-2 text-sm font-medium rounded-md ${
+                    currentPage === 1
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  Önceki
+                </button>
+
+                {/* Page Numbers */}
+                <div className="flex space-x-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                    // Show first page, last page, current page, and pages around current page
+                    const shouldShow = 
+                      page === 1 || 
+                      page === totalPages || 
+                      (page >= currentPage - 1 && page <= currentPage + 1);
+                    
+                    if (!shouldShow) {
+                      // Show ellipsis for gaps
+                      if (page === 2 && currentPage > 4) {
+                        return (
+                          <span key={`ellipsis-${page}`} className="px-3 py-2 text-gray-500">
+                            ...
+                          </span>
+                        );
+                      }
+                      if (page === totalPages - 1 && currentPage < totalPages - 3) {
+                        return (
+                          <span key={`ellipsis-${page}`} className="px-3 py-2 text-gray-500">
+                            ...
+                          </span>
+                        );
+                      }
+                      return null;
+                    }
+
+                    return (
+                      <button
+                        key={page}
+                        onClick={() => handlePageChange(page)}
+                        className={`px-4 py-2 text-sm font-medium rounded-md ${
+                          currentPage === page
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Next Button */}
+                <button
+                  onClick={handleNextPage}
+                  disabled={currentPage === totalPages}
+                  className={`px-4 py-2 text-sm font-medium rounded-md ${
+                    currentPage === totalPages
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  Sonraki
+                </button>
+              </div>
             </div>
           )}
         </div>
