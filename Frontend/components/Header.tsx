@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 
 const navLinks = [
@@ -51,8 +52,8 @@ const Header = () => {
             : 'bg-white/90 text-gray-900 shadow-lg backdrop-blur-md'
     }`;
     
-    const logoClasses = `text-2xl font-bold font-roboto transition-colors duration-300 ${
-        isTransparent ? 'text-white' : 'text-blue-600'
+    const logoClasses = `text-2xl font-medium tracking-tight font-serif transition-colors duration-300 ${
+        isTransparent ? 'text-white' : 'text-gray-900'
     }`;
 
     const navLinkClasses = (transparent: boolean) => 
@@ -67,7 +68,8 @@ const Header = () => {
             <header className={headerClasses}>
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-20">
-                        <div className="flex-shrink-0">
+                        <div className="flex-shrink-0 flex items-center gap-4">
+                            <Image src="/logo.png" alt="Hatice Özen Gayrimenkul" width={50} height={50} className={logoClasses + 'filter transition-[filter] duration-300' + (isTransparent ? ' invert' : '') } />
                             <Link href="/" onClick={closeMenu} className={logoClasses}>
                                 Hatice Özen Gayrimenkul
                             </Link>

@@ -8,7 +8,13 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'Hatice Özen Gayrimenkul',
-  description: 'Antalya bölgesindeki en güncel gayrimenkul ilanları.'
+  description: 'Antalya bölgesindeki en güncel gayrimenkul ilanları.',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', type: 'image/x-icon' }
+    ],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }]
+  }
 }
 
 export default function RootLayout({
@@ -19,6 +25,18 @@ export default function RootLayout({
   return (
     <html lang="tr">
       <head>
+        <link
+          rel="apple-touch-icon"
+          href="/apple-touch-icon.png"
+          type="image/png"
+          sizes="180x180"
+        />
+        <link
+          rel="icon"
+          href="/favicon-32x32.png"
+          type="image/png"
+          sizes="32x32"
+        />
         <link
           rel="stylesheet"
           href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"

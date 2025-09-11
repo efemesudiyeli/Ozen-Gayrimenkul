@@ -4,6 +4,7 @@ import { client } from '@/sanity/client'
 import { Metadata } from 'next'
 import { PortableText } from 'next-sanity' 
 import { PortableTextBlock } from 'sanity'
+import Image from 'next/image'
 
 export async function generateMetadata(): Promise<Metadata> {
   const about = await client.fetch<AboutPageData>(query)
@@ -44,7 +45,8 @@ const HakkimizdaPage = async () => {
       <div className="container mx-auto px-4 py-16 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">
           
-          <div className="mt-12 text-gray-700 space-y-6 leading-relaxed prose prose-lg max-w-none">
+          <div className="text-gray-700 space-y-6 leading-relaxed prose prose-lg max-w-none">
+            <Image src="/fullLogo.png" alt="Hatice Özen Gayrimenkul" width={300} height={300} className="mx-auto" />
             <PortableText value={data.content} />
           </div>
         </div>

@@ -192,18 +192,20 @@ const PortfolioPage = async () => {
                     </span>
                   </div>
 
-                  {/* Şovlu Satıldı/Kiralandı Damgası - Sol üstten sağa 45 derece */}
-                  <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
-                    <div className={`absolute top-40 -left-20 transform -rotate-45 origin-top-left ${
-                      property.status === 'satildi' ? 'bg-green-600' : 'bg-blue-600'
-                    }`}>
-                      <div className="px-32 py-4 text-white font-black text-xl uppercase tracking-wider shadow-2xl border-2 border-white/20">
-                        {property.status === 'satildi' ? 'SATILDI' : 'KİRALANDI'}
+                  {/* Satıldı/Kiralandı Rozeti - Görseli engellemeyen küçük rozet */}
+                  {property.status === 'satildi' ? (
+                    <div className="absolute top-4 left-4 z-10">
+                      <div className="inline-flex items-center px-3 py-1.5 text-white shadow-lg backdrop-blur-xl">
+                        <span className="text-xl font-bold tracking-wider">SATILDI</span>
                       </div>
-                      {/* Damga gölgesi için ek katman */}
-                      <div className="absolute inset-0 bg-black/20 transform translate-x-1 translate-y-1 -z-10"></div>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="absolute top-4 left-4 z-10">
+                      <div className="inline-flex items-center px-3 py-1.5 text-white shadow-lg backdrop-blur-xl">
+                        <span className="text-xl font-bold tracking-wider">KİRALANDI</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* İçerik Alanı */}
