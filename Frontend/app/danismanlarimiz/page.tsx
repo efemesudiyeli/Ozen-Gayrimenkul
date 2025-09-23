@@ -81,7 +81,7 @@ const AgentsPage = async () => {
   }
 
   return (
-    <div className="bg-white">
+    <main className="bg-white">
 
       {/* Hero Section */}
       <div className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 text-white py-20 mt-20">
@@ -101,7 +101,7 @@ const AgentsPage = async () => {
             <div className="mx-auto h-48 w-48 rounded-full overflow-hidden relative shadow-lg">
               <Image
                 src={urlFor(agent.image).width(400).height(400).url()}
-                alt={agent.name}
+                alt={`${agent.name} portre fotoğrafı`}
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 className="object-contain"
@@ -118,7 +118,7 @@ const AgentsPage = async () => {
           </div>
         ))}
       </div>
-    </div>
+    </main>
 
   )
 }

@@ -65,22 +65,23 @@ const Header = () => {
 
     return (
         <>
-            <header className={headerClasses}>
+            <header className={headerClasses} role="banner">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-20">
                         <div className="flex-shrink-0 flex items-center gap-4">
-                            <Image src="/logo.png" alt="Hatice Özen Gayrimenkul" width={50} height={50} className={logoClasses + 'filter transition-[filter] duration-300' + (isTransparent ? ' invert' : '') } />
-                            <Link href="/" onClick={closeMenu} className={logoClasses}>
+                            <Image src="/logo.png" alt="Hatice Özen Gayrimenkul logosu" width={50} height={50} className={logoClasses + 'filter transition-[filter] duration-300' + (isTransparent ? ' invert' : '') } />
+                            <Link href="/" onClick={closeMenu} className={logoClasses} aria-label="Ana sayfa">
                                 Hatice Özen Gayrimenkul
                             </Link>
                         </div>
 
-                        <nav className="hidden md:flex md:space-x-8">
+                        <nav className="hidden md:flex md:space-x-8" aria-label="Ana menü">
                             {navLinks.map((link) => (
                                 <Link
                                     key={link.href}
                                     href={link.href}
                                     className={navLinkClasses(isTransparent)}
+                                    aria-current={pathname === link.href ? 'page' : undefined}
                                 >
                                     {link.label}
                                 </Link>
@@ -92,6 +93,8 @@ const Header = () => {
                                 onClick={toggleMenu}
                                 className="inline-flex items-center justify-center p-2 rounded-md focus:outline-none"
                                 aria-expanded={isOpen}
+                                aria-controls="mobile-menu"
+                                aria-label={isOpen ? 'Menüyü kapat' : 'Menüyü aç'}
                             >
                                 <span className="sr-only">Menüyü aç</span>
                                 <div className="w-6 h-6 flex flex-col justify-around">
@@ -109,23 +112,25 @@ const Header = () => {
             <div 
                 className={`fixed inset-0 bg-black/40 z-40 md:hidden transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                 onClick={closeMenu}
+                aria-hidden="true"
             ></div>
             
             {/* Mobil Menü Panel */}
-            <div className={`fixed top-0 right-0 h-full w-72 bg-white z-50 transform shadow-xl ${isOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300 ease-in-out md:hidden`}>
+            <div id="mobile-menu" className={`fixed top-0 right-0 h-full w-72 bg-white z-50 transform shadow-xl ${isOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300 ease-in-out md:hidden`}>
                 <div className="p-8 flex flex-col h-full">
                      <div className="flex-shrink-0 mb-10">
                         <Link href="/" onClick={closeMenu} className="text-2xl font-bold text-blue-600 font-roboto">
                             Hatice Özen Gayrimenkul
                         </Link>
                     </div>
-                    <nav className="flex flex-col items-start space-y-6">
+                    <nav className="flex flex-col items-start space-y-6" aria-label="Mobil menü">
                         {navLinks.map((link) => (
                             <Link
                                 key={link.href}
                                 href={link.href}
                                 onClick={closeMenu}
                                 className="text-xl font-medium text-gray-700 hover:text-blue-600 transition-colors"
+                                aria-current={pathname === link.href ? 'page' : undefined}
                             >
                                 {link.label}
                             </Link>

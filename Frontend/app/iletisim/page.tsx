@@ -87,7 +87,7 @@ const ContactPage = async () => {
   }
 
   return (
-    <div className="bg-gray-50">
+    <main className="bg-gray-50">
       {/* Hero Section */}
       <div className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 text-white py-20 mt-20">
         <div className="container mx-auto px-4 text-center">
@@ -126,7 +126,7 @@ const ContactPage = async () => {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   )
 }
 

@@ -57,7 +57,7 @@ const PropertyGallery = ({ images }: PropertyGalleryProps) => {
             <SwiperSlide key={index}>
               <Image
                 src={urlFor(image).url()}
-                alt={`İlan Fotoğrafı ${index + 1}`}
+                alt={`İlan görseli ${index + 1}`}
                 fill
                 sizes="(max-width: 1024px) 100vw, 66vw"
                 className="object-contain" 
@@ -83,7 +83,7 @@ const PropertyGallery = ({ images }: PropertyGalleryProps) => {
              <div className="relative w-full aspect-square">
                 <Image
                     src={urlFor(image).url()}
-                    alt={`Thumbnail ${index + 1}`}
+                    alt={`İlan küçük görseli ${index + 1}`}
                     fill
                     sizes="25vw"
                     className="object-contain" // GÜNCELLEME: Thumbnail'lar için de 'object-contain' kullanılıyor

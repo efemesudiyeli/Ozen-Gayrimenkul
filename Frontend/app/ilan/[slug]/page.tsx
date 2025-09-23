@@ -587,7 +587,7 @@ export default async function PropertyPage({
                       <div className="w-20 h-20 mx-auto mb-4 overflow-hidden border-2 border-gray-200">
                         <Image
                           src={urlFor(property.agent.image).width(80).height(80).url()}
-                          alt={property.agent.name}
+                          alt={`${property.agent.name} portre fotoğrafı`}
                           width={80}
                           height={80}
                           className="w-full h-full object-cover"

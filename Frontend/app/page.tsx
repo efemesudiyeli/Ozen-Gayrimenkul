@@ -356,13 +356,13 @@ export default function HomePage() {
 
       
       {/* İlanlar Bölümü - Modern Tasarım */}
-      <main id="ilanlar" className="bg-gradient-to-b from-gray-50 to-white min-h-screen">
+      <section id="ilanlar" aria-labelledby="ilanlar-heading" className="bg-gradient-to-b from-gray-50 to-white min-h-screen">
         {/* Header Section */}
         <div className="container mx-auto px-4 pt-12 pb-12">
           <div className="text-center mb-8">
-            <h1 className="text-4xl md:text-6xl font-bold mb-2 text-gray-900 tracking-tight">
+            <h2 id="ilanlar-heading" className="text-4xl md:text-6xl font-bold mb-2 text-gray-900 tracking-tight">
               Güncel İlanlar
-            </h1>
+            </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
               Size en uygun gayrimenkul seçeneklerini keşfedin
             </p>
@@ -636,7 +636,7 @@ export default function HomePage() {
                     {property.mainImage ? (
                       <Image
                         src={urlFor(property.mainImage).width(600).height(400).url()}
-                        alt={property.title}
+                        alt={`${property.title} ana görseli`}
                         fill 
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" 
                         className="object-cover transition-transform duration-700 group-hover:scale-110"
@@ -894,7 +894,7 @@ export default function HomePage() {
             </div>
           </div>
         )}
-      </main>
+      </section>
     </>
   );
 }

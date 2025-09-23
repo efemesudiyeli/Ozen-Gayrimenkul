@@ -44,8 +44,8 @@ const Hero = ({ data }: HeroProps) => {
         />
         <div className="absolute inset-0 bg-black opacity-50"></div>
       </div>
-      <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 text-center h-full flex flex-col justify-center items-center">
-        <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight">
+      <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 text-center h-full flex flex-col justify-center items-center" role="region" aria-labelledby="hero-heading">
+        <h1 id="hero-heading" className="text-4xl md:text-6xl font-extrabold tracking-tight">
           {data.heading} {/* Dinamik Başlık */}
         </h1>
         <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-gray-300">

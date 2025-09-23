@@ -161,7 +161,7 @@ const PortfolioPage = async () => {
                   {property.mainImage ? (
                     <Image
                       src={urlFor(property.mainImage).width(600).height(400).url()}
-                      alt={property.title}
+                      alt={`${property.title} ana görseli`}
                       fill 
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" 
                       className="object-cover transition-transform duration-700 group-hover:scale-110"
