@@ -177,7 +177,7 @@ export default defineType({
       name: 'locationMap',
       title: 'Harita Konumu',
       type: 'geopoint',
-      description: 'Haritadan konum seçin - tıklayarak işaretleyin. Arsa ilanları için zorunlu değildir.',
+      description: 'Haritadan konum seçin - tıklayarak işaretleyin.',
       group: 'locationInfo',
       hidden: ({ document }) => document?.propertyType === 'arsa',
       components: {
@@ -189,7 +189,7 @@ export default defineType({
       title: 'Arsa Sınırları (Köşeleri İşaretle)',
       type: 'array',
       of: [{ type: 'geopoint' }],
-      description: 'Sadece arsa ilanları için. Arsanın köşelerini haritaya tıklayarak işaretleyin.',
+      description: 'Arsanın köşelerini haritaya tıklayarak işaretleyin.',
       group: 'locationInfo',
       hidden: ({ document }) => document?.propertyType !== 'arsa',
       components: {
