@@ -499,7 +499,7 @@ export default function HomePage() {
 
                 {/* Status */}
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">Durum</label>
+                  <label className="block text-sm font-medium text-gray-700">Kategori</label>
                   <select
                     value={statusFilter}
                     onChange={(e) => handleAdvancedFilter('status', e.target.value)}
