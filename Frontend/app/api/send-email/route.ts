@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
     const { data, error } = await resend.emails.send({
       from: 'Hatice Özen Gayrimenkul <noreply@haticeozengayrimenkul.com>',
-      to: ['efemesudiyeli@gmail.com'],
+      to: ['htcozen07@hotmail.com'],
       subject: `İletişim Formu: ${subject || 'Genel Mesaj'}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
