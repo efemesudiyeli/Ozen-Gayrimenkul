@@ -269,8 +269,8 @@ export default async function PropertyPage({
   const usageStatusLabel = (key?: PropertyDetail['usageStatus']) => {
     switch (key) {
       case 'bos': return 'Boş'
-      case 'kiraci': return 'Kiracı Oturuyor'
-      case 'mal-sahibi': return 'Mal Sahibi Oturuyor'
+      case 'kiraci': return 'Kiracılı'
+      case 'mal-sahibi': return 'Mülk Sahibi'
       default: return undefined
     }
   }

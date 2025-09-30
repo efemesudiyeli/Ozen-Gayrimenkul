@@ -201,9 +201,10 @@ export default defineType({
       title: 'Arsa Sınırları (Köşeleri İşaretle)',
       type: 'array',
       of: [{ type: 'geopoint' }],
-      description: 'Arsanın köşelerini haritaya tıklayarak işaretleyin.',
+      description: 'Arsanın köşelerini haritaya tıklayarak işaretleyin. En az 3 nokta, istediğiniz kadar nokta ekleyebilirsiniz.',
       group: 'locationInfo',
       hidden: ({ document }) => document?.propertyType !== 'arsa',
+      validation: (Rule) => Rule.min(3).max(50).error('Arsa sınırları için en az 3, en fazla 50 nokta gerekli'),
       components: {
         input: LeafletPolygonInput as any
       }
@@ -420,8 +421,8 @@ export default defineType({
       options: {
         list: [
           { title: 'Boş', value: 'bos' },
-          { title: 'Kiracı Oturuyor', value: 'kiraci' },
-          { title: 'Mal Sahibi Oturuyor', value: 'mal-sahibi' },
+          { title: 'Kiracılı', value: 'kiraci' },
+          { title: 'Mülk Sahibi', value: 'mal-sahibi' },
         ],
       },
       hidden: ({ document }) => document?.propertyType === 'arsa',

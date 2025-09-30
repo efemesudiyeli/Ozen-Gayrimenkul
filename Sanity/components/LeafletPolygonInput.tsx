@@ -42,31 +42,17 @@ export default function LeafletPolygonInput(props: ObjectInputProps) {
   const center = corners.length > 0 ? corners[0] : defaultCenter
 
   const handleLocationAdd = useCallback((latlng: LatLng) => {
-    if (corners.length >= 4) {
-      // 4 köşe dolduysa, en eski köşeyi değiştir
-      const newCorners = [...corners.slice(1), latlng]
-      setCorners(newCorners)
-      
-      onChange(set(newCorners.map((corner, index) => ({
-        _key: `corner-${Date.now()}-${index}`,
-        _type: 'geopoint',
-        lat: corner.lat,
-        lng: corner.lng,
-        alt: 0
-      }))))
-    } else {
-      // Yeni köşe ekle
-      const newCorners = [...corners, latlng]
-      setCorners(newCorners)
-      
-      onChange(set(newCorners.map((corner, index) => ({
-        _key: `corner-${Date.now()}-${index}`,
-        _type: 'geopoint',
-        lat: corner.lat,
-        lng: corner.lng,
-        alt: 0
-      }))))
-    }
+    // Yeni köşe ekle (sınırsız)
+    const newCorners = [...corners, latlng]
+    setCorners(newCorners)
+    
+    onChange(set(newCorners.map((corner, index) => ({
+      _key: `corner-${Date.now()}-${index}`,
+      _type: 'geopoint',
+      lat: corner.lat,
+      lng: corner.lng,
+      alt: 0
+    }))))
   }, [corners, onChange])
 
   const handleClearCorners = useCallback(() => {
@@ -93,11 +79,30 @@ export default function LeafletPolygonInput(props: ObjectInputProps) {
     }
   }, [corners, onChange])
 
+  const handleRemoveCorner = useCallback((index: number) => {
+    if (corners.length > 0) {
+      const newCorners = corners.filter((_, i) => i !== index)
+      setCorners(newCorners)
+      
+      if (newCorners.length > 0) {
+        onChange(set(newCorners.map((corner, index) => ({
+          _key: `corner-${Date.now()}-${index}`,
+          _type: 'geopoint',
+          lat: corner.lat,
+          lng: corner.lng,
+          alt: 0
+        }))))
+      } else {
+        onChange(unset())
+      }
+    }
+  }, [corners, onChange])
+
   return (
     <Stack space={3}>
       <Stack direction="row" space={2} align="center">
         <Text size={1} muted>
-          Arsa sınırlarını belirlemek için haritaya tıklayın (maksimum 4 köşe)
+          Arsa sınırlarını belirlemek için haritaya tıklayın (en az 3, istediğiniz kadar nokta)
         </Text>
       </Stack>
       
@@ -136,7 +141,7 @@ export default function LeafletPolygonInput(props: ObjectInputProps) {
 
       <Flex gap={2} wrap="wrap">
         <Text size={1}>
-          İşaretlenen köşe sayısı: <strong>{corners.length}/4</strong>
+          İşaretlenen köşe sayısı: <strong>{corners.length}</strong>
         </Text>
         
         {corners.length > 0 && (
@@ -164,14 +169,23 @@ export default function LeafletPolygonInput(props: ObjectInputProps) {
           </Text>
           <Stack space={1} style={{ marginTop: '8px' }}>
             {corners.map((corner, index) => (
-              <Text key={index} size={1} muted>
-                Köşe {index + 1}: {corner.lat.toFixed(6)}, {corner.lng.toFixed(6)}
-              </Text>
+              <Flex key={index} align="center" justify="space-between" style={{ padding: '4px 0' }}>
+                <Text size={1} muted>
+                  Köşe {index + 1}: {corner.lat.toFixed(6)}, {corner.lng.toFixed(6)}
+                </Text>
+                <Button
+                  text="Sil"
+                  tone="critical"
+                  mode="ghost"
+                  onClick={() => handleRemoveCorner(index)}
+                  style={{ fontSize: '12px', padding: '2px 8px' }}
+                />
+              </Flex>
             ))}
           </Stack>
-          {corners.length === 4 && (
+          {corners.length >= 3 && (
             <Text size={1} style={{ color: '#059669', marginTop: '8px', fontWeight: 'medium' }}>
-              ✅ Arsa sınırları tamamlandı!
+              ✅ Arsa sınırları oluşturuldu! (En az 3 nokta gerekli)
             </Text>
           )}
         </Box>
