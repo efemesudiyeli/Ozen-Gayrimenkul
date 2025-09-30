@@ -1,6 +1,6 @@
 export default {
   name: 'teamPage',
-  title: 'Danışmanlarımız Sayfası',
+  title: 'İş Ortaklarımız Sayfası',
   type: 'document',
   __experimental_actions: ['update', 'publish'],
   fields: [

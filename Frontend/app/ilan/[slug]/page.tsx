@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 }
 export async function generateStaticParams() {
-  const query = `*[_type == "property"]{ "slug": slug.current }`;
+  const query = `*[_type == "property" && coalesce(isActive, true) == true]{ "slug": slug.current }`;
   const properties = await client.fetch<{ slug: string }[]>(query);
 
   if (!properties) return []
@@ -58,7 +58,7 @@ function urlFor(source: SanityImageSource) {
   return builder.image(source)
 }
 
-const propertyPageQuery = `*[_type == "property" && slug.current == $slug][0]{
+const propertyPageQuery = `*[_type == "property" && coalesce(isActive, true) == true && slug.current == $slug][0]{
   _id,
   title,
   price,
@@ -77,9 +77,15 @@ const propertyPageQuery = `*[_type == "property" && slug.current == $slug][0]{
     }
   },
   "images": images[]{
+    _type,
     ...,
+    alt,
     asset->{
-      ...,
+      url,
+      mimeType,
+      extension,
+      size,
+      originalFilename,
       metadata
     }
   },
@@ -149,7 +155,7 @@ interface PropertyDetail {
   listingId: string
   listingDate?: string
   mainImage: SanityImageSource
-  images: SanityImageSource[]
+  images: (SanityImageSource | { _type: 'file'; alt?: string; asset?: { url?: string; mimeType?: string; extension?: string; size?: number; originalFilename?: string } })[]
   bedrooms?: string
   bathrooms?: number
   area: number
@@ -324,7 +330,7 @@ export default async function PropertyPage({
   const GENEL_OZELLIKLER_OPTIONS = ['İfrazlı','Parselli','Projeli','Köşe Parsel']
   const MANZARA_ARSA_OPTIONS = ['Şehir','Deniz','Doğa','Boğaz','Göl']
 
-  const allImages = [property.mainImage, ...(property.images || [])].filter(Boolean) as SanityImageSource[];
+  const allMedia = [property.mainImage, ...(property.images || [])].filter(Boolean) as any[];
   const displayDescriptionFallback = 'Bu ilan için henüz bir açıklama girilmemiştir.';
   const portableTextComponents = {
     marks: {
@@ -409,7 +415,7 @@ export default async function PropertyPage({
           <div className="xl:col-span-3 space-y-8">
             {/* Galeri */}
             <div className="bg-white border border-gray-200 shadow-lg overflow-hidden">
-          <PropertyGallery images={allImages} />
+          <PropertyGallery images={allMedia} />
             </div>
 
             {/* İlan Bilgileri Grid */}

@@ -23,13 +23,13 @@ export async function generateMetadata(): Promise<Metadata> {
   try {
     const teamData = await client.fetch<TeamPageData>(teamPageQuery);
     return {
-      title: `${teamData.title || 'Danışmanlarımız'} | Hatice Özen Gayrimenkul`,
-      description: teamData.metaDescription || 'Alanında uzman, profesyonel gayrimenkul danışmanlarımızla tanışın.',
+      title: `${teamData.title || 'İş Ortaklarımız'} | Hatice Özen Gayrimenkul`,
+      description: teamData.metaDescription || 'Alanında uzman, profesyonel gayrimenkul iş ortaklarımızla tanışın.',
     };
   } catch {
     return {
-      title: 'Danışmanlarımız | Hatice Özen Gayrimenkul',
-      description: 'Alanında uzman, profesyonel gayrimenkul danışmanlarımızla tanışın.',
+      title: 'İş Ortaklarımız | Hatice Özen Gayrimenkul',
+      description: 'Alanında uzman, profesyonel gayrimenkul iş ortaklarımızla tanışın.',
     };
   }
 }
@@ -63,10 +63,10 @@ const AgentsPage = async () => {
   const agents: Agent[] = await client.fetch(query);
   
   const defaultTeamData: TeamPageData = {
-    title: 'Danışmanlarımız',
-    heroTitle: 'Danışmanlarımız',
-    heroDescription: 'Alanında uzman, güvenilir ve dinamik danışmanlarımızla tanışın.',
-    metaDescription: 'Alanında uzman, profesyonel gayrimenkul danışmanlarımızla tanışın.'
+    title: 'İş Ortaklarımız',
+    heroTitle: 'İş Ortaklarımız',
+    heroDescription: 'Alanında uzman, güvenilir ve dinamik iş ortaklarımızla tanışın.',
+    metaDescription: 'Alanında uzman, profesyonel gayrimenkul iş ortaklarımızla tanışın.'
   };
 
   let teamData = defaultTeamData;

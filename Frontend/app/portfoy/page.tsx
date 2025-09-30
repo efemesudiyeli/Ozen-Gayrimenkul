@@ -46,7 +46,7 @@ function urlFor(source: SanityImageSource) {
 }
 
 // Sorgu, tüm property bilgilerini çekecek şekilde güncellendi
-const query = `*[_type == "property" && (status == 'satildi' || status == 'kiralandi')] | order(_updatedAt desc){
+const query = `*[_type == "property" && coalesce(isActive, true) == true && (status == 'satildi' || status == 'kiralandi')] | order(_updatedAt desc){
   _id,
   title,
   slug,

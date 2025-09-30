@@ -1,4 +1,5 @@
 import { defineField, defineType } from 'sanity'
+import { mediaAssetSource } from 'sanity-plugin-media'
 import LeafletMapInput from '../components/LeafletMapInput'
 import LeafletPolygonInput from '../components/LeafletPolygonInput'
 import DistrictSelectInput from '../components/DistrictSelectInput'
@@ -39,9 +40,130 @@ export default defineType({
       name: 'addressFields',
       title: 'Adres Girişi',
       options: { collapsible: false }
+    },
+    {
+      name: 'publishFields',
+      title: 'Yayın',
+      options: { collapsible: true, collapsed: false }
+    },
+    {
+      name: 'identityFields',
+      title: 'Kimlik',
+      options: { collapsible: true, collapsed: false }
+    },
+    {
+      name: 'pricingFields',
+      title: 'Fiyat',
+      options: { collapsible: true, collapsed: false }
+    },
+    {
+      name: 'agentFields',
+      title: 'Danışman',
+      options: { collapsible: true, collapsed: false }
+    },
+    {
+      name: 'mapFields',
+      title: 'Harita',
+      options: { collapsible: true, collapsed: false }
+    },
+    {
+      name: 'sizeFields',
+      title: 'Metrekare',
+      options: { collapsible: true, collapsed: false }
+    },
+    {
+      name: 'roomFields',
+      title: 'Oda/Banyo',
+      options: { collapsible: true, collapsed: false }
+    },
+    {
+      name: 'buildingFields',
+      title: 'Bina/Kat',
+      options: { collapsible: true, collapsed: false }
+    },
+    {
+      name: 'heatingKitchenFields',
+      title: 'Isıtma/Mutfak',
+      options: { collapsible: true, collapsed: false }
+    },
+    {
+      name: 'comfortFields',
+      title: 'Balkon/Asansör/Otopark',
+      options: { collapsible: true, collapsed: false }
+    },
+    {
+      name: 'furnishingComplexFields',
+      title: 'Eşya/Site',
+      options: { collapsible: true, collapsed: false }
+    },
+    {
+      name: 'usageDeedFields',
+      title: 'Kullanım/Tapu',
+      options: { collapsible: true, collapsed: false }
+    },
+    {
+      name: 'financeFields',
+      title: 'Finans',
+      options: { collapsible: true, collapsed: false }
+    },
+    {
+      name: 'externalLinkFields',
+      title: 'Harici Bağlantılar',
+      options: { collapsible: true, collapsed: false }
+    },
+    {
+      name: 'landZoningFields',
+      title: 'Arsa İmar/Koşullar',
+      options: { collapsible: true, collapsed: false }
+    },
+    {
+      name: 'landPricingFields',
+      title: 'Arsa Fiyat/M²',
+      options: { collapsible: true, collapsed: false }
+    },
+    {
+      name: 'landRegistryFields',
+      title: 'Ada/Parsel/Pafta',
+      options: { collapsible: true, collapsed: false }
+    },
+    {
+      name: 'landLocationFields',
+      title: 'Arsa Konum',
+      options: { collapsible: true, collapsed: false }
+    },
+    {
+      name: 'landInfrastructureFields',
+      title: 'Arsa Altyapı',
+      options: { collapsible: true, collapsed: false }
+    },
+    {
+      name: 'landGeneralFields',
+      title: 'Arsa Genel',
+      options: { collapsible: true, collapsed: false }
+    },
+    {
+      name: 'landViewFields',
+      title: 'Arsa Manzara',
+      options: { collapsible: true, collapsed: false }
+    },
+    {
+      name: 'mediaFields',
+      title: 'Medya',
+      options: { collapsible: true, collapsed: false }
     }
   ],
   fields: [
+    // --- YAYIN DURUMU (HER ZAMAN EN BAŞTA) ---
+    defineField({
+      name: 'isActive',
+      title: 'Yayında mı?',
+      type: 'boolean',
+      group: 'basicInfo',
+      fieldset: 'publishFields',
+      description: 'İlanı pasife almak için kapatın. Kapalıyken sitede görünmez.',
+      initialValue: true,
+    }),
+
     // --- TEMEL BİLGİLER ---
     defineField({
       name: 'title',
@@ -49,6 +171,7 @@ export default defineType({
       type: 'string',
       description: 'Örn: "Lara\'da Deniz Manzaralı Lüks 3+1 Daire"',
       group: 'basicInfo',
+      fieldset: 'identityFields',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
@@ -56,6 +179,7 @@ export default defineType({
       title: 'İlan Numarası',
       type: 'string',
       group: 'basicInfo',
+      fieldset: 'identityFields',
       initialValue: () => `${Math.floor(100000 + Math.random() * 900000)}`, // Rastgele 6 haneli numara
       readOnly: true,
       description: 'Sistem tarafından otomatik olarak oluşturulur.',
@@ -65,6 +189,7 @@ export default defineType({
       title: 'İlan Tarihi',
       type: 'string',
       group: 'basicInfo',
+      fieldset: 'identityFields',
       validation: (Rule) => Rule.required(),
       description: 'İlan tarihini girin (örn: 09/09/2025)',
       placeholder: 'GG/AA/YYYY',
@@ -82,6 +207,7 @@ export default defineType({
       type: 'reference',
       to: [{ type: 'agent' }],
       group: 'basicInfo',
+      fieldset: 'agentFields',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
@@ -89,6 +215,7 @@ export default defineType({
       title: 'İlan Durumu',
       type: 'string',
       group: 'basicInfo',
+      fieldset: 'publishFields',
       options: {
         list: [
           { title: 'Satılık', value: 'satilik' },
@@ -123,6 +250,7 @@ export default defineType({
       title: 'Fiyat (₺)',
       type: 'string',
       group: 'basicInfo',
+      fieldset: 'pricingFields',
       validation: (Rule) => Rule.required().custom((value) => {
         if (!value) return 'Fiyat gerekli'
         const numericValue = parseInt(value.replace(/\./g, ''))
@@ -210,6 +338,7 @@ export default defineType({
       type: 'geopoint',
       description: 'Haritadan konum seçin - tıklayarak işaretleyin.',
       group: 'locationInfo',
+      fieldset: 'mapFields',
       hidden: ({ document }) => document?.propertyType === 'arsa',
       components: {
         input: LeafletMapInput as any
@@ -222,6 +351,7 @@ export default defineType({
       of: [{ type: 'geopoint' }],
       description: 'Arsanın köşelerini haritaya tıklayarak işaretleyin. En az 3 nokta, istediğiniz kadar nokta ekleyebilirsiniz.',
       group: 'locationInfo',
+      fieldset: 'mapFields',
       hidden: ({ document }) => document?.propertyType !== 'arsa',
       validation: (Rule) => Rule.min(3).max(50).error('Arsa sınırları için en az 3, en fazla 50 nokta gerekli'),
       components: {
@@ -234,6 +364,7 @@ export default defineType({
       type: 'boolean',
       description: 'Aktif edilirse, haritada tam nokta yerine 500 metrelik bir daire gösterilir.',
       group: 'locationInfo',
+      fieldset: 'mapFields',
       initialValue: false,
       hidden: ({ document }) => document?.propertyType === 'arsa',
     }),
@@ -311,6 +442,7 @@ export default defineType({
       title: 'Net Metrekare (m²)',
       type: 'number',
       group: 'details',
+      fieldset: 'sizeFields',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
@@ -318,6 +450,7 @@ export default defineType({
       title: 'Brüt Metrekare (m²)',
       type: 'number',
       group: 'details',
+      fieldset: 'sizeFields',
       hidden: ({ document }) => document?.propertyType === 'arsa',
     }),
     defineField({
@@ -326,6 +459,7 @@ export default defineType({
       description: 'Örn: 3+1, 4+1, Stüdyo',
       type: 'string',
       group: 'details',
+      fieldset: 'roomFields',
       hidden: ({ document }) => document?.propertyType === 'arsa' || document?.propertyType === 'isyeri',
     }),
     defineField({
@@ -333,6 +467,7 @@ export default defineType({
       title: 'Banyo Sayısı',
       type: 'number',
       group: 'details',
+      fieldset: 'roomFields',
       hidden: ({ document }) => document?.propertyType === 'arsa',
     }),
     defineField({
@@ -340,6 +475,7 @@ export default defineType({
       title: 'Bina Yaşı',
       type: 'string',
       group: 'details',
+      fieldset: 'buildingFields',
       hidden: ({ document }) => document?.propertyType === 'arsa',
       options: {
         list: [
@@ -358,6 +494,7 @@ export default defineType({
       type: 'string',
       description: 'Örn: Bahçe Katı, Zemin Kat, 3. Kat',
       group: 'details',
+      fieldset: 'buildingFields',
       hidden: ({ document }) => document?.propertyType === 'arsa',
     }),
     defineField({
@@ -365,6 +502,7 @@ export default defineType({
       title: 'Binanın Kat Sayısı',
       type: 'number',
       group: 'details',
+      fieldset: 'buildingFields',
       hidden: ({ document }) => document?.propertyType === 'arsa',
     }),
     defineField({
@@ -372,6 +510,7 @@ export default defineType({
       title: 'Isıtma Tipi',
       type: 'string',
       group: 'details',
+      fieldset: 'heatingKitchenFields',
       options: {
         list: [
           { title: 'Kombi (Doğalgaz)', value: 'kombi' },
@@ -389,6 +528,7 @@ export default defineType({
       title: 'Mutfak',
       type: 'string',
       group: 'details',
+      fieldset: 'heatingKitchenFields',
       options: {
         list: [
           { title: 'Kapalı', value: 'kapali' },
@@ -403,6 +543,7 @@ export default defineType({
       title: 'Balkon',
       type: 'string',
       group: 'details',
+      fieldset: 'comfortFields',
       options: {
         list: [
           { title: 'Var', value: 'var' },
@@ -418,6 +559,7 @@ export default defineType({
       title: 'Asansör',
       type: 'string',
       group: 'details',
+      fieldset: 'comfortFields',
       options: {
         list: [
           { title: 'Var', value: 'var' },
@@ -433,6 +575,7 @@ export default defineType({
       title: 'Otopark',
       type: 'string',
       group: 'details',
+      fieldset: 'comfortFields',
       options: {
         list: [
           { title: 'Açık Otopark', value: 'acik' },
@@ -450,6 +593,7 @@ export default defineType({
       title: 'Eşyalı',
       type: 'string',
       group: 'details',
+      fieldset: 'furnishingComplexFields',
       options: {
         list: [
           { title: 'Evet', value: 'evet' },
@@ -465,6 +609,7 @@ export default defineType({
       title: 'Site İçerisinde',
       type: 'string',
       group: 'details',
+      fieldset: 'furnishingComplexFields',
       options: {
         list: [
           { title: 'Evet', value: 'evet' },
@@ -480,6 +625,7 @@ export default defineType({
       title: 'Site Adı',
       type: 'string',
       group: 'details',
+      fieldset: 'furnishingComplexFields',
       initialValue: 'Belirtilmemiş',
       hidden: ({ document }) => document?.isInComplex !== 'evet',
     }),
@@ -488,6 +634,7 @@ export default defineType({
       title: 'Aidat (TL)',
       type: 'number',
       group: 'details',
+      fieldset: 'furnishingComplexFields',
       initialValue: 0,
       hidden: ({ document }) => document?.isInComplex !== 'evet',
     }),
@@ -496,6 +643,7 @@ export default defineType({
       title: 'Kullanım Durumu',
       type: 'string',
       group: 'details',
+      fieldset: 'usageDeedFields',
       options: {
         list: [
           { title: 'Boş', value: 'bos' },
@@ -510,6 +658,7 @@ export default defineType({
       title: 'Depozito (TL)',
       type: 'number',
       group: 'details',
+      fieldset: 'financeFields',
       initialValue: 0,
       hidden: ({ document }) => document?.status !== 'kiralik',
     }),
@@ -518,6 +667,7 @@ export default defineType({
       title: 'Tapu Durumu',
       type: 'string',
       group: 'details',
+      fieldset: 'usageDeedFields',
       options: {
         list: [
           { title: 'Kat Mülkiyetli', value: 'kat-mulkiyetli' },
@@ -536,6 +686,7 @@ export default defineType({
       title: 'İmar Durumu',
       type: 'string',
       group: 'details',
+      fieldset: 'landZoningFields',
       hidden: ({ document }) => document?.propertyType !== 'arsa',
       options: {
         list: [
@@ -551,6 +702,7 @@ export default defineType({
       title: 'm² Fiyatı (₺)',
       type: 'number',
       group: 'details',
+      fieldset: 'landPricingFields',
       hidden: ({ document }) => document?.propertyType !== 'arsa',
     }),
     defineField({
@@ -558,6 +710,7 @@ export default defineType({
       title: 'Ada No',
       type: 'string',
       group: 'details',
+      fieldset: 'landRegistryFields',
       hidden: ({ document }) => document?.propertyType !== 'arsa',
       initialValue: 'Belirtilmemiş',
     }),
@@ -566,6 +719,7 @@ export default defineType({
       title: 'Parsel No',
       type: 'string',
       group: 'details',
+      fieldset: 'landRegistryFields',
       hidden: ({ document }) => document?.propertyType !== 'arsa',
       initialValue: 'Belirtilmemiş',
     }),
@@ -574,6 +728,7 @@ export default defineType({
       title: 'Pafta No',
       type: 'string',
       group: 'details',
+      fieldset: 'landRegistryFields',
       hidden: ({ document }) => document?.propertyType !== 'arsa',
       initialValue: 'Belirtilmemiş',
     }),
@@ -582,6 +737,7 @@ export default defineType({
       title: 'Kaks (Emsal)',
       type: 'string',
       group: 'details',
+      fieldset: 'landZoningFields',
       hidden: ({ document }) => document?.propertyType !== 'arsa',
       initialValue: 'Belirtilmemiş',
     }),
@@ -590,6 +746,7 @@ export default defineType({
       title: 'Gabari',
       type: 'string',
       group: 'details',
+      fieldset: 'landZoningFields',
       hidden: ({ document }) => document?.propertyType !== 'arsa',
       initialValue: 'Belirtilmemiş',
     }),
@@ -598,6 +755,7 @@ export default defineType({
       title: 'Krediye Uygunluk',
       type: 'string',
       group: 'details',
+      fieldset: 'financeFields',
       hidden: ({ document }) => document?.propertyType !== 'arsa',
       options: {
         list: [
@@ -613,6 +771,7 @@ export default defineType({
       title: 'Takas',
       type: 'string',
       group: 'details',
+      fieldset: 'financeFields',
       hidden: ({ document }) => document?.propertyType !== 'arsa',
       options: {
         list: [
@@ -628,6 +787,7 @@ export default defineType({
       title: 'Sahibindene Git Linki',
       type: 'url',
       group: 'details',
+      fieldset: 'externalLinkFields',
       description: 'İlanın sahibinden.com\'daki linkini buraya yapıştırın.',
       validation: (Rule) => Rule.uri({
         scheme: ['http', 'https']
@@ -802,17 +962,36 @@ export default defineType({
       title: 'Ana Fotoğraf',
       type: 'image',
       group: 'media',
+      fieldset: 'mediaFields',
       options: {
         hotspot: true,
+        sources: [mediaAssetSource],
       },
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'images',
-      title: 'Diğer Fotoğraflar (Galeri)',
+      title: 'Galeri (Fotoğraf/Video)',
       type: 'array',
       group: 'media',
-      of: [{ type: 'image', options: { hotspot: true } }],
+      fieldset: 'mediaFields',
+      of: [
+        { type: 'image', options: { hotspot: true, sources: [mediaAssetSource] } },
+        {
+          type: 'file',
+          title: 'Video',
+          options: { sources: [mediaAssetSource], accept: 'video/mp4' },
+          fields: [
+            {
+              name: 'alt',
+              type: 'string',
+              title: 'Açıklama',
+            },
+          ],
+          validation: (Rule) => Rule.required().warning('Lütfen yalnızca MP4 video yükleyin.'),
+        },
+      ],
+      validation: (Rule) => Rule.min(0),
     }),
 
   ],
@@ -821,12 +1000,14 @@ export default defineType({
       title: 'title',
       subtitle: 'listingId',
       media: 'mainImage',
+      isActive: 'isActive',
     },
     prepare(selection) {
-      const { title, subtitle, media } = selection;
+      const { title, subtitle, media, isActive } = selection;
+      const inactiveSuffix = isActive === false ? ' • Pasif' : ''
       return {
         title: title,
-        subtitle: `İlan No: ${subtitle || '...'}`,
+        subtitle: `İlan No: ${subtitle || '...'}${inactiveSuffix}`,
         media: media,
       };
     },

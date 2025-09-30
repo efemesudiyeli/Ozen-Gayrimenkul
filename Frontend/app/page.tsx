@@ -13,7 +13,7 @@ function urlFor(source: SanityImageSource) {
   return builder.image(source);
 }
 
-const query = `*[_type == "property" && (status == 'satilik' || status == 'kiralik')]{
+const query = `*[_type == "property" && coalesce(isActive, true) == true && (status == 'satilik' || status == 'kiralik')]{
   _id,
   _createdAt,
   title,

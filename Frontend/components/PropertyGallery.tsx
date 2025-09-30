@@ -35,8 +35,9 @@ type SanityImageWithMeta = SanityImageSource & {
 }
 
 // Component'in alacağı props'ların tip tanımı
+type GalleryItem = SanityImageWithMeta | { _type: 'file'; alt?: string; asset?: { url?: string; mimeType?: string } };
 interface PropertyGalleryProps {
-  images: SanityImageWithMeta[];
+  images: GalleryItem[];
 }
 
 const PropertyGallery = ({ images }: PropertyGalleryProps) => {
@@ -53,6 +54,21 @@ const PropertyGallery = ({ images }: PropertyGalleryProps) => {
         className="shadow-lg rounded-lg bg-black aspect-video cursor-pointer"
       >
         {images.map((image, index) => {
+          const isVideo = (image as any)?._type === 'file' && (image as any)?.asset?.mimeType?.startsWith('video/');
+          if (isVideo) {
+            const videoUrl = (image as any)?.asset?.url as string | undefined;
+            return (
+              <SwiperSlide key={index}>
+                <div className="w-full h-full flex items-center justify-center bg-black">
+                  {videoUrl ? (
+                    <video controls preload="metadata" className="w-full h-full object-contain">
+                      <source src={videoUrl} type={(image as any)?.asset?.mimeType || 'video/mp4'} />
+                    </video>
+                  ) : null}
+                </div>
+              </SwiperSlide>
+            );
+          }
           return (
             <SwiperSlide key={index}>
               <Image
@@ -79,16 +95,24 @@ const PropertyGallery = ({ images }: PropertyGalleryProps) => {
         className="mt-4"
       >
         {images.map((image, index) => (
-                     <SwiperSlide key={index} className="cursor-pointer rounded-md overflow-hidden opacity-60 hover:opacity-100 transition-opacity bg-black">
-             <div className="relative w-full aspect-square">
+          <SwiperSlide key={index} className="cursor-pointer rounded-md overflow-hidden opacity-60 hover:opacity-100 transition-opacity bg-black">
+            <div className="relative w-full aspect-square">
+              {((image as any)?._type === 'file' && (image as any)?.asset?.mimeType?.startsWith('video/')) ? (
+                <div className="w-full h-full flex items-center justify-center text-white">
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </div>
+              ) : (
                 <Image
-                    src={urlFor(image).url()}
-                    alt={`İlan küçük görseli ${index + 1}`}
-                    fill
-                    sizes="25vw"
-                    className="object-contain" // GÜNCELLEME: Thumbnail'lar için de 'object-contain' kullanılıyor
+                  src={urlFor(image).url()}
+                  alt={`İlan küçük görseli ${index + 1}`}
+                  fill
+                  sizes="25vw"
+                  className="object-contain"
                 />
-             </div>
+              )}
+            </div>
           </SwiperSlide>
         ))}
       </Swiper>

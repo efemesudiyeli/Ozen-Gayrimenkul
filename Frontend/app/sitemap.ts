@@ -11,7 +11,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }))
 
   const properties: { slug?: string; _updatedAt?: string }[] = await client.fetch(
-    `*[_type == "property" && defined(slug.current)]{ "slug": slug.current, _updatedAt }`
+    `*[_type == "property" && coalesce(isActive, true) == true && defined(slug.current)]{ "slug": slug.current, _updatedAt }`
   )
 
   const dynamicEntries: MetadataRoute.Sitemap = properties

@@ -5,6 +5,7 @@ import {structureTool, StructureBuilder} from 'sanity/structure'
 import {visionTool} from '@sanity/vision'
 import {schemaTypes} from './schemaTypes'
 import {colorInput} from '@sanity/color-input'
+import {media} from 'sanity-plugin-media'
 
 
 export const myStructure = (S: StructureBuilder) =>
@@ -33,7 +34,7 @@ export const myStructure = (S: StructureBuilder) =>
                     .documentId('aboutPage')
                 ),
               S.listItem()
-                .title('Danışmanlarımız')
+                .title('İş Ortaklarımız')
                 .child(
                   S.document()
                     .schemaType('teamPage')
@@ -60,16 +61,40 @@ export const myStructure = (S: StructureBuilder) =>
       
       // Emlak İçerikleri Grubu
       S.listItem()
-        .title('Emlak İçerikleri')
+        .title('İlanlar, İş Ortakları')
         .child(
           S.list()
-            .title('Emlak İçerikleri')
+            .title('İlanlar, İş Ortakları')
             .items([
               S.listItem()
-                .title('Emlak İlanları')
-                .child(S.documentTypeList('property')),
+                .title('İlanlar')
+                .child(
+                  S.list()
+                    .title('İlanlar')
+                    .items([
+                      S.listItem()
+                        .title('Aktif İlanlar')
+                        .child(
+                          S.documentList()
+                            .title('Aktif İlanlar')
+                            .filter('_type == "property" && coalesce(isActive, true) == true')
+                            .schemaType('property')
+                        ),
+                      S.listItem()
+                        .title('Pasif İlanlar')
+                        .child(
+                          S.documentList()
+                            .title('Pasif İlanlar')
+                            .filter('_type == "property" && isActive == false')
+                            .schemaType('property')
+                        ),
+                      S.listItem()
+                        .title('Tüm İlanlar')
+                        .child(S.documentTypeList('property')),
+                    ])
+                ),
               S.listItem()
-                .title('Danışmanlar')
+                .title('İş Ortakları')
                 .child(S.documentTypeList('agent')),
             ])
         ),
@@ -86,6 +111,7 @@ export default defineConfig({
     }),
     visionTool(),
     colorInput(),
+    media(),
   ],
   i18n: {
     locales: [
