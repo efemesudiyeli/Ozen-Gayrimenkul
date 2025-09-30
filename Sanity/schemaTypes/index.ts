@@ -5,6 +5,7 @@ import hero from './hero'
 import contactPage from './contactPage'
 import teamPage from './teamPage'
 import portfolioPage from './portfolioPage'
+import currency from './currency'
 
 export const schemaTypes = [
   property, 
@@ -13,5 +14,6 @@ export const schemaTypes = [
   hero, 
   contactPage, 
   teamPage, 
-  portfolioPage
+  portfolioPage,
+  currency
 ]

@@ -3,6 +3,7 @@ import LeafletMapInput from '../components/LeafletMapInput'
 import LeafletPolygonInput from '../components/LeafletPolygonInput'
 import DistrictSelectInput from '../components/DistrictSelectInput'
 import NeighborhoodSelectInput from '../components/NeighborhoodSelectInput'
+import CurrencyInput from '../components/CurrencyInput'
 import { PROVINCES } from '../components/addressData'
 
 // Türkçe karakterleri İngilizce karşılıklarına çeviren fonksiyon
@@ -111,9 +112,20 @@ export default defineType({
     defineField({
       name: 'price',
       title: 'Fiyat (₺)',
-      type: 'number',
+      type: 'string',
       group: 'basicInfo',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) => Rule.required().custom((value) => {
+        if (!value) return 'Fiyat gerekli'
+        const numericValue = parseInt(value.replace(/\./g, ''))
+        if (isNaN(numericValue) || numericValue < 0) {
+          return 'Geçerli bir fiyat girin'
+        }
+        return true
+      }),
+      description: 'Fiyatı Türk Lirası olarak girin (örn: 1.000.000)',
+      components: {
+        input: CurrencyInput as any,
+      },
     }),
     defineField({
       name: 'slug',
