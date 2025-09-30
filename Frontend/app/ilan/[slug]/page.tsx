@@ -6,6 +6,8 @@ import Link from 'next/link'
 import { Metadata } from 'next'
 import Image from 'next/image'
 import { PortableText } from '@portabletext/react'
+import type { PortableTextComponents } from '@portabletext/react'
+import type { PortableTextBlock } from '@portabletext/types'
 import MapLoader from '@/components/MapLoader';
 import PropertyGallery from '@/components/PropertyGallery'
 import PropertyPolygonMapLoader from '@/components/PropertyPolygonMapLoader';
@@ -196,7 +198,7 @@ interface PropertyDetail {
   konum?: string[]
   genelOzellikler?: string[]
   manzaraArsa?: string[]
-  description: any[]
+  description: PortableTextBlock[]
   descriptionPlain?: string
   sahibindenLink?: string
   locationMap?: { lat: number; lng: number }
@@ -330,17 +332,21 @@ export default async function PropertyPage({
   const GENEL_OZELLIKLER_OPTIONS = ['İfrazlı','Parselli','Projeli','Köşe Parsel']
   const MANZARA_ARSA_OPTIONS = ['Şehir','Deniz','Doğa','Boğaz','Göl']
 
-  const allMedia = [property.mainImage, ...(property.images || [])].filter(Boolean) as any[];
+  type GalleryFileItem = { _type: 'file'; alt?: string; asset?: { url?: string; mimeType?: string } };
+  type GalleryImageItem = SanityImageSource & { _type?: 'image'; asset?: { metadata?: { dimensions?: { aspectRatio?: number } } } };
+  type GalleryItem = GalleryImageItem | GalleryFileItem;
+  const allMedia = [property.mainImage, ...(property.images || [])].filter(Boolean) as GalleryItem[];
   const displayDescriptionFallback = 'Bu ilan için henüz bir açıklama girilmemiştir.';
-  const portableTextComponents = {
+  const portableTextComponents: PortableTextComponents = {
     marks: {
-      textColor: ({ children, value }: any) => {
-        const resolvedColor = typeof value?.color === 'string' ? value.color : value?.color?.hex;
+      textColor: ({ children, value }: { children: React.ReactNode; value?: { color?: string | { hex?: string } } }) => {
+        const colorValue = value?.color;
+        const resolvedColor = typeof colorValue === 'string' ? colorValue : colorValue?.hex;
         return <span style={{ color: resolvedColor || '#111827' }}>{children}</span>;
       },
-      fontSize: ({ children, value }: any) => {
-        const sizeMap: Record<string, string> = { sm: '0.875rem', base: '1rem', lg: '1.125rem', xl: '1.25rem' };
-        const fontSize = sizeMap[value?.size] || '1rem';
+      fontSize: ({ children, value }: { children: React.ReactNode; value?: { size?: 'sm' | 'base' | 'lg' | 'xl' } }) => {
+        const sizeMap: Record<'sm' | 'base' | 'lg' | 'xl', string> = { sm: '0.875rem', base: '1rem', lg: '1.125rem', xl: '1.25rem' };
+        const fontSize = value?.size ? sizeMap[value.size] : '1rem';
         return <span style={{ fontSize }}>{children}</span>;
       }
     }
@@ -430,7 +436,7 @@ export default async function PropertyPage({
                 </div>
                 {Array.isArray(property.description) && property.description.length > 0 ? (
                   <div className="prose prose-sm max-w-none text-gray-700">
-                    <PortableText value={property.description as any} components={portableTextComponents as any} />
+                    <PortableText value={property.description} components={portableTextComponents} />
                   </div>
                 ) : (
                   <p className="text-gray-700 leading-relaxed">{displayDescriptionFallback}</p>
