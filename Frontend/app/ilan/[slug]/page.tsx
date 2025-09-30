@@ -159,7 +159,7 @@ interface PropertyDetail {
   kitchenType?: 'kapali' | 'amerikan' | 'yok'
   hasBalcony?: 'var' | 'yok'
   hasElevator?: 'var' | 'yok'
-  hasParking?: 'var' | 'yok'
+  hasParking?: 'acik' | 'kapali' | 'acik-kapali' | 'yok'
   isFurnished?: 'evet' | 'hayir'
   isInComplex?: 'evet' | 'hayir'
   complexName?: string
@@ -255,6 +255,16 @@ export default async function PropertyPage({
 
   const yesNoLabel = (key?: 'evet' | 'hayir') => (key === 'evet' ? 'Evet' : key === 'hayir' ? 'Hayır' : undefined)
   const hasLabel = (key?: 'var' | 'yok') => (key === 'var' ? 'Var' : key === 'yok' ? 'Yok' : undefined)
+  
+  const parkingLabel = (key?: 'acik' | 'kapali' | 'acik-kapali' | 'yok') => {
+    switch (key) {
+      case 'acik': return 'Açık Otopark'
+      case 'kapali': return 'Kapalı Otopark'
+      case 'acik-kapali': return 'Açık ve Kapalı Otopark'
+      case 'yok': return 'Yok'
+      default: return undefined
+    }
+  }
 
   const usageStatusLabel = (key?: PropertyDetail['usageStatus']) => {
     switch (key) {
@@ -350,7 +360,7 @@ export default async function PropertyPage({
     if (property.kitchenType) specs.push({label: 'Mutfak', value: kitchenLabel(property.kitchenType) || '-'})
     if (property.hasBalcony) specs.push({label: 'Balkon', value: hasLabel(property.hasBalcony) || '-'})
     if (property.hasElevator) specs.push({label: 'Asansör', value: hasLabel(property.hasElevator) || '-'})
-    if (property.hasParking) specs.push({label: 'Otopark', value: hasLabel(property.hasParking) || '-'})
+    if (property.hasParking) specs.push({label: 'Otopark', value: parkingLabel(property.hasParking) || '-'})
     if (property.isFurnished) specs.push({label: 'Eşyalı', value: yesNoLabel(property.isFurnished) || '-'})
     if (property.usageStatus) specs.push({label: 'Kullanım Durumu', value: usageStatusLabel(property.usageStatus) || '-'})
     if (property.isInComplex) specs.push({label: 'Site İçerisinde', value: yesNoLabel(property.isInComplex) || '-'})

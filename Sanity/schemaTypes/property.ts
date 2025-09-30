@@ -356,7 +356,9 @@ export default defineType({
       group: 'details',
       options: {
         list: [
-          { title: 'Var', value: 'var' },
+          { title: 'Açık Otopark', value: 'acik' },
+          { title: 'Kapalı Otopark', value: 'kapali' },
+          { title: 'Açık ve Kapalı Otopark', value: 'acik-kapali' },
           { title: 'Yok', value: 'yok' },
         ],
         layout: 'radio',
