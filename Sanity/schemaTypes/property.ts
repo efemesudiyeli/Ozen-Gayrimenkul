@@ -3,8 +3,10 @@ import LeafletMapInput from '../components/LeafletMapInput'
 import LeafletPolygonInput from '../components/LeafletPolygonInput'
 import DistrictSelectInput from '../components/DistrictSelectInput'
 import NeighborhoodSelectInput from '../components/NeighborhoodSelectInput'
+import ProvinceSelectOrText from '../components/ProvinceSelectOrText'
+import ManualAddressToggle from '../components/ManualAddressToggle'
 import CurrencyInput from '../components/CurrencyInput'
-import { PROVINCES } from '../components/addressData'
+ 
 
 // Türkçe karakterleri İngilizce karşılıklarına çeviren fonksiyon
 const turkishToEnglish = (str: string): string => {
@@ -31,6 +33,13 @@ export default defineType({
     { name: 'details', title: 'İlan Detayları' },
     { name: 'amenities', title: 'Özellik Kategorileri' },
     { name: 'media', title: 'Görseller' },
+  ],
+  fieldsets: [
+    {
+      name: 'addressFields',
+      title: 'Adres Girişi',
+      options: { collapsible: false }
+    }
   ],
   fields: [
     // --- TEMEL BİLGİLER ---
@@ -154,13 +163,21 @@ export default defineType({
 
     // --- ADRES BİLGİLERİ ---
     defineField({
+      name: 'manualAddress',
+      title: 'Adres Giriş Modu',
+      type: 'boolean',
+      group: 'locationInfo',
+      fieldset: 'addressFields',
+      initialValue: false,
+      components: { input: ManualAddressToggle as any },
+    }),
+    defineField({
       name: 'province',
       title: 'İl',
       type: 'string',
       group: 'locationInfo',
-      options: {
-        list: PROVINCES,
-      },
+      fieldset: 'addressFields',
+      components: { input: ProvinceSelectOrText as any },
       validation: (Rule) => Rule.required(),
     }),
     defineField({
@@ -168,22 +185,24 @@ export default defineType({
       title: 'İlçe',
       type: 'string',
       group: 'locationInfo',
+      fieldset: 'addressFields',
       components: {
         input: DistrictSelectInput as any,
       },
       validation: (Rule) => Rule.required(),
-      hidden: ({ document }) => !document?.province,
+      hidden: ({ document }) => !document?.manualAddress && !document?.province,
     }),
     defineField({
       name: 'neighborhood',
       title: 'Mahalle',
       type: 'string',
       group: 'locationInfo',
+      fieldset: 'addressFields',
       components: {
         input: NeighborhoodSelectInput as any,
       },
       validation: (Rule) => Rule.required(),
-      hidden: ({ document }) => !document?.district,
+      hidden: ({ document }) => !document?.manualAddress && !document?.district,
     }),
     defineField({
       name: 'locationMap',
