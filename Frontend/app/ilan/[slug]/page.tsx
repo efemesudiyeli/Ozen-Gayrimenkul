@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Metadata } from 'next'
 import Image from 'next/image'
+import { PortableText } from '@portabletext/react'
 import MapLoader from '@/components/MapLoader';
 import PropertyGallery from '@/components/PropertyGallery'
 import PropertyPolygonMapLoader from '@/components/PropertyPolygonMapLoader';
@@ -14,7 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const query = `*[_type == "property" && slug.current == $slug][0]{
     title,
-    description
+    "description": pt::text(description)
   }`
 
   const property = await client.fetch<{ title: string; description: string }>(
@@ -123,6 +124,7 @@ const propertyPageQuery = `*[_type == "property" && slug.current == $slug][0]{
   genelOzellikler,
   manzaraArsa,
   description,
+  "descriptionPlain": coalesce(pt::text(description), ""),
   sahibindenLink,
   locationMap,
   showApproximateLocation,
@@ -188,7 +190,8 @@ interface PropertyDetail {
   konum?: string[]
   genelOzellikler?: string[]
   manzaraArsa?: string[]
-  description: string
+  description: any[]
+  descriptionPlain?: string
   sahibindenLink?: string
   locationMap?: { lat: number; lng: number }
   showApproximateLocation?: boolean
@@ -322,7 +325,20 @@ export default async function PropertyPage({
   const MANZARA_ARSA_OPTIONS = ['Şehir','Deniz','Doğa','Boğaz','Göl']
 
   const allImages = [property.mainImage, ...(property.images || [])].filter(Boolean) as SanityImageSource[];
-  const displayDescription = property.description || 'Bu ilan için henüz bir açıklama girilmemiştir.';
+  const displayDescriptionFallback = 'Bu ilan için henüz bir açıklama girilmemiştir.';
+  const portableTextComponents = {
+    marks: {
+      textColor: ({ children, value }: any) => {
+        const resolvedColor = typeof value?.color === 'string' ? value.color : value?.color?.hex;
+        return <span style={{ color: resolvedColor || '#111827' }}>{children}</span>;
+      },
+      fontSize: ({ children, value }: any) => {
+        const sizeMap: Record<string, string> = { sm: '0.875rem', base: '1rem', lg: '1.125rem', xl: '1.25rem' };
+        const fontSize = sizeMap[value?.size] || '1rem';
+        return <span style={{ fontSize }}>{children}</span>;
+      }
+    }
+  } as const;
 
 
   const specs: {label: string; value: string}[] = []
@@ -406,7 +422,13 @@ export default async function PropertyPage({
                   </svg>
                   <h2 className="text-xl font-bold text-gray-900">İlan Açıklaması</h2>
                 </div>
-                <p className="text-gray-700 leading-relaxed">{displayDescription}</p>
+                {Array.isArray(property.description) && property.description.length > 0 ? (
+                  <div className="prose prose-sm max-w-none text-gray-700">
+                    <PortableText value={property.description as any} components={portableTextComponents as any} />
+                  </div>
+                ) : (
+                  <p className="text-gray-700 leading-relaxed">{displayDescriptionFallback}</p>
+                )}
               </div>
 
               {/* Özellikler */}

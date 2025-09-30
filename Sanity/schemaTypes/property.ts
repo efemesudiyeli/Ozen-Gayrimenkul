@@ -242,7 +242,66 @@ export default defineType({
     defineField({
       name: 'description',
       title: 'Açıklama',
-      type: 'text',
+      type: 'array',
+      of: [
+        {
+          type: 'block',
+          styles: [
+            { title: 'Normal', value: 'normal' },
+            { title: 'Başlık 1', value: 'h1' },
+            { title: 'Başlık 2', value: 'h2' },
+            { title: 'Başlık 3', value: 'h3' },
+            { title: 'Alıntı', value: 'blockquote' },
+          ],
+          lists: [
+            { title: 'Numaralı', value: 'number' },
+            { title: 'Madde İşaretli', value: 'bullet' },
+          ],
+          marks: {
+            decorators: [
+              { title: 'Kalın', value: 'strong' },
+              { title: 'İtalik', value: 'em' },
+              { title: 'Altı Çizili', value: 'underline' },
+              { title: 'Üstü Çizili', value: 'strike-through' },
+            ],
+            annotations: [
+              {
+                name: 'textColor',
+                title: 'Yazı Rengi',
+                type: 'object',
+                fields: [
+                  {
+                    name: 'color',
+                    title: 'Renk',
+                    type: 'color',
+                  },
+                ],
+              },
+              {
+                name: 'fontSize',
+                title: 'Yazı Boyutu',
+                type: 'object',
+                fields: [
+                  {
+                    name: 'size',
+                    title: 'Boyut',
+                    type: 'string',
+                    options: {
+                      list: [
+                        { title: 'Küçük', value: 'sm' },
+                        { title: 'Normal', value: 'base' },
+                        { title: 'Büyük', value: 'lg' },
+                        { title: 'Çok Büyük', value: 'xl' },
+                      ],
+                      layout: 'radio',
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      ],
       group: 'details',
       description: 'İlanla ilgili tüm detayları bu alana yazın.',
       validation: (Rule) => Rule.required(),

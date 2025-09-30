@@ -4,6 +4,7 @@ import {defineConfig, defineLocale, defineLocaleResourceBundle} from 'sanity'
 import {structureTool, StructureBuilder} from 'sanity/structure'
 import {visionTool} from '@sanity/vision'
 import {schemaTypes} from './schemaTypes'
+import {colorInput} from '@sanity/color-input'
 
 
 export const myStructure = (S: StructureBuilder) =>
@@ -84,6 +85,7 @@ export default defineConfig({
       structure: myStructure,
     }),
     visionTool(),
+    colorInput(),
   ],
   i18n: {
     locales: [
