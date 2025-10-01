@@ -1,6 +1,7 @@
 "use client";
 
 import { MapContainer, TileLayer, Marker, Circle } from 'react-leaflet';
+import { useState } from 'react';
 import 'leaflet/dist/leaflet.css';
 
 import L from 'leaflet';
@@ -36,13 +37,40 @@ interface PropertyMapProps {
 const PropertyMap = ({ coordinates, isApproximate }: PropertyMapProps) => {
   const position: [number, number] = [coordinates.lat, coordinates.lng];
   const radius = 500;
+  const [satellite, setSatellite] = useState(false);
 
   return (
-    <MapContainer center={position} zoom={isApproximate ? 14 : 16} style={{ height: '400px', width: '100%' }} className="rounded-lg">
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
+    <MapContainer center={position} zoom={isApproximate ? 14 : 16} style={{ height: '400px', width: '100%' }} className="rounded-lg relative">
+      {satellite ? (
+        <TileLayer
+          attribution='Tiles © Esri — Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community'
+          url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+        />
+      ) : (
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+      )}
+
+      <div className="absolute z-[1000] top-3 right-3">
+        <div className="inline-flex rounded-md overflow-hidden border border-gray-200 shadow bg-white/90 backdrop-blur">
+          <button
+            type="button"
+            onClick={() => setSatellite(false)}
+            className={`px-3 py-1.5 text-xs font-medium transition-colors ${!satellite ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-gray-50'}`}
+          >
+            Harita
+          </button>
+          <button
+            type="button"
+            onClick={() => setSatellite(true)}
+            className={`px-3 py-1.5 text-xs font-medium border-l border-gray-200 transition-colors ${satellite ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-gray-50'}`}
+          >
+            Uydu
+          </button>
+        </div>
+      </div>
       
       {isApproximate ? (
         <>

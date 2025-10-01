@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react'
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet'
+import { Flex } from '@sanity/ui'
 import { LatLng } from 'leaflet'
 import { Stack, Text, Button, Box, Spinner } from '@sanity/ui'
 import { set, unset, PatchEvent } from 'sanity'
@@ -52,6 +53,7 @@ export default function LeafletMapInput(props: ObjectInputProps) {
   )
   const [isGeocodingLoading, setIsGeocodingLoading] = useState(false)
   const [addressInfo, setAddressInfo] = useState<string | null>(null)
+  const [satellite, setSatellite] = useState(false)
 
   // Antalya merkezi default konum
   const defaultCenter: LatLng = new LatLng(36.8969, 30.7133)
@@ -128,16 +130,23 @@ export default function LeafletMapInput(props: ObjectInputProps) {
         {isGeocodingLoading && <Spinner muted size={1} />}
       </Stack>
       
-      <Box style={{ height: '400px', width: '100%' }}>
+      <Box style={{ height: '400px', width: '100%', position: 'relative' }}>
         <MapContainer
           center={center}
           zoom={11}
           style={{ height: '100%', width: '100%' }}
         >
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
+          {satellite ? (
+            <TileLayer
+              attribution='Tiles © Esri — Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community'
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+            />
+          ) : (
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+          )}
           
           <MapClickHandler onLocationSelect={handleLocationSelect} />
           
@@ -145,6 +154,26 @@ export default function LeafletMapInput(props: ObjectInputProps) {
             <Marker position={position} />
           )}
         </MapContainer>
+
+        <div style={{ position: 'absolute', top: 12, right: 12, zIndex: 1000 }}>
+          <div style={{ display: 'inline-flex', borderRadius: 6, overflow: 'hidden', border: '1px solid #e5e7eb', boxShadow: '0 1px 2px rgba(0,0,0,0.06)', background: 'rgba(255,255,255,0.9)', backdropFilter: 'saturate(180%) blur(6px)' }}>
+            <button
+              type="button"
+              onClick={() => setSatellite(false)}
+              style={{ padding: '6px 10px', fontSize: 12, fontWeight: 600, color: !satellite ? '#fff' : '#374151', background: !satellite ? '#f97316' : 'transparent', border: 'none', cursor: 'pointer' }}
+            >
+              Harita
+            </button>
+            <div style={{ width: 1, background: '#e5e7eb' }} />
+            <button
+              type="button"
+              onClick={() => setSatellite(true)}
+              style={{ padding: '6px 10px', fontSize: 12, fontWeight: 600, color: satellite ? '#fff' : '#374151', background: satellite ? '#f97316' : 'transparent', border: 'none', cursor: 'pointer' }}
+            >
+              Uydu
+            </button>
+          </div>
+        </div>
       </Box>
 
       <Stack direction="row" space={2} align="center">

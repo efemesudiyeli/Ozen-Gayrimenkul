@@ -71,6 +71,12 @@ const propertyPageQuery = `*[_type == "property" && coalesce(isActive, true) == 
   status,
   listingId,
   listingDate,
+  businessCategories,
+  businessGeneralFeatures,
+  businessProximity,
+  businessView,
+  businessOrientation,
+  businessInfrastructure,
   "images": images[]{
     _type,
     ...,
@@ -190,6 +196,12 @@ interface PropertyDetail {
   konum?: string[]
   genelOzellikler?: string[]
   manzaraArsa?: string[]
+  businessCategories?: string[]
+  businessGeneralFeatures?: string[]
+  businessProximity?: string[]
+  businessView?: string[]
+  businessOrientation?: string[]
+  businessInfrastructure?: string[]
   description: PortableTextBlock[]
   descriptionPlain?: string
   sahibindenLink?: string
@@ -456,6 +468,7 @@ export default async function PropertyPage({
                   </svg>
                   <h2 className="text-xl font-bold text-gray-900">Teknik Özellikler</h2>
                 </div>
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 gap-x-6">
                   {specs.map((item, idx) => (
                     <div key={idx} className="flex justify-between items-center py-2 border-b border-gray-100">
@@ -488,7 +501,15 @@ export default async function PropertyPage({
                 {title: 'Konum', options: KONUM_OPTIONS, selected: property.konum || []},
                 {title: 'Genel Özellikler', options: GENEL_OZELLIKLER_OPTIONS, selected: property.genelOzellikler || []},
                 {title: 'Manzara', options: MANZARA_ARSA_OPTIONS, selected: property.manzaraArsa || []},
-              ].filter(cat => cat.options.length > 0) : [
+              ].filter(cat => cat.options.length > 0) : property.propertyType === 'isyeri' ? [
+                // Business-specific amenities summary badges (optional visual summary)
+                {title: 'İşyeri Türü', options: property.businessCategories || [], selected: property.businessCategories || []},
+                {title: 'Genel Özellikler', options: property.businessGeneralFeatures || [], selected: property.businessGeneralFeatures || []},
+                {title: 'Yakınlık', options: property.businessProximity || [], selected: property.businessProximity || []},
+                {title: 'Manzara', options: property.businessView || [], selected: property.businessView || []},
+                {title: 'Cephe', options: property.businessOrientation || [], selected: property.businessOrientation || []},
+                {title: 'Alt Yapı', options: property.businessInfrastructure || [], selected: property.businessInfrastructure || []},
+              ].filter(cat => Array.isArray(cat.options) && cat.options.length > 0) : [
                 // Non-land property amenities
                 {title: 'Cephe', options: ORIENTATION_OPTIONS, selected: property.orientation || []},
                 {title: 'İç Özellikler', options: INDOOR_FEATURES_OPTIONS, selected: property.indoorFeatures || []},

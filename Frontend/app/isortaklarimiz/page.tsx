@@ -12,7 +12,7 @@ interface TeamPageData {
   metaDescription: string;
 }
 
-const teamPageQuery = `*[_type == "teamPage"][0]{
+const teamPageQuery = `*[_type == "teamPage" && _id == "teamPage"][0]{
   title,
   heroTitle,
   heroDescription,
@@ -21,7 +21,7 @@ const teamPageQuery = `*[_type == "teamPage"][0]{
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
-    const teamData = await client.fetch<TeamPageData>(teamPageQuery);
+    const teamData = await client.fetch<TeamPageData>(teamPageQuery, {}, { next: { revalidate: 10 } });
     return {
       title: `${teamData.title || 'İş Ortaklarımız'} | Hatice Özen Gayrimenkul`,
       description: teamData.metaDescription || 'Alanında uzman, profesyonel gayrimenkul iş ortaklarımızla tanışın.',
@@ -60,7 +60,7 @@ interface Agent {
 }
 
 const AgentsPage = async () => {
-  const agents: Agent[] = await client.fetch(query);
+  const agents: Agent[] = await client.fetch(query, {}, { next: { revalidate: 10 } });
   
   const defaultTeamData: TeamPageData = {
     title: 'İş Ortaklarımız',
@@ -72,7 +72,7 @@ const AgentsPage = async () => {
   let teamData = defaultTeamData;
   
   try {
-    const fetchedTeamData = await client.fetch<TeamPageData>(teamPageQuery);
+    const fetchedTeamData = await client.fetch<TeamPageData>(teamPageQuery, {}, { next: { revalidate: 10 } });
     if (fetchedTeamData) {
       teamData = fetchedTeamData;
     }
