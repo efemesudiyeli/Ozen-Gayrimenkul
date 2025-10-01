@@ -4,6 +4,7 @@ import './globals.css'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Script from 'next/script'
+import GtagPageView from '@/components/GtagPageView'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -60,7 +61,10 @@ export default function RootLayout({
         </Script>
         <div className="flex flex-col min-h-screen">
           <Header />
-          <main className="flex-grow">{children}</main>
+          <main className="flex-grow">
+            <GtagPageView />
+            {children}
+          </main>
           <Footer />
         </div>
       </body>

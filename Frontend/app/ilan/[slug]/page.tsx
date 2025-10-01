@@ -218,6 +218,19 @@ export default async function PropertyPage({
     notFound()
   }
 
+  if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+    try {
+      window.gtag('event', 'property_view', {
+        event_category: 'engagement',
+        value: 1,
+        property_id: property._id,
+        listing_id: property.listingId,
+        property_type: property.propertyType,
+        status: property.status,
+      })
+    } catch {}
+  }
+
   const formatDateTR = (dateString?: string) => {
     if (!dateString) return null
     
