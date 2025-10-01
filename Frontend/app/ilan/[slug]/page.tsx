@@ -427,7 +427,7 @@ export default async function PropertyPage({
                   <h2 className="text-xl font-bold text-gray-900">İlan Açıklaması</h2>
                 </div>
                 {Array.isArray(property.description) && property.description.length > 0 ? (
-                  <div className="prose prose-sm max-w-none text-gray-700">
+                  <div className="prose prose-neutral max-w-none prose-headings:font-bold prose-headings:text-gray-900 prose-p:leading-relaxed">
                     <PortableText value={property.description} components={portableTextComponents} />
                   </div>
                 ) : (

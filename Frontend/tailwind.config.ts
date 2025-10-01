@@ -18,17 +18,27 @@ const config: Config = {
       typography: ({ theme }) => ({
         DEFAULT: {
           css: {
+            h1: {
+              fontSize: '2.25rem',
+              fontWeight: '800',
+              marginTop: '1.5em',
+              marginBottom: '0.6em',
+              lineHeight: '1.2',
+              color: theme('colors.gray.900'),
+            },
             h2: {
               fontSize: '1.875rem', 
               fontWeight: '700',
               marginTop: '1.5em',
               marginBottom: '0.5em',
+              color: theme('colors.gray.900'),
             },
             h3: {
               fontSize: '1.5rem',
               fontWeight: '600',
               marginTop: '1.5em',
               marginBottom: '0.5em',
+              color: theme('colors.gray.900'),
             },
             strong: {
               color: theme('colors.blue.600'),
