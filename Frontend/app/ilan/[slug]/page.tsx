@@ -71,13 +71,6 @@ const propertyPageQuery = `*[_type == "property" && coalesce(isActive, true) == 
   status,
   listingId,
   listingDate,
-  "mainImage": mainImage{
-    ...,
-    asset->{
-      ...,
-      metadata
-    }
-  },
   "images": images[]{
     _type,
     ...,
@@ -156,7 +149,6 @@ interface PropertyDetail {
   status: 'satilik' | 'kiralik' | 'satildi' | 'kiralandi'
   listingId: string
   listingDate?: string
-  mainImage: SanityImageSource
   images: (SanityImageSource | { _type: 'file'; alt?: string; asset?: { url?: string; mimeType?: string; extension?: string; size?: number; originalFilename?: string } })[]
   bedrooms?: string
   bathrooms?: number
@@ -335,7 +327,7 @@ export default async function PropertyPage({
   type GalleryFileItem = { _type: 'file'; alt?: string; asset?: { url?: string; mimeType?: string } };
   type GalleryImageItem = SanityImageSource & { _type?: 'image'; asset?: { metadata?: { dimensions?: { aspectRatio?: number } } } };
   type GalleryItem = GalleryImageItem | GalleryFileItem;
-  const allMedia = [property.mainImage, ...(property.images || [])].filter(Boolean) as GalleryItem[];
+  const allMedia = (property.images || []).filter(Boolean) as GalleryItem[];
   const displayDescriptionFallback = 'Bu ilan için henüz bir açıklama girilmemiştir.';
   const portableTextComponents: PortableTextComponents = {
     marks: {
@@ -624,7 +616,7 @@ export default async function PropertyPage({
                     <svg className="w-6 h-6 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
-                    <h3 className="text-lg font-bold text-gray-900">Danışmanınız</h3>
+                    <h3 className="text-lg font-bold text-gray-900">İş Ortağımız</h3>
                   </div>
                   <div className="text-center">
                     {property.agent.image && (
@@ -645,6 +637,17 @@ export default async function PropertyPage({
                         className="block bg-blue-600 text-white px-4 py-2 text-sm font-medium hover:bg-blue-700 transition-colors"
                       >
                         📞 {property.agent.phone}
+                      </a>
+                      <a 
+                        href={`https://wa.me/${90}${property.agent.phone.replace(/ /g, '')}?text=Merhaba%20"*${property.title}*"%20ile%20ilgili%20bilgi%20alabilir%20miyim?`}
+                        className="block bg-green-600 text-white px-4 py-2 text-sm font-medium hover:bg-green-700 transition-colors text-center flex items-center justify-center"
+                      >
+                        <span className="inline-flex items-center justify-center">
+                          <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <path d="M20.52 3.48A11.8 11.8 0 0012 0C5.37 0 0 5.37 0 12c0 2.12.55 4.11 1.52 5.85L0 24l6.3-1.64A11.82 11.82 0 0012 24c6.63 0 12-5.37 12-12 0-3.19-1.25-6.18-3.48-8.52zM12 22a9.93 9.93 0 01-5.08-1.39l-.36-.21-3.76.98 1-3.67-.24-.38A9.96 9.96 0 1122 12c0 5.52-4.48 10-10 10zm5.49-7.36c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.95 1.17-.18.2-.35.22-.65.07-.3-.15-1.25-.46-2.38-1.47-.88-.78-1.47-1.73-1.64-2.02-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.08-.8.37-.27.3-1.05 1.03-1.05 2.5s1.08 2.9 1.23 3.1c.15.2 2.12 3.23 5.14 4.39.72.31 1.28.5 1.72.64.72.23 1.38.2 1.9.12.58-.09 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.08-.12-.27-.19-.57-.34z" />
+                          </svg>
+                          WhatsApp Mesaj Gönder
+                        </span>
                       </a>
                       {property.agent.email && (
                         <a 
@@ -687,4 +690,3 @@ export default async function PropertyPage({
 }
 
 export const revalidate = 10
-

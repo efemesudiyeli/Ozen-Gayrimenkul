@@ -4,7 +4,7 @@ import {defineField, defineType} from 'sanity'
 
 export default defineType({
   name: 'agent',
-  title: 'Emlak Danışmanı',
+  title: 'İş Ortağı',
   type: 'document',
   fields: [
     defineField({
@@ -41,6 +41,7 @@ export default defineType({
     defineField({
       name: 'phone',
       title: 'Telefon Numarası',
+      description: 'Ülke kodu veya 0 olmadan giriniz. Örn: 555 555 55 55',
       type: 'string',
     }),
     defineField({
@@ -48,12 +49,6 @@ export default defineType({
       title: 'E-posta Adresi',
       type: 'string',
       validation: (Rule) => Rule.email().warning('Geçerli bir e-posta adresi girin'),
-    }),
-    defineField({
-      name: 'bio',
-      title: 'Biyografi',
-      type: 'text',
-      description: 'Danışman hakkında kısa bir tanıtım yazısı.',
     }),
   ],
   preview: {

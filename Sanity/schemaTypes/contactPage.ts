@@ -67,7 +67,16 @@ export default {
               name: 'number',
               title: 'Telefon Numarası',
               type: 'string',
-              validation: (Rule: any) => Rule.required(),
+              description: 'Ülke kodu ve baştaki 0 olmadan, 10 hane (boşluk bırakabilirsiniz). Örn: 532 123 45 67',
+              validation: (Rule: any) =>
+                Rule.required().custom((val: string) => {
+                  if (typeof val !== 'string') return 'Telefon numarası gerekli';
+                  const digits = (val || '').replace(/[^0-9]/g, '');
+                  if (!digits) return 'Telefon numarası gerekli';
+                  if (digits.length !== 10) return '10 hane olmalı (ülke kodu ve baştaki 0 olmadan)';
+                  if (digits[0] === '0') return 'Baştaki 0 olmamalı';
+                  return true;
+                }),
             },
             {
               name: 'displayNumber',

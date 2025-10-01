@@ -958,20 +958,9 @@ export default defineType({
 
     // --- GÖRSELLER ---
     defineField({
-      name: 'mainImage',
-      title: 'Ana Fotoğraf',
-      type: 'image',
-      group: 'media',
-      fieldset: 'mediaFields',
-      options: {
-        hotspot: true,
-        sources: [mediaAssetSource],
-      },
-      validation: (Rule) => Rule.required(),
-    }),
-    defineField({
       name: 'images',
       title: 'Galeri (Fotoğraf/Video)',
+      description: 'Galerinin ilk sırasındaki fotoğraf ilanın ana görseli olarak kullanılacaktır. Sürükle bırak işlemiyle birden fazla fotoğraf veya video ekleyebilirsiniz.',
       type: 'array',
       group: 'media',
       fieldset: 'mediaFields',
@@ -981,13 +970,6 @@ export default defineType({
           type: 'file',
           title: 'Video',
           options: { sources: [mediaAssetSource], accept: 'video/mp4' },
-          fields: [
-            {
-              name: 'alt',
-              type: 'string',
-              title: 'Açıklama',
-            },
-          ],
           validation: (Rule) => Rule.required().warning('Lütfen yalnızca MP4 video yükleyin.'),
         },
       ],
@@ -999,11 +981,17 @@ export default defineType({
     select: {
       title: 'title',
       subtitle: 'listingId',
-      media: 'mainImage',
+      images: 'images',
       isActive: 'isActive',
     },
     prepare(selection) {
-      const { title, subtitle, media, isActive } = selection;
+      const { title, subtitle, images, isActive } = selection as {
+        title?: string
+        subtitle?: string
+        images?: any[]
+        isActive?: boolean
+      }
+      const media = Array.isArray(images) ? images.find((it) => it?._type === 'image') : undefined
       const inactiveSuffix = isActive === false ? ' • Pasif' : ''
       return {
         title: title,

@@ -50,7 +50,7 @@ const query = `*[_type == "property" && coalesce(isActive, true) == true && (sta
   _id,
   title,
   slug,
-  mainImage,
+  "mainImage": images[_type == 'image'][0],
   location,
   status,
   propertyType,

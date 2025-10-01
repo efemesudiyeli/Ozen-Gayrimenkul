@@ -111,7 +111,6 @@ const AgentsPage = async () => {
               <h3 className="text-xl font-semibold text-gray-900">{agent.name}</h3>
               <p className="text-blue-600">{agent.position}</p>
               <div className="mt-4 text-gray-600 space-y-1">
-                {agent.phone && <p>{agent.phone}</p>}
                 {agent.email && <a href={`mailto:${agent.email}`} className="hover:text-blue-700">{agent.email}</a>}
               </div>
             </div>

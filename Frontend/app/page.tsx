@@ -19,7 +19,7 @@ const query = `*[_type == "property" && coalesce(isActive, true) == true && (sta
   title,
   slug,
   price,
-  mainImage,
+  "mainImage": images[_type == 'image'][0],
   province,
   district,
   neighborhood,
