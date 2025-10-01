@@ -220,6 +220,21 @@ export default function HomePage() {
     }
   }, [minPrice, maxPrice, roomCount, statusFilter, provinceFilter, districtFilter, neighborhoodFilter, activeFilter, allProperties.length, applyFilters, searchTerm]);
 
+  // Hash ile gelen yönlendirmelerde (/#ilanlar) veri yüklendikten sonra ilgili bölüme kaydır
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (isLoading) return;
+    if (window.location.hash === '#ilanlar') {
+      const el = document.getElementById('ilanlar');
+      if (el) {
+        // İçerik render sonrası güvenli kaydırma
+        setTimeout(() => {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 50);
+      }
+    }
+  }, [isLoading]);
+
   const handleFilter = (filter: string) => {
     setActiveFilter(filter);
     setCurrentPage(1);
