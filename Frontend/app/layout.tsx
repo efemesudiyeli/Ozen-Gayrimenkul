@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import Header from '@/components/Header'
@@ -62,7 +63,9 @@ export default function RootLayout({
         <div className="flex flex-col min-h-screen">
           <Header />
           <main className="flex-grow">
-            <GtagPageView />
+            <Suspense fallback={null}>
+              <GtagPageView />
+            </Suspense>
             {children}
           </main>
           <Footer />

@@ -23,9 +23,18 @@ export default function GtagPageView() {
   return null
 }
 
+type GtagConfigParams = Record<string, string | number | boolean | undefined>
+type GtagEventParams = Record<string, string | number | boolean | undefined>
+
+type GtagFunction = {
+  (command: 'js', date: Date): void
+  (command: 'config', targetId: string, config?: GtagConfigParams): void
+  (command: 'event', eventName: string, params?: GtagEventParams): void
+}
+
 declare global {
   interface Window {
-    gtag?: (...args: any[]) => void
+    gtag?: GtagFunction
   }
 }
 
