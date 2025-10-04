@@ -46,19 +46,19 @@ const PropertyPolygonMap = ({ coordinates }: PropertyPolygonMapProps) => {
         />
       )}
 
-      <div className="absolute z-[1000] top-3 right-3">
+      <div className="absolute z-[1200] top-2 right-2 md:top-3 md:right-3">
         <div className="inline-flex rounded-md overflow-hidden border border-gray-200 shadow bg-white/90 backdrop-blur">
           <button
             type="button"
             onClick={() => setSatellite(false)}
-            className={`px-3 py-1.5 text-xs font-medium transition-colors ${!satellite ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-gray-50'}`}
+            className={`px-2.5 md:px-3 py-1.5 text-xs font-medium transition-colors ${!satellite ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-gray-50'}`}
           >
             Harita
           </button>
           <button
             type="button"
             onClick={() => setSatellite(true)}
-            className={`px-3 py-1.5 text-xs font-medium border-l border-gray-200 transition-colors ${satellite ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-gray-50'}`}
+            className={`px-2.5 md:px-3 py-1.5 text-xs font-medium border-l border-gray-200 transition-colors ${satellite ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-gray-50'}`}
           >
             Uydu
           </button>
