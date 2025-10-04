@@ -6,6 +6,7 @@ import DistrictSelectInput from '../components/DistrictSelectInput'
 import NeighborhoodSelectInput from '../components/NeighborhoodSelectInput'
 import ProvinceSelectOrText from '../components/ProvinceSelectOrText'
 import ManualAddressToggle from '../components/ManualAddressToggle'
+import ColorSwatchInput from '../components/ColorSwatchInput'
 import CurrencyInput from '../components/CurrencyInput'
  
 
@@ -400,11 +401,22 @@ export default defineType({
                 name: 'textColor',
                 title: 'Yazı Rengi',
                 type: 'object',
+                icon: () => '🎨',
+                components: {
+                  input: ColorSwatchInput as any,
+                },
                 fields: [
                   {
                     name: 'color',
                     title: 'Renk',
-                    type: 'color',
+                    type: 'object',
+                    fields: [
+                      {
+                        name: 'hex',
+                        type: 'string',
+                        hidden: true,
+                      },
+                    ],
                   },
                 ],
               },
@@ -412,6 +424,7 @@ export default defineType({
                 name: 'fontSize',
                 title: 'Yazı Boyutu',
                 type: 'object',
+                icon: () => '📝',
                 fields: [
                   {
                     name: 'size',
