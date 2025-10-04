@@ -759,12 +759,23 @@ export default defineType({
     }),
     defineField({
       name: 'dues',
-      title: 'Aidat (TL)',
-      type: 'number',
+      title: 'Aidat (₺)',
+      type: 'string',
       group: 'details',
       fieldset: 'furnishingComplexFields',
-      initialValue: 0,
+      validation: (Rule) => Rule.custom((value) => {
+        if (value === undefined || value === null || value === '') return true
+        const numericValue = parseInt(String(value).replace(/\./g, ''))
+        if (isNaN(numericValue) || numericValue < 0) {
+          return 'Geçerli bir aidat girin'
+        }
+        return true
+      }),
+      description: 'Aidatı Türk Lirası olarak girin (örn: 1.500)',
       hidden: ({ document }) => document?.isInComplex !== 'evet',
+      components: {
+        input: CurrencyInput as any,
+      },
     }),
     defineField({
       name: 'usageStatus',
@@ -783,12 +794,23 @@ export default defineType({
     }),
     defineField({
       name: 'deposit',
-      title: 'Depozito (TL)',
-      type: 'number',
-      group: 'details',
-      fieldset: 'financeFields',
-      initialValue: 0,
+      title: 'Depozito (₺)',
+      type: 'string',
+      group: 'basicInfo',
+      fieldset: 'pricingFields',
+      validation: (Rule) => Rule.custom((value) => {
+        if (value === undefined || value === null || value === '') return true
+        const numericValue = parseInt(String(value).replace(/\./g, ''))
+        if (isNaN(numericValue) || numericValue < 0) {
+          return 'Geçerli bir depozito girin'
+        }
+        return true
+      }),
+      description: 'Depozitoyu Türk Lirası olarak girin (örn: 50.000)',
       hidden: ({ document }) => document?.status !== 'kiralik',
+      components: {
+        input: CurrencyInput as any,
+      },
     }),
     defineField({
       name: 'titleDeedStatus',

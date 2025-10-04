@@ -171,9 +171,9 @@ interface PropertyDetail {
   isFurnished?: 'evet' | 'hayir'
   isInComplex?: 'evet' | 'hayir'
   complexName?: string
-  dues?: number
+  dues?: number | string
   usageStatus?: 'bos' | 'kiraci' | 'mal-sahibi'
-  deposit?: number
+  deposit?: number | string
   titleDeedStatus?: 'kat-mulkiyetli' | 'kat-irtifakli' | 'hisseli' | 'arsa-tapulu' | 'mustakil-tapulu' | 'devre-mulk'
   imarDurumu?: 'tarla' | 'arsa' | 'imar-yok' | 'belirtilmemis'
   pricePerSquareMeter?: number
@@ -410,8 +410,26 @@ export default async function PropertyPage({
     if (property.usageStatus) specs.push({label: 'Kullanım Durumu', value: usageStatusLabel(property.usageStatus) || '-'})
     if (property.isInComplex) specs.push({label: 'Site İçerisinde', value: yesNoLabel(property.isInComplex) || '-'})
     if (property.isInComplex === 'evet' && property.complexName) specs.push({label: 'Site Adı', value: property.complexName})
-    if (property.isInComplex === 'evet' && (typeof property.dues === 'number')) specs.push({label: 'Aidat (TL)', value: property.dues.toLocaleString('tr-TR')})
-    if (property.status === 'kiralik' && (typeof property.deposit === 'number')) specs.push({label: 'Depozito (TL)', value: property.deposit.toLocaleString('tr-TR')})
+    if (property.isInComplex === 'evet') {
+      const duesValue = typeof property.dues === 'number'
+        ? property.dues
+        : typeof property.dues === 'string'
+          ? (() => { const n = parseInt(property.dues.replace(/\./g, '')); return isNaN(n) ? undefined : n })()
+          : undefined
+      if (typeof duesValue === 'number') {
+        specs.push({label: 'Aidat (TL)', value: duesValue.toLocaleString('tr-TR')})
+      }
+    }
+    if (property.status === 'kiralik') {
+      const depositValue = typeof property.deposit === 'number'
+        ? property.deposit
+        : typeof property.deposit === 'string'
+          ? (() => { const n = parseInt(property.deposit.replace(/\./g, '')); return isNaN(n) ? undefined : n })()
+          : undefined
+      if (typeof depositValue === 'number') {
+        specs.push({label: 'Depozito (TL)', value: depositValue.toLocaleString('tr-TR')})
+      }
+    }
     if (property.titleDeedStatus) specs.push({label: 'Tapu Durumu', value: titleDeedLabel(property.titleDeedStatus) || '-'})
   }
 
