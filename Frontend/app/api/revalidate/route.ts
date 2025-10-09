@@ -37,8 +37,12 @@ export async function POST(req: NextRequest) {
       now: Date.now(),
       body,
     })
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error in revalidate:', err)
-    return new Response(err.message, { status: 500 })
+    // Hatanın bir Error nesnesi olup olmadığını kontrol ederek .message özelliğine güvenle erişiyoruz.
+    if (err instanceof Error) {
+      return new Response(err.message, { status: 500 })
+    }
+    return new Response('An unknown error occurred', { status: 500 })
   }
 }
