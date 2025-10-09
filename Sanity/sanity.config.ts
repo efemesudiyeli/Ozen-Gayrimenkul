@@ -6,6 +6,7 @@ import {visionTool} from '@sanity/vision'
 import {schemaTypes} from './schemaTypes'
 import {colorInput} from '@sanity/color-input'
 import {media} from 'sanity-plugin-media'
+import {trTRLocale} from '@sanity/locale-tr-tr'
 
 
 export const myStructure = (S: StructureBuilder) =>
@@ -112,6 +113,7 @@ export default defineConfig({
     visionTool(),
     colorInput(),
     media(),
+    trTRLocale()
   ],
   i18n: {
     locales: [

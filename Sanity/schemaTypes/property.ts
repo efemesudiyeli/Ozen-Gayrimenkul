@@ -267,6 +267,7 @@ export default defineType({
     }),
     defineField({
       name: 'slug',
+      description: 'Oluştur butonuna basmanız yeterlidir. İsteğe bağlı olarak bu alanı değiştirebilirsiniz.',
       title: 'URL (Slug)',
       type: 'slug',
       group: 'basicInfo',

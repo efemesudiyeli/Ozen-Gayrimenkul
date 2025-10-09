@@ -108,7 +108,7 @@ interface PortfolioProperty {
 
 const PortfolioPage = async () => {
   const properties: PortfolioProperty[] = await client.fetch(query);
-  
+
   const defaultPortfolioData: PortfolioPageData = {
     title: 'Portföy',
     heroTitle: 'Portföy',
@@ -122,7 +122,7 @@ const PortfolioPage = async () => {
   };
 
   let portfolioData = defaultPortfolioData;
-  
+
   try {
     const fetchedPortfolioData = await client.fetch<PortfolioPageData>(portfolioPageQuery);
     if (fetchedPortfolioData) {
@@ -162,8 +162,8 @@ const PortfolioPage = async () => {
                     <Image
                       src={urlFor(property.mainImage).width(600).height(400).url()}
                       alt={`${property.title} ana görseli`}
-                      fill 
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" 
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       className="object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                   ) : (
@@ -171,17 +171,17 @@ const PortfolioPage = async () => {
                       <span className="text-gray-500 font-medium">Fotoğraf Yok</span>
                     </div>
                   )}
-                  
+
                   {/* Overlay Gradient */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  
+
                   {/* Property Type Badge */}
                   <div className="absolute top-4 right-4">
                     <span className="bg-white/95 backdrop-blur-sm text-gray-800 px-3 py-1 text-xs font-semibold shadow-sm">
                       {property.propertyType === 'daire' ? 'DAİRE' :
-                       property.propertyType === 'villa' ? 'VİLLA' :
-                       property.propertyType === 'mustakil' ? 'MÜSTAKİL' :
-                       property.propertyType === 'isyeri' ? 'İŞYERİ' : 'ARSA'}
+                        property.propertyType === 'villa' ? 'VİLLA' :
+                          property.propertyType === 'mustakil' ? 'MÜSTAKİL' :
+                            property.propertyType === 'isyeri' ? 'İŞYERİ' : 'ARSA'}
                     </span>
                   </div>
 
@@ -279,7 +279,7 @@ const PortfolioPage = async () => {
                   </div>
 
                   {/* Fiyat ve Detaylar */}
-                  <div className="flex justify-between items-end mt-auto">
+                  {/* <div className="flex justify-between items-end mt-auto">
                     <div>
                       <div className="text-2xl font-bold text-green-600">
                         ₺{property.price.toLocaleString('tr-TR')}
@@ -294,7 +294,7 @@ const PortfolioPage = async () => {
                         <div className="text-sm font-medium text-gray-900">{property.agent.name}</div>
                       </div>
                     )}
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </Link>

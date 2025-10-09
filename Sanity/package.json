@@ -17,6 +17,7 @@
   ],
   "dependencies": {
     "@sanity/color-input": "4.0.6",
+    "@sanity/locale-tr-tr": "^1.2.25",
     "@sanity/vision": "^4.10.2",
     "@types/leaflet": "^1.9.20",
     "geopoint": "^1.0.1",
