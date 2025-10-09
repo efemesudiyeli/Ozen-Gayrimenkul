@@ -26,6 +26,9 @@ export async function POST(req: NextRequest) {
     // Portföy sayfasını her zaman güncelle
     revalidatePath('/portfoy')
 
+    // Anasayfayı da güncelle, çünkü ilanlar orada da listeleniyor
+    revalidatePath('/')
+
     // Eğer bir ilan güncellendiyse, onun detay sayfasını da güncelle
     if (body.slug?.current) {
       revalidatePath(`/ilan/${body.slug.current}`)
