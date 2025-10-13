@@ -3,17 +3,19 @@ import { Stack, Text, Select, TextInput } from '@sanity/ui'
 import { set, unset } from 'sanity'
 import type { StringInputProps } from 'sanity'
 import { useFormValue } from 'sanity'
-import { DISTRICTS_BY_PROVINCE } from './addressData'
+import { DISTRICTS_BY_PROVINCE, CYPRUS_DISTRICTS_BY_PROVINCE } from './addressData'
 
 export default function DistrictSelectInput(props: StringInputProps) {
   const { value, onChange, readOnly } = props as any
   const provinceName = useFormValue(['province']) as string | undefined
   const manual = useFormValue(['manualAddress']) as boolean | undefined
+  const docType = (useFormValue(['_type']) as string) || ''
 
   const districts = useMemo(() => {
     if (!provinceName) return []
-    return DISTRICTS_BY_PROVINCE[provinceName] || []
-  }, [provinceName])
+    const map = docType === 'cyprusProperty' ? CYPRUS_DISTRICTS_BY_PROVINCE : DISTRICTS_BY_PROVINCE
+    return map[provinceName] || []
+  }, [provinceName, docType])
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const v = e.target.value

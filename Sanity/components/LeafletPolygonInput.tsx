@@ -31,15 +31,16 @@ function MapClickHandler({ onLocationAdd }: { onLocationAdd: (latlng: LatLng) =>
 }
 
 export default function LeafletPolygonInput(props: ObjectInputProps) {
-  const { value, onChange } = props
+  const { value, onChange, document } = props as any
   
   const [corners, setCorners] = useState<LatLng[]>(
     value ? value.map((point: GeoPoint) => new LatLng(point.lat, point.lng)) : []
   )
   const [satellite, setSatellite] = useState(true)
 
-  // Antalya merkezi default konum
-  const defaultCenter: LatLng = new LatLng(36.8969, 30.7133)
+  // Varsayılan merkez: Antalya; cyprusProperty için Kıbrıs merkezi
+  const isCyprus = document?._type === 'cyprusProperty'
+  const defaultCenter: LatLng = isCyprus ? new LatLng(35.1854569292736, 33.3820473519165) : new LatLng(36.8969, 30.7133)
   const center = corners.length > 0 ? corners[0] : defaultCenter
 
   const handleLocationAdd = useCallback((latlng: LatLng) => {
@@ -101,11 +102,11 @@ export default function LeafletPolygonInput(props: ObjectInputProps) {
 
   return (
     <Stack space={3}>
-      <Stack direction="row" space={2} align="center">
+      <Flex gap={2} align="center">
         <Text size={1} muted>
           Arsa sınırlarını belirlemek için haritaya tıklayın (en az 3, istediğiniz kadar nokta)
         </Text>
-      </Stack>
+      </Flex>
       
       <Box style={{ height: '400px', width: '100%', position: 'relative' }}>
         <MapContainer

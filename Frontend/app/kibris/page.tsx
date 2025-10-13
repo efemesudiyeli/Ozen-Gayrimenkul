@@ -4,7 +4,7 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
 
-interface PortfolioPageData {
+interface KibrisPageData {
   title: string;
   heroTitle: string;
   heroDescription: string;
@@ -16,27 +16,24 @@ interface PortfolioPageData {
   };
 }
 
-const portfolioPageQuery = `*[_type == "portfolioPage"][0]{
-  title,
-  heroTitle,
-  heroDescription,
-  metaDescription,
-  emptyStateMessage
-}`;
+// Hardcoded data for now, will be replaced with a query to Sanity later
+const kibrisPageData: KibrisPageData = {
+  title: 'Kıbrıs İlanları',
+  heroTitle: 'Kıbrıs İlanları',
+  heroDescription: "Kıbrıs'ta yer alan satılık ve kiralık ilanlarımız.",
+  metaDescription: "Kıbrıs'ta yer alan satılık ve kiralık ilanlarımız.",
+  emptyStateMessage: {
+    title: 'Henüz İlan Yok',
+    description: 'Kıbrıs ilanlarımız burada görünecek.',
+    buttonText: 'Tüm İlanları Görüntüle'
+  }
+};
 
 export async function generateMetadata(): Promise<Metadata> {
-  try {
-    const portfolioData = await client.fetch<PortfolioPageData>(portfolioPageQuery);
-    return {
-      title: `${portfolioData.title || 'Portföy'} | Hatice Özen Gayrimenkul`,
-      description: portfolioData.metaDescription || 'Başarıyla tamamladığımız satış ve kiralama işlemlerimizden bazıları.',
-    };
-  } catch {
-    return {
-      title: 'Portföy | Hatice Özen Gayrimenkul',
-      description: 'Başarıyla tamamladığımız satış ve kiralama işlemlerimizden bazıları.',
-    };
-  }
+  return {
+    title: `${kibrisPageData.title} | Hatice Özen Gayrimenkul`,
+    description: kibrisPageData.metaDescription,
+  };
 }
 
 import imageUrlBuilder from '@sanity/image-url'
@@ -45,8 +42,8 @@ function urlFor(source: SanityImageSource) {
   return builder.image(source)
 }
 
-// Sorgu, tüm property bilgilerini çekecek şekilde güncellendi
-const query = `*[_type == "property" && coalesce(isActive, true) == true && (status == 'satildi' || status == 'kiralandi')] | order(_updatedAt desc){
+// Query to fetch all active cyprus properties
+const query = `*[_type == "cyprusProperty" && coalesce(isActive, true) == true] | order(_updatedAt desc){
   _id,
   title,
   slug,
@@ -76,13 +73,13 @@ const query = `*[_type == "property" && coalesce(isActive, true) == true && (sta
   }
 }`;
 
-interface PortfolioProperty {
+interface KibrisProperty {
   _id: string;
   title: string;
   slug: { current: string };
   mainImage: SanityImageSource;
   location: string;
-  status: 'satildi' | 'kiralandi';
+  status: 'satilik' | 'kiralik' | 'satildi' | 'kiralandi';
   propertyType: string;
   price: number;
   area: number;
@@ -106,31 +103,8 @@ interface PortfolioProperty {
   };
 }
 
-const PortfolioPage = async () => {
-  const properties: PortfolioProperty[] = await client.fetch(query);
-
-  const defaultPortfolioData: PortfolioPageData = {
-    title: 'Portföy',
-    heroTitle: 'Portföy',
-    heroDescription: 'Başarıyla tamamladığımız satış ve kiralama işlemlerimizden bazıları.',
-    metaDescription: 'Başarıyla tamamladığımız satış ve kiralama işlemlerimizden bazıları.',
-    emptyStateMessage: {
-      title: 'Henüz Tamamlanan İşlem Yok',
-      description: 'Başarıyla tamamladığımız satış ve kiralama işlemlerimiz burada görünecek.',
-      buttonText: 'Güncel İlanları Görüntüle'
-    }
-  };
-
-  let portfolioData = defaultPortfolioData;
-
-  try {
-    const fetchedPortfolioData = await client.fetch<PortfolioPageData>(portfolioPageQuery);
-    if (fetchedPortfolioData) {
-      portfolioData = fetchedPortfolioData;
-    }
-  } catch (error) {
-    console.error('Portfolio page data fetch error:', error);
-  }
+const KibrisPage = async () => {
+  const properties: KibrisProperty[] = await client.fetch(query);
 
   return (
     <main className="bg-gray-50 min-h-screen">
@@ -138,10 +112,10 @@ const PortfolioPage = async () => {
       <div className="bg-anthracite-900 text-white py-20 mt-20">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-5xl md:text-6xl font-extrabold mb-6 font-inter">
-            {portfolioData.heroTitle}
+            {kibrisPageData.heroTitle}
           </h1>
           <p className="text-xl md:text-2xl text-white max-w-4xl mx-auto leading-relaxed font-inter">
-            {portfolioData.heroDescription}
+            {kibrisPageData.heroDescription}
           </p>
         </div>
       </div>
@@ -152,7 +126,7 @@ const PortfolioPage = async () => {
           {properties.map((property) => (
             <Link
               key={property._id}
-              href={`/ilan/${property.slug.current}`}
+              href={`/ilan/kibris/${property.slug.current}`}
               className="group block"
             >
               <div className="bg-white overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-200 h-full flex flex-col relative">
@@ -192,17 +166,32 @@ const PortfolioPage = async () => {
                     </span>
                   </div>
 
-                  {/* Satıldı/Kiralandı Rozeti - Görseli engellemeyen küçük rozet */}
-                  {property.status === 'satildi' ? (
+                  {/* Satıldı/Kiralandı Rozeti */}
+                  {property.status === 'satildi' && (
                     <div className="absolute top-4 left-4 z-10">
-                      <div className="inline-flex items-center px-3 py-1.5 text-white shadow-lg backdrop-blur-xl">
+                      <div className="inline-flex items-center px-3 py-1.5 text-white shadow-lg backdrop-blur-xl bg-red-600">
                         <span className="text-xl font-bold tracking-wider">SATILDI</span>
                       </div>
                     </div>
-                  ) : (
+                  )}
+                  {property.status === 'kiralandi' && (
                     <div className="absolute top-4 left-4 z-10">
-                      <div className="inline-flex items-center px-3 py-1.5 text-white shadow-lg backdrop-blur-xl">
+                      <div className="inline-flex items-center px-3 py-1.5 text-white shadow-lg backdrop-blur-xl bg-blue-600">
                         <span className="text-xl font-bold tracking-wider">KİRALANDI</span>
+                      </div>
+                    </div>
+                  )}
+                  {property.status === 'satilik' && (
+                    <div className="absolute top-4 left-4 z-10">
+                      <div className="inline-flex items-center px-3 py-1.5 text-white shadow-lg backdrop-blur-xl bg-green-600">
+                        <span className="text-xl font-bold tracking-wider">SATILIK</span>
+                      </div>
+                    </div>
+                  )}
+                  {property.status === 'kiralik' && (
+                    <div className="absolute top-4 left-4 z-10">
+                      <div className="inline-flex items-center px-3 py-1.5 text-white shadow-lg backdrop-blur-xl bg-yellow-500">
+                        <span className="text-xl font-bold tracking-wider">KİRALIK</span>
                       </div>
                     </div>
                   )}
@@ -279,13 +268,13 @@ const PortfolioPage = async () => {
                   </div>
 
                   {/* Fiyat ve Detaylar */}
-                  {/* <div className="flex justify-between items-end mt-auto">
+                  <div className="flex justify-between items-end mt-auto">
                     <div>
                       <div className="text-2xl font-bold text-green-600">
                         ₺{property.price.toLocaleString('tr-TR')}
                       </div>
                       <div className="text-xs text-gray-500">
-                        {property.status === 'satildi' ? 'Satış Fiyatı' : 'Kira Bedeli'}
+                        {property.status === 'satilik' ? 'Satış Fiyatı' : 'Kira Bedeli'}
                       </div>
                     </div>
                     {property.agent && (
@@ -294,7 +283,7 @@ const PortfolioPage = async () => {
                         <div className="text-sm font-medium text-gray-900">{property.agent.name}</div>
                       </div>
                     )}
-                  </div> */}
+                  </div>
                 </div>
               </div>
             </Link>
@@ -304,18 +293,18 @@ const PortfolioPage = async () => {
         {/* Empty State */}
         {properties.length === 0 && (
           <div className="text-center py-20">
-            <div className="text-6xl mb-6">🏆</div>
+            <div className="text-6xl mb-6">🏝️</div>
             <h3 className="text-2xl font-bold text-gray-900 mb-4">
-              {portfolioData.emptyStateMessage.title}
+              {kibrisPageData.emptyStateMessage.title}
             </h3>
             <p className="text-gray-600 mb-8 max-w-md mx-auto">
-              {portfolioData.emptyStateMessage.description}
+              {kibrisPageData.emptyStateMessage.description}
             </p>
             <Link
               href="/"
               className="inline-flex items-center px-6 py-3 bg-anthracite-800 text-white font-semibold hover:bg-anthracite-900 transition-colors duration-300"
             >
-              {portfolioData.emptyStateMessage.buttonText}
+              {kibrisPageData.emptyStateMessage.buttonText}
             </Link>
           </div>
         )}
@@ -324,4 +313,4 @@ const PortfolioPage = async () => {
   );
 };
 
-export default PortfolioPage;
+export default KibrisPage;

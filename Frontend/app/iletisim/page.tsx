@@ -76,7 +76,7 @@ const ContactPage = async () => {
   };
 
   let contactData = defaultData;
-  
+
   try {
     const fetchedData = await client.fetch<ContactPageData>(contactQuery);
     if (fetchedData) {
@@ -101,7 +101,7 @@ const ContactPage = async () => {
   return (
     <main className="bg-gray-50">
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 text-white py-20 mt-20">
+      <div className="bg-anthracite-900 text-white py-20 mt-20">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-5xl md:text-6xl font-extrabold mb-6 font-inter">
             {contactData.heroTitle}
@@ -118,15 +118,15 @@ const ContactPage = async () => {
           <div>
             <h2 className="text-3xl font-bold text-gray-900 mb-8">Konumumuz</h2>
             <div className="w-full h-96 overflow-hidden shadow-lg">
-              <iframe 
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3191.6083630738244!2d30.643865375330254!3d36.8757920634356!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14c39156cab78b6f%3A0xef3d5f2e46cdc856!2sHatice%20%C3%B6zen%20gayrimenkul!5e0!3m2!1str!2str!4v1757514027255!5m2!1str!2str" 
-                width="100%" 
-                height="100%" 
-                style={{border: 0}} 
-                allowFullScreen 
-                loading="lazy" 
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3191.6083630738244!2d30.643865375330254!3d36.8757920634356!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14c39156cab78b6f%3A0xef3d5f2e46cdc856!2sHatice%20%C3%B6zen%20gayrimenkul!5e0!3m2!1str!2str!4v1757514027255!5m2!1str!2str"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                title="Özen Gayrimenkul Konumu"
+                title="Hatice Özen Gayrimenkul Konumu"
               />
             </div>
           </div>
@@ -138,7 +138,7 @@ const ContactPage = async () => {
               <div className="mb-4">
                 <a
                   href={`https://wa.me/${waPhone}?text=Merhaba%20bilgi%20almak%20istiyorum.`}
-                  className="block bg-green-600 text-white px-4 py-2 text-sm font-medium hover:bg-green-700 transition-colors text-center flex items-center justify-center"
+                  className="bg-green-600 text-white px-4 py-2 text-sm font-medium hover:bg-green-700 transition-colors text-center flex items-center justify-center"
                 >
                   <span className="inline-flex items-center justify-center">
                     <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">

@@ -9,11 +9,27 @@ const config: Config = {
       ],
   theme: {
     extend: {
+      colors: {
+        anthracite: {
+          100: 'var(--color-anthracite-100)',
+          200: 'var(--color-anthracite-200)',
+          300: 'var(--color-anthracite-300)',
+          400: 'var(--color-anthracite-400)',
+          500: 'var(--color-anthracite-500)',
+          600: 'var(--color-anthracite-600)',
+          700: 'var(--color-anthracite-700)',
+          800: 'var(--color-anthracite-800)',
+          900: 'var(--color-anthracite-900)',
+        },
+      },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic':
           'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
       },
+      
+    
+  
       
       typography: ({ theme }) => ({
         DEFAULT: {
@@ -41,7 +57,7 @@ const config: Config = {
               color: theme('colors.gray.900'),
             },
             strong: {
-              color: theme('colors.blue.600'),
+              color: theme('colors.anthracite.900'),
             },
          },
         },

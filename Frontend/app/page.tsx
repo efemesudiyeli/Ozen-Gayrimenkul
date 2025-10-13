@@ -73,7 +73,7 @@ export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [heroData, setHeroData] = useState<HeroData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   // Advanced filters
   const [minPrice, setMinPrice] = useState<string>('');
   const [maxPrice, setMaxPrice] = useState<string>('');
@@ -83,7 +83,7 @@ export default function HomePage() {
   const [districtFilter, setDistrictFilter] = useState<string>('');
   const [neighborhoodFilter, setNeighborhoodFilter] = useState<string>('');
   const [showAdvancedFilters, setShowAdvancedFilters] = useState<boolean>(false);
-  
+
   // Pagination
   const [currentPage, setCurrentPage] = useState<number>(1);
   const itemsPerPage = 12; // Test için 3 ilan - normalde 12 olmalı
@@ -91,7 +91,7 @@ export default function HomePage() {
 
   const sortProperties = useCallback((properties: Property[], sortType: string): Property[] => {
     const sorted = [...properties];
-    
+
     switch (sortType) {
       case 'newest':
         return sorted.sort((a, b) => new Date(b._createdAt).getTime() - new Date(a._createdAt).getTime());
@@ -109,7 +109,7 @@ export default function HomePage() {
         return sorted.sort((a, b) => {
           const provinceA = a.province || '';
           const provinceB = b.province || '';
-          return provinceA.localeCompare(provinceB, 'tr-TR', { 
+          return provinceA.localeCompare(provinceB, 'tr-TR', {
             sensitivity: 'base',
             numeric: true,
             ignorePunctuation: true
@@ -119,7 +119,7 @@ export default function HomePage() {
         return sorted.sort((a, b) => {
           const districtA = a.district || '';
           const districtB = b.district || '';
-          return districtA.localeCompare(districtB, 'tr-TR', { 
+          return districtA.localeCompare(districtB, 'tr-TR', {
             sensitivity: 'base',
             numeric: true,
             ignorePunctuation: true
@@ -139,7 +139,7 @@ export default function HomePage() {
           client.fetch(query, {}, { next: { revalidate: 10 } }),
           client.fetch(heroQuery, {}, { next: { revalidate: 10 } })
         ]);
-        
+
         setAllProperties(properties);
         setHeroData(hero);
         // Apply current filters after data load - ensure initial display
@@ -156,14 +156,14 @@ export default function HomePage() {
 
   const applyFilters = useCallback((filter: string = activeFilter, search: string = searchTerm) => {
     let filtered: Property[] = allProperties;
-    
+
     // Property type filter
     if (filter !== 'tumu') {
       filtered = filtered.filter(
         (property) => property.propertyType === filter
       );
     }
-    
+
     // Search filter
     if (search.trim() !== '') {
       const searchLower = search.toLowerCase().trim();
@@ -173,11 +173,11 @@ export default function HomePage() {
         const district = property.district?.toLowerCase() || '';
         const neighborhood = property.neighborhood?.toLowerCase() || '';
         const fullAddress = `${neighborhood} ${district} ${province}`.toLowerCase();
-        
+
         return title.includes(searchLower) || fullAddress.includes(searchLower);
       });
     }
-    
+
     // Price range filter
     if (minPrice) {
       const min = parseInt(minPrice.replace(/[^\d]/g, ''));
@@ -187,17 +187,17 @@ export default function HomePage() {
       const max = parseInt(maxPrice.replace(/[^\d]/g, ''));
       filtered = filtered.filter((property) => property.price <= max);
     }
-    
+
     // Room count filter
     if (roomCount) {
       filtered = filtered.filter((property) => property.bedrooms === roomCount);
     }
-    
+
     // Status filter
     if (statusFilter) {
       filtered = filtered.filter((property) => property.status === statusFilter);
     }
-    
+
     // Location filters
     if (provinceFilter) {
       filtered = filtered.filter((property) => property.province === provinceFilter);
@@ -208,7 +208,7 @@ export default function HomePage() {
     if (neighborhoodFilter) {
       filtered = filtered.filter((property) => property.neighborhood === neighborhoodFilter);
     }
-    
+
     const sortedFiltered = sortProperties(filtered, sortBy);
     setFilteredProperties(sortedFiltered);
   }, [allProperties, activeFilter, searchTerm, minPrice, maxPrice, roomCount, statusFilter, provinceFilter, districtFilter, neighborhoodFilter, sortBy, sortProperties]);
@@ -259,14 +259,14 @@ export default function HomePage() {
   };
 
   const getUniqueDistricts = () => {
-    const filtered = provinceFilter 
+    const filtered = provinceFilter
       ? allProperties.filter(p => p.province === provinceFilter)
       : allProperties;
     return [...new Set(filtered.map(p => p.district).filter(Boolean))].sort();
   };
 
   const getUniqueNeighborhoods = () => {
-    const filtered = districtFilter 
+    const filtered = districtFilter
       ? allProperties.filter(p => p.district === districtFilter)
       : allProperties;
     return [...new Set(filtered.map(p => p.neighborhood).filter(Boolean))].sort();
@@ -366,10 +366,10 @@ export default function HomePage() {
   ];
 
   return (
-      <>
-          {heroData && <Hero data={heroData} />}
+    <>
+      {heroData && <Hero data={heroData} />}
 
-      
+
       {/* İlanlar Bölümü - Modern Tasarım */}
       <section id="ilanlar" aria-labelledby="ilanlar-heading" className="bg-gradient-to-b from-gray-50 to-white min-h-screen">
         {/* Header Section */}
@@ -378,11 +378,11 @@ export default function HomePage() {
             <h2 id="ilanlar-heading" className="text-4xl md:text-6xl font-bold mb-2 text-gray-900 tracking-tight">
               Güncel İlanlar
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
               Size en uygun gayrimenkul seçeneklerini keşfedin
             </p>
             {searchTerm && (
-              <p className="text-lg text-blue-600 mt-4 font-medium">
+              <p className="text-lg text-anthracite-600 mt-4 font-medium">
                 &quot;{searchTerm}&quot; için {filteredProperties.length} sonuç bulundu
               </p>
             )}
@@ -396,7 +396,7 @@ export default function HomePage() {
                 placeholder="İlan adı veya konumu ile arayın..."
                 value={searchTerm}
                 onChange={(e) => handleSearch(e.target.value)}
-                className="w-full px-6 py-4 pl-12 text-lg border border-gray-200 shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                className="w-full px-6 py-4 pl-12 text-lg border border-gray-300 shadow-lg focus:outline-none focus:ring-2 focus:ring-anthracite-500 focus:border-anthracite-500 bg-white"
               />
               <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
                 <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -419,17 +419,16 @@ export default function HomePage() {
           {/* Filter ve Sıralama */}
           <div className="flex flex-col lg:flex-row justify-center items-center gap-6">
             {/* Modern Filter Buttons */}
-            <div className="bg-white border border-gray-200 shadow-lg border border-gray-100">
+            <div className="bg-white border border-gray-300 shadow-lg">
               <div className="flex flex-wrap gap-1">
                 {filterOptions.map((option) => (
                   <button
                     key={option.key}
                     onClick={() => handleFilter(option.key)}
-                    className={`px-6 py-3 text-sm font-medium transition-all duration-300 whitespace-nowrap ${
-                      activeFilter === option.key
-                        ? 'bg-blue-600 text-white shadow-md transform scale-105'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                    }`}
+                    className={`px-6 py-3 text-sm font-medium transition-all duration-300 whitespace-nowrap ${activeFilter === option.key
+                      ? 'bg-anthracite-900 text-white shadow-md transform scale-105'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                      }`}
                   >
                     {option.label}
                   </button>
@@ -442,7 +441,7 @@ export default function HomePage() {
               <select
                 value={sortBy}
                 onChange={(e) => handleSort(e.target.value)}
-                className="bg-white border border-gray-200 shadow-lg px-6 py-3 pr-10 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none cursor-pointer"
+                className="bg-white border border-gray-300 shadow-lg px-6 py-3 pr-10 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-anthracite-500 focus:border-anthracite-500 appearance-none cursor-pointer"
               >
                 {sortOptions.map((option) => (
                   <option key={option.key} value={option.key}>
@@ -461,7 +460,7 @@ export default function HomePage() {
             {/* Advanced Filters Toggle */}
             <button
               onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-              className="bg-gray-600 text-white px-6 py-3 text-sm font-medium hover:bg-gray-700 transition-colors duration-300 shadow-lg flex items-center gap-2"
+              className="bg-anthracite-900 text-white px-6 py-3 text-sm font-medium hover:bg-gray-700 transition-colors duration-300 shadow-lg flex items-center gap-2"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
@@ -483,14 +482,14 @@ export default function HomePage() {
                       placeholder="Min TL"
                       value={minPrice}
                       onChange={(e) => handleAdvancedFilter('minPrice', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-anthracite-500"
                     />
                     <input
                       type="text"
                       placeholder="Max TL"
                       value={maxPrice}
                       onChange={(e) => handleAdvancedFilter('maxPrice', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-anthracite-500"
                     />
                   </div>
                 </div>
@@ -501,7 +500,7 @@ export default function HomePage() {
                   <select
                     value={roomCount}
                     onChange={(e) => handleAdvancedFilter('roomCount', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-anthracite-500"
                   >
                     <option value="">Tümü</option>
                     {getUniqueRoomCounts().map((rooms) => (
@@ -518,7 +517,7 @@ export default function HomePage() {
                   <select
                     value={statusFilter}
                     onChange={(e) => handleAdvancedFilter('status', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-anthracite-500"
                   >
                     <option value="">Tümü</option>
                     <option value="satilik">Satılık</option>
@@ -532,7 +531,7 @@ export default function HomePage() {
                   <select
                     value={provinceFilter}
                     onChange={(e) => handleAdvancedFilter('province', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-anthracite-500"
                   >
                     <option value="">Tümü</option>
                     {getUniqueProvinces().map((province) => (
@@ -549,7 +548,7 @@ export default function HomePage() {
                   <select
                     value={districtFilter}
                     onChange={(e) => handleAdvancedFilter('district', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-anthracite-500"
                   >
                     <option value="">Tümü</option>
                     {getUniqueDistricts().map((district) => (
@@ -566,7 +565,7 @@ export default function HomePage() {
                   <select
                     value={neighborhoodFilter}
                     onChange={(e) => handleAdvancedFilter('neighborhood', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-anthracite-500"
                   >
                     <option value="">Tümü</option>
                     {getUniqueNeighborhoods().map((neighborhood) => (
@@ -596,7 +595,7 @@ export default function HomePage() {
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
               {[...Array(6)].map((_, index) => (
-                <div key={index} className="bg-white overflow-hidden shadow-lg border border-gray-200 animate-pulse h-full flex flex-col">
+                <div key={index} className="bg-white overflow-hidden shadow-lg border border-gray-300 animate-pulse h-full flex flex-col">
                   {/* Görsel Skeleton */}
                   <div className="relative h-64 bg-gray-200 flex-shrink-0">
                     {/* Badge Skeletons */}
@@ -604,16 +603,16 @@ export default function HomePage() {
                     <div className="absolute top-4 right-4 h-6 w-12 bg-gray-300"></div>
                     <div className="absolute bottom-4 left-4 h-5 w-20 bg-gray-300"></div>
                   </div>
-                  
+
                   {/* İçerik Skeleton */}
                   <div className="p-5 flex-grow flex flex-col">
                     {/* Başlık */}
                     <div className="h-6 bg-gray-200 mb-3 w-full"></div>
                     <div className="h-6 bg-gray-200 mb-3 w-3/4"></div>
-                    
+
                     {/* Konum */}
                     <div className="h-4 bg-gray-200 mb-3 w-2/3"></div>
-                    
+
                     {/* Özellikler Grid */}
                     <div className="grid grid-cols-2 gap-3 mb-4">
                       <div className="h-4 bg-gray-200 w-16"></div>
@@ -621,10 +620,10 @@ export default function HomePage() {
                       <div className="h-4 bg-gray-200 w-14"></div>
                       <div className="h-4 bg-gray-200 w-18"></div>
                     </div>
-                    
+
                     {/* Alan Bilgisi */}
                     <div className="h-8 bg-gray-200 mb-4 w-full"></div>
-                    
+
                     {/* Fiyat ve Detaylar */}
                     <div className="flex justify-between items-end mt-auto">
                       <div>
@@ -640,152 +639,151 @@ export default function HomePage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
               {currentProperties.map((property) => (
-              <Link
-                key={property._id}
-                href={`/ilan/${property.slug.current}`}
-                className="group block"
-              >
-                <div className="bg-white overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-200 h-full flex flex-col">
-                  {/* Görsel Alanı */}
-                  <div className="relative h-64 overflow-hidden flex-shrink-0">
-                    {property.mainImage ? (
-                      <Image
-                        src={urlFor(property.mainImage).width(600).height(400).url()}
-                        alt={`${property.title} ana görseli`}
-                        fill 
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" 
-                        className="object-cover transition-transform duration-700 group-hover:scale-110"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-                        <span className="text-gray-500 font-medium">Fotoğraf Yok</span>
-                      </div>
-                    )}
-                    
-                    {/* Overlay Gradient */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    
-                    {/* Status Badge */}
-                    <div className="absolute top-4 left-4">
-                      <span className={`px-3 py-1 text-xs font-bold text-white shadow-lg ${
-                        property.status === 'satilik' ? 'bg-green-600' : 
-                        property.status === 'kiralik' ? 'bg-blue-600' : 'bg-gray-600'
-                      }`}>
-                        {property.status === 'satilik' ? 'SATILIK' : 
-                         property.status === 'kiralik' ? 'KİRALIK' : property.status?.toUpperCase()}
-                      </span>
-                    </div>
-                    
-                    {/* Property Type Badge */}
-                    <div className="absolute top-4 right-4">
-                      <span className="bg-white/95 backdrop-blur-sm text-gray-800 px-3 py-1 text-xs font-semibold shadow-sm">
-                        {property.propertyType === 'daire' ? 'DAİRE' :
-                         property.propertyType === 'villa' ? 'VİLLA' :
-                         property.propertyType === 'mustakil' ? 'MÜSTAKİL' :
-                         property.propertyType === 'isyeri' ? 'İŞYERİ' : 'ARSA'}
-                      </span>
-                    </div>
-
-                    {/* İlan No */}
-                    <div className="absolute bottom-4 left-4">
-                      <span className="bg-black/70 text-white px-2 py-1 text-xs font-medium">
-                        #{property.listingId}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* İçerik Alanı */}
-                  <div className="p-5 flex-grow flex flex-col">
-                    {/* Başlık */}
-                    <h3 className="text-lg font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors duration-300 min-h-[3rem]">
-                      {property.title}
-                    </h3>
-
-                    {/* Konum */}
-                    <div className="flex items-center text-gray-600 mb-3">
-                      <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                      </svg>
-                      <span className="text-sm">
-                        {property.neighborhood}, {property.district} / {property.province}
-                      </span>
-                    </div>
-
-                    {/* Özellikler Grid */}
-                    {property.propertyType !== 'arsa' && (
-                      <div className="grid grid-cols-2 gap-3 mb-4 text-xs">
-                        {property.bedrooms && (
-                          <div className="flex items-center text-gray-600">
-                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 21v-4a2 2 0 012-2h2a2 2 0 012 2v4" />
-                            </svg>
-                            {property.bedrooms} Oda
-                          </div>
-                        )}
-                        {property.bathrooms && (
-                          <div className="flex items-center text-gray-600">
-                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
-                            </svg>
-                            {property.bathrooms} Banyo
-                          </div>
-                        )}
-                        {property.floor !== undefined && (
-                          <div className="flex items-center text-gray-600">
-                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                            </svg>
-                            {property.floor}. Kat
-                          </div>
-                        )}
-                        {property.buildingAge !== undefined && (
-                          <div className="flex items-center text-gray-600">
-                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            {property.buildingAge} Yaş
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Alan Bilgisi */}
-                    <div className="bg-gray-50 p-3 mb-4">
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="text-gray-600">Net Alan:</span>
-                        <span className="font-semibold text-gray-900">{property.area} m²</span>
-                      </div>
-                      {property.grossArea && (
-                        <div className="flex justify-between items-center text-sm mt-1">
-                          <span className="text-gray-600">Brüt Alan:</span>
-                          <span className="font-semibold text-gray-900">{property.grossArea} m²</span>
+                <Link
+                  key={property._id}
+                  href={`/ilan/${property.slug.current}`}
+                  className="group block"
+                >
+                  <div className="bg-white overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-300 h-full flex flex-col">
+                    {/* Görsel Alanı */}
+                    <div className="relative h-64 overflow-hidden flex-shrink-0">
+                      {property.mainImage ? (
+                        <Image
+                          src={urlFor(property.mainImage).width(600).height(400).url()}
+                          alt={`${property.title} ana görseli`}
+                          fill
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          className="object-cover transition-transform duration-700 group-hover:scale-110"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                          <span className="text-gray-500 font-medium">Fotoğraf Yok</span>
                         </div>
                       )}
+
+                      {/* Overlay Gradient */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+                      {/* Status Badge */}
+                      <div className="absolute top-4 left-4">
+                        <span className={`px-3 py-1 text-xs font-bold text-white shadow-lg ${property.status === 'satilik' ? 'bg-anthracite-900' :
+                          property.status === 'kiralik' ? 'bg-anthracite-900' : 'bg-gray-600'
+                          }`}>
+                          {property.status === 'satilik' ? 'SATILIK' :
+                            property.status === 'kiralik' ? 'KİRALIK' : property.status?.toUpperCase()}
+                        </span>
+                      </div>
+
+                      {/* Property Type Badge */}
+                      <div className="absolute top-4 right-4">
+                        <span className="bg-white/95 backdrop-blur-sm text-gray-800 px-3 py-1 text-xs font-semibold shadow-sm">
+                          {property.propertyType === 'daire' ? 'DAİRE' :
+                            property.propertyType === 'villa' ? 'VİLLA' :
+                              property.propertyType === 'mustakil' ? 'MÜSTAKİL' :
+                                property.propertyType === 'isyeri' ? 'İŞYERİ' : 'ARSA'}
+                        </span>
+                      </div>
+
+                      {/* İlan No */}
+                      <div className="absolute bottom-4 left-4">
+                        <span className="bg-black/70 text-white px-2 py-1 text-xs font-medium">
+                          #{property.listingId}
+                        </span>
+                      </div>
                     </div>
 
-                    {/* Fiyat ve Detaylar */}
-                    <div className="flex justify-between items-end mt-auto">
-                      <div>
-                        <div className="text-2xl font-bold text-green-600">
-                          ₺{property.price?.toLocaleString('tr-TR')}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {property.status === 'kiralik' ? 'Kira Bedeli' : 'Satış Fiyatı'}
-                        </div>
+                    {/* İçerik Alanı */}
+                    <div className="p-5 flex-grow flex flex-col">
+                      {/* Başlık */}
+                      <h3 className="text-lg font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-anthracite-600 transition-colors duration-300 min-h-[3rem]">
+                        {property.title}
+                      </h3>
+
+                      {/* Konum */}
+                      <div className="flex items-center text-gray-600 mb-3">
+                        <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                        </svg>
+                        <span className="text-sm">
+                          {property.neighborhood}, {property.district} / {property.province}
+                        </span>
                       </div>
-                      {property.agent && (
-                        <div className="text-right">
-                          <div className="text-xs text-gray-500">Danışman</div>
-                          <div className="text-sm font-medium text-gray-900">{property.agent.name}</div>
-                          {property.agent.phone && (
-                            <div className="text-xs text-gray-500">{property.agent.phone}</div>
+
+                      {/* Özellikler Grid */}
+                      {property.propertyType !== 'arsa' && (
+                        <div className="grid grid-cols-2 gap-3 mb-4 text-xs">
+                          {property.bedrooms && (
+                            <div className="flex items-center text-gray-600">
+                              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 21v-4a2 2 0 012-2h2a2 2 0 012 2v4" />
+                              </svg>
+                              {property.bedrooms} Oda
+                            </div>
+                          )}
+                          {property.bathrooms && (
+                            <div className="flex items-center text-gray-600">
+                              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+                              </svg>
+                              {property.bathrooms} Banyo
+                            </div>
+                          )}
+                          {property.floor !== undefined && (
+                            <div className="flex items-center text-gray-600">
+                              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                              </svg>
+                              {property.floor}. Kat
+                            </div>
+                          )}
+                          {property.buildingAge !== undefined && (
+                            <div className="flex items-center text-gray-600">
+                              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              {property.buildingAge} Yaş
+                            </div>
                           )}
                         </div>
                       )}
+
+                      {/* Alan Bilgisi */}
+                      <div className="bg-gray-50 p-3 mb-4">
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-gray-600">Net Alan:</span>
+                          <span className="font-semibold text-gray-900">{property.area} m²</span>
+                        </div>
+                        {property.grossArea && (
+                          <div className="flex justify-between items-center text-sm mt-1">
+                            <span className="text-gray-600">Brüt Alan:</span>
+                            <span className="font-semibold text-gray-900">{property.grossArea} m²</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Fiyat ve Detaylar */}
+                      <div className="flex justify-between items-end mt-auto">
+                        <div>
+                          <div className="text-2xl font-bold text-green-600">
+                            ₺{property.price?.toLocaleString('tr-TR')}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {property.status === 'kiralik' ? 'Kira Bedeli' : 'Satış Fiyatı'}
+                          </div>
+                        </div>
+                        {property.agent && (
+                          <div className="text-right">
+                            <div className="text-xs text-gray-500">Danışman</div>
+                            <div className="text-sm font-medium text-gray-900">{property.agent.name}</div>
+                            {property.agent.phone && (
+                              <div className="text-xs text-gray-500">{property.agent.phone}</div>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
                 </Link>
               ))}
             </div>
@@ -799,11 +797,10 @@ export default function HomePage() {
                 <button
                   onClick={handlePreviousPage}
                   disabled={currentPage === 1}
-                  className={`px-4 py-2 text-sm font-medium rounded-md ${
-                    currentPage === 1
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                  }`}
+                  className={`px-4 py-2 text-sm font-medium rounded-md ${currentPage === 1
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                    }`}
                 >
                   Önceki
                 </button>
@@ -812,11 +809,11 @@ export default function HomePage() {
                 <div className="flex space-x-1">
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
                     // Show first page, last page, current page, and pages around current page
-                    const shouldShow = 
-                      page === 1 || 
-                      page === totalPages || 
+                    const shouldShow =
+                      page === 1 ||
+                      page === totalPages ||
                       (page >= currentPage - 1 && page <= currentPage + 1);
-                    
+
                     if (!shouldShow) {
                       // Show ellipsis for gaps
                       if (page === 2 && currentPage > 4) {
@@ -840,11 +837,10 @@ export default function HomePage() {
                       <button
                         key={page}
                         onClick={() => handlePageChange(page)}
-                        className={`px-4 py-2 text-sm font-medium rounded-md ${
-                          currentPage === page
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                        }`}
+                        className={`px-4 py-2 text-sm font-medium rounded-md ${currentPage === page
+                          ? 'bg-anthracite-600 text-white'
+                          : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                          }`}
                       >
                         {page}
                       </button>
@@ -856,11 +852,10 @@ export default function HomePage() {
                 <button
                   onClick={handleNextPage}
                   disabled={currentPage === totalPages}
-                  className={`px-4 py-2 text-sm font-medium rounded-md ${
-                    currentPage === totalPages
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                  }`}
+                  className={`px-4 py-2 text-sm font-medium rounded-md ${currentPage === totalPages
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                    }`}
                 >
                   Sonraki
                 </button>
@@ -868,7 +863,7 @@ export default function HomePage() {
             </div>
           )}
         </div>
-        
+
         {/* Empty State */}
         {filteredProperties.length === 0 && allProperties.length > 0 && (
           <div className="container mx-auto px-4 pb-20">
@@ -882,7 +877,7 @@ export default function HomePage() {
                 {searchTerm ? 'Arama Sonucu Bulunamadı' : 'Aradığınız Kriterlere Uygun İlan Bulunamadı'}
               </h2>
               <p className="text-xl text-gray-600 mb-8 max-w-md mx-auto">
-                {searchTerm 
+                {searchTerm
                   ? `"${searchTerm}" araması için sonuç bulunamadı. Lütfen farklı bir arama terimi deneyin.`
                   : 'Lütfen farklı bir filtre seçeneği deneyin veya tüm ilanları görüntüleyin.'
                 }
@@ -901,7 +896,7 @@ export default function HomePage() {
                     handleFilter('tumu');
                     handleSearch('');
                   }}
-                  className="bg-blue-600 text-white px-8 py-3 font-medium hover:bg-blue-700 transition-colors duration-300 shadow-lg hover:shadow-xl"
+                  className="bg-anthracite-600 text-white px-8 py-3 font-medium hover:bg-anthracite-700 transition-colors duration-300 shadow-lg hover:shadow-xl"
                 >
                   Tüm İlanları Görüntüle
                 </button>

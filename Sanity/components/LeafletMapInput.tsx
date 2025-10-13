@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet'
 import { Flex } from '@sanity/ui'
 import { LatLng } from 'leaflet'
 import { Stack, Text, Button, Box, Spinner } from '@sanity/ui'
-import { set, unset, PatchEvent } from 'sanity'
+import { set, unset, PatchEvent, useFormValue } from 'sanity'
 import type { ObjectInputProps } from 'sanity'
 import 'leaflet/dist/leaflet.css'
 
@@ -46,7 +46,7 @@ const reverseGeocode = async (lat: number, lng: number) => {
 }
 
 export default function LeafletMapInput(props: ObjectInputProps) {
-  const { value, onChange, document, onPathFocus } = props
+  const { value, onChange, onPathFocus } = props
   
   const [position, setPosition] = useState<LatLng | null>(
     value ? new LatLng(value.lat, value.lng) : null
@@ -55,8 +55,10 @@ export default function LeafletMapInput(props: ObjectInputProps) {
   const [addressInfo, setAddressInfo] = useState<string | null>(null)
   const [satellite, setSatellite] = useState(false)
 
-  // Antalya merkezi default konum
-  const defaultCenter: LatLng = new LatLng(36.8969, 30.7133)
+  // Varsayılan merkez: Antalya; cyprusProperty için Kıbrıs merkezi
+  const docType = (useFormValue(['_type']) as string) || ''
+  const isCyprus = docType === 'cyprusProperty'
+  const defaultCenter: LatLng = isCyprus ? new LatLng(35.1854569292736, 33.3820473519165) : new LatLng(36.8969, 30.7133)
   const center = position || defaultCenter
 
   const handleLocationSelect = useCallback(async (latlng: LatLng) => {
@@ -123,12 +125,12 @@ export default function LeafletMapInput(props: ObjectInputProps) {
 
   return (
     <Stack space={3}>
-      <Stack direction="row" space={2} align="center">
+      <Flex gap={2} align="center">
         <Text size={1} muted>
           Haritaya tıklayarak konum seçin - adres bilgileri otomatik doldurulacak
         </Text>
         {isGeocodingLoading && <Spinner muted size={1} />}
-      </Stack>
+      </Flex>
       
       <Box style={{ height: '400px', width: '100%', position: 'relative' }}>
         <MapContainer
@@ -176,7 +178,7 @@ export default function LeafletMapInput(props: ObjectInputProps) {
         </div>
       </Box>
 
-      <Stack direction="row" space={2} align="center">
+      <Flex gap={2} align="center">
         {position && (
           <>
             <Text size={1}>
@@ -190,7 +192,7 @@ export default function LeafletMapInput(props: ObjectInputProps) {
             />
           </>
         )}
-      </Stack>
+      </Flex>
       
       {isGeocodingLoading && (
         <Text size={1} muted>

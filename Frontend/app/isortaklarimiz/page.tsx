@@ -61,7 +61,7 @@ interface Agent {
 
 const AgentsPage = async () => {
   const agents: Agent[] = await client.fetch(query, {}, { next: { revalidate: 10 } });
-  
+
   const defaultTeamData: TeamPageData = {
     title: 'İş Ortaklarımız',
     heroTitle: 'İş Ortaklarımız',
@@ -70,7 +70,7 @@ const AgentsPage = async () => {
   };
 
   let teamData = defaultTeamData;
-  
+
   try {
     const fetchedTeamData = await client.fetch<TeamPageData>(teamPageQuery, {}, { next: { revalidate: 10 } });
     if (fetchedTeamData) {
@@ -84,7 +84,7 @@ const AgentsPage = async () => {
     <main className="bg-white">
 
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 text-white py-20 mt-20">
+      <div className="bg-anthracite-900 text-white py-20 mt-20">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-5xl md:text-6xl font-extrabold mb-6 font-inter">
             {teamData.heroTitle}
@@ -109,7 +109,7 @@ const AgentsPage = async () => {
             </div>
             <div className="mt-6">
               <h3 className="text-xl font-semibold text-gray-900">{agent.name}</h3>
-              <p className="text-blue-600">{agent.position}</p>
+              <p className="text-atnhracite-400">{agent.position}</p>
               <div className="mt-4 text-gray-600 space-y-1">
                 {agent.email && <a href={`mailto:${agent.email}`} className="hover:text-blue-700">{agent.email}</a>}
               </div>

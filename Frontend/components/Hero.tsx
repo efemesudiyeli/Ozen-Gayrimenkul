@@ -26,9 +26,9 @@ const Hero = ({ data }: HeroProps) => {
   // Veri gelmediyse veya eksikse, çökmemesi için bir yükleniyor durumu göster
   if (!data || !data.backgroundImage) {
     return (
-        <div className="relative bg-gray-900 text-white h-screen flex items-center justify-center">
-            <p className="text-gray-300">Karşılama alanı yükleniyor...</p>
-        </div>
+      <div className="relative bg-gray-900 text-white h-screen flex items-center justify-center">
+        <p className="text-gray-300">Karşılama alanı yükleniyor...</p>
+      </div>
     );
   }
 
@@ -54,7 +54,7 @@ const Hero = ({ data }: HeroProps) => {
         <div className="mt-8">
           <Link
             href="/#ilanlar"
-            className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8  text-lg transition-transform transform hover:scale-105"
+            className="inline-block bg-anthracite-900 hover:bg-anthracite-700 text-white font-bold py-3 px-8  text-lg transition-transform transform hover:scale-105"
           >
             {data.buttonText} {/* Dinamik Buton Metni */}
           </Link>

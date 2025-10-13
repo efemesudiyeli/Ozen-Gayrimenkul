@@ -8,59 +8,42 @@ import Image from 'next/image'
 import { PortableText } from '@portabletext/react'
 import type { PortableTextComponents } from '@portabletext/react'
 import type { PortableTextBlock } from '@portabletext/types'
-import MapLoader from '@/components/MapLoader';
+import MapLoader from '@/components/MapLoader'
 import PropertyGallery from '@/components/PropertyGallery'
-import PropertyPolygonMapLoader from '@/components/PropertyPolygonMapLoader';
+import PropertyPolygonMapLoader from '@/components/PropertyPolygonMapLoader'
 
-// ... generateMetadata ve generateStaticParams fonksiyonları aynı kalıyor ...
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
-  const query = `*[_type == "property" && slug.current == $slug][0]{
+  const query = `*[_type == "cyprusProperty" && slug.current == $slug][0]{
     title,
     "description": pt::text(description)
   }`
-
-  const property = await client.fetch<{ title: string; description: string }>(
-    query,
-    {
-      slug: slug,
-    }
-  )
-
+  const property = await client.fetch<{ title: string; description: string }>(query, { slug })
   if (!property) {
-    return {
-      title: 'İlan Bulunamadı',
-    }
+    return { title: 'İlan Bulunamadı' }
   }
-
   const description = property.description
     ? property.description.substring(0, 160)
-    : 'Hatice Özen Gayrimenkul | Antalya bölgesindeki en güncel gayrimenkul ilanları.';
-
-
+    : 'Hatice Özen Gayrimenkul | Kıbrıs bölgesindeki güncel gayrimenkul ilanları.'
   return {
     title: `${property.title} | Hatice Özen Gayrimenkul`,
-    description: description,
+    description,
   }
 }
+
 export async function generateStaticParams() {
-  const query = `*[_type == "property" && coalesce(isActive, true) == true]{ "slug": slug.current }`;
-  const properties = await client.fetch<{ slug: string }[]>(query);
-
+  const query = `*[_type == "cyprusProperty" && coalesce(isActive, true) == true]{ "slug": slug.current }`
+  const properties = await client.fetch<{ slug: string }[]>(query)
   if (!properties) return []
-
-  return properties.map((property) => ({
-    slug: property.slug,
-  }));
+  return properties.map((property) => ({ slug: property.slug }))
 }
-
 
 const builder = imageUrlBuilder(client)
 function urlFor(source: SanityImageSource) {
   return builder.image(source)
 }
 
-const propertyPageQuery = `*[_type == "property" && coalesce(isActive, true) == true && slug.current == $slug][0]{
+const propertyPageQuery = `*[_type == "cyprusProperty" && coalesce(isActive, true) == true && slug.current == $slug][0]{
   _id,
   title,
   price,
@@ -79,7 +62,7 @@ const propertyPageQuery = `*[_type == "property" && coalesce(isActive, true) == 
   businessInfrastructure,
   "images": images[]{
     _type,
-    ...,
+    ..., 
     alt,
     asset->{
       url,
@@ -216,20 +199,12 @@ interface PropertyDetail {
   }
 }
 
-export default async function PropertyPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>
-}) {
+export default async function CyprusPropertyPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const property: PropertyDetail = await client.fetch(propertyPageQuery, {
-    slug: slug,
-  })
-
+  const property: PropertyDetail = await client.fetch(propertyPageQuery, { slug })
   if (!property) {
     notFound()
   }
-
   if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
     try {
       window.gtag('event', 'property_view', {
@@ -240,21 +215,17 @@ export default async function PropertyPage({
         property_type: property.propertyType,
         status: property.status,
       })
-    } catch { }
+    } catch {}
   }
 
   const formatDateTR = (dateString?: string) => {
     if (!dateString) return null
-
-    // GÜN/AY/YIL formatını kontrol et (örn: 09/09/2025)
     if (dateString.includes('/')) {
       const [day, month, year] = dateString.split('/')
       const d = new Date(parseInt(year), parseInt(month) - 1, parseInt(day))
       if (isNaN(d.getTime())) return null
       return new Intl.DateTimeFormat('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' }).format(d)
     }
-
-    // ISO formatını kontrol et (örn: 2025-09-09)
     const d = new Date(dateString)
     if (isNaN(d.getTime())) return null
     return new Intl.DateTimeFormat('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' }).format(d)
@@ -342,45 +313,37 @@ export default async function PropertyPage({
   const VIEW_OPTIONS = ['Boğaz', 'Deniz', 'Doğa', 'Göl', 'Havuz', 'Park & Yeşil Alan', 'Şehir']
   const RESIDENCE_TYPE_OPTIONS = ['Dubleks', 'En Üst Kat', 'Ara Kat', 'Ara Kat Dubleks', 'Bahçe Dubleksi', 'Çatı Dubleksi', 'Forleks', 'Ters Dubleks', 'Tripleks']
   const ACCESSIBILITY_OPTIONS = ['Araç Park Yeri', 'Engelliye Uygun Asansör', 'Engelliye Uygun Banyo', 'Engelliye Uygun Mutfak', 'Engelliye Uygun Park', 'Geniş Koridor', 'Giriş / Rampa', 'Merdiven', 'Oda Kapısı', 'Priz / Elektrik Anahtarı', 'Tutamak / Korkuluk', 'Tuvalet', 'Yüzme Havuzu']
-
-  // Land-specific amenity options
   const ALTYAPI_OPTIONS = ['Elektrik', 'Sanayi Elektriği', 'Su', 'Telefon', 'Doğalgaz', 'Kanalizasyon', 'Arıtma', 'Sondaj & Kuyu', 'Zemin Etüdü', 'Yolu Açılmış', 'Yolu Açılmamış', 'Yolu Yok']
   const KONUM_OPTIONS = ['Ana Yola Yakın', 'Denize Sıfır', 'Denize Yakın', 'Havaalanına Yakın', 'Toplu Ulaşıma Yakın']
   const GENEL_OZELLIKLER_OPTIONS = ['İfrazlı', 'Parselli', 'Projeli', 'Köşe Parsel']
   const MANZARA_ARSA_OPTIONS = ['Şehir', 'Deniz', 'Doğa', 'Boğaz', 'Göl']
 
-  type GalleryFileItem = { _type: 'file'; alt?: string; asset?: { url?: string; mimeType?: string } };
-  type GalleryImageItem = SanityImageSource & { _type?: 'image'; asset?: { metadata?: { dimensions?: { aspectRatio?: number } } } };
-  type GalleryItem = GalleryImageItem | GalleryFileItem;
-  const allMedia = (property.images || []).filter(Boolean) as GalleryItem[];
-  const displayDescriptionFallback = 'Bu ilan için henüz bir açıklama girilmemiştir.';
+  type GalleryFileItem = { _type: 'file'; alt?: string; asset?: { url?: string; mimeType?: string } }
+  type GalleryImageItem = SanityImageSource & { _type?: 'image'; asset?: { metadata?: { dimensions?: { aspectRatio?: number } } } }
+  type GalleryItem = GalleryImageItem | GalleryFileItem
+  const allMedia = (property.images || []).filter(Boolean) as GalleryItem[]
+  const displayDescriptionFallback = 'Bu ilan için henüz bir açıklama girilmemiştir.'
   const portableTextComponents: PortableTextComponents = {
     marks: {
       textColor: ({ children, value }: { children: React.ReactNode; value?: { color?: string | { hex?: string } } }) => {
-        const colorValue = value?.color;
-        const resolvedColor = typeof colorValue === 'string' ? colorValue : colorValue?.hex;
-        return <span style={{ color: resolvedColor || '#111827' }}>{children}</span>;
+        const colorValue = value?.color
+        const resolvedColor = typeof colorValue === 'string' ? colorValue : colorValue?.hex
+        return <span style={{ color: resolvedColor || '#111827' }}>{children}</span>
       },
       fontSize: ({ children, value }: { children: React.ReactNode; value?: { size?: 'sm' | 'base' | 'lg' | 'xl' } }) => {
-        const sizeMap: Record<'sm' | 'base' | 'lg' | 'xl', string> = { sm: '0.875rem', base: '1rem', lg: '1.125rem', xl: '1.25rem' };
-        const fontSize = value?.size ? sizeMap[value.size] : '1rem';
-        return <span style={{ fontSize }}>{children}</span>;
-      }
-    }
-  } as const;
-
+        const sizeMap: Record<'sm' | 'base' | 'lg' | 'xl', string> = { sm: '0.875rem', base: '1rem', lg: '1.125rem', xl: '1.25rem' }
+        const fontSize = value?.size ? sizeMap[value.size] : '1rem'
+        return <span style={{ fontSize }}>{children}</span>
+      },
+    },
+  } as const
 
   const specs: { label: string; value: string }[] = []
   if (property.listingId) specs.push({ label: 'İlan No', value: property.listingId })
   if (property.listingDate) specs.push({ label: 'İlan Tarihi', value: formatDateTR(property.listingDate) || '-' })
-
-  // Land-specific fields
   if (property.propertyType === 'arsa') {
-    // Emlak Tipi for land
-    const emlakTipi = property.status === 'satilik' ? 'Satılık Arsa' :
-      property.status === 'kiralik' ? 'Kiralık Arsa' : 'Arsa'
+    const emlakTipi = property.status === 'satilik' ? 'Satılık Arsa' : property.status === 'kiralik' ? 'Kiralık Arsa' : 'Arsa'
     specs.push({ label: 'Emlak Tipi', value: emlakTipi })
-
     if (property.imarDurumu) specs.push({ label: 'İmar Durumu', value: imarDurumuLabel(property.imarDurumu) || '-' })
     if (typeof property.area === 'number') specs.push({ label: 'm²', value: `${property.area.toLocaleString('tr-TR')}` })
     if (typeof property.pricePerSquareMeter === 'number') specs.push({ label: 'm² Fiyatı', value: `${property.pricePerSquareMeter.toLocaleString('tr-TR')}` })
@@ -393,7 +356,6 @@ export default async function PropertyPage({
     if (property.titleDeedStatus) specs.push({ label: 'Tapu Durumu', value: titleDeedLabel(property.titleDeedStatus) || '-' })
     if (property.takas) specs.push({ label: 'Takas', value: yesNoLabel(property.takas) || '-' })
   } else {
-    // Non-land property fields
     if (typeof property.grossArea === 'number') specs.push({ label: 'm² (Brüt)', value: `${property.grossArea.toLocaleString('tr-TR')} m²` })
     if (typeof property.area === 'number') specs.push({ label: 'm² (Net)', value: `${property.area.toLocaleString('tr-TR')} m²` })
     if (property.bedrooms) specs.push({ label: 'Oda Sayısı', value: property.bedrooms })
@@ -411,21 +373,13 @@ export default async function PropertyPage({
     if (property.isInComplex) specs.push({ label: 'Site İçerisinde', value: yesNoLabel(property.isInComplex) || '-' })
     if (property.isInComplex === 'evet' && property.complexName) specs.push({ label: 'Site Adı', value: property.complexName })
     if (property.isInComplex === 'evet') {
-      const duesValue = typeof property.dues === 'number'
-        ? property.dues
-        : typeof property.dues === 'string'
-          ? (() => { const n = parseInt(property.dues.replace(/\./g, '')); return isNaN(n) ? undefined : n })()
-          : undefined
+      const duesValue = typeof property.dues === 'number' ? property.dues : typeof property.dues === 'string' ? (() => { const n = parseInt(property.dues.replace(/\./g, '')); return isNaN(n) ? undefined : n })() : undefined
       if (typeof duesValue === 'number') {
         specs.push({ label: 'Aidat (TL)', value: duesValue.toLocaleString('tr-TR') })
       }
     }
     if (property.status === 'kiralik') {
-      const depositValue = typeof property.deposit === 'number'
-        ? property.deposit
-        : typeof property.deposit === 'string'
-          ? (() => { const n = parseInt(property.deposit.replace(/\./g, '')); return isNaN(n) ? undefined : n })()
-          : undefined
+      const depositValue = typeof property.deposit === 'number' ? property.deposit : typeof property.deposit === 'string' ? (() => { const n = parseInt(property.deposit.replace(/\./g, '')); return isNaN(n) ? undefined : n })() : undefined
       if (typeof depositValue === 'number') {
         specs.push({ label: 'Depozito (TL)', value: depositValue.toLocaleString('tr-TR') })
       }
@@ -435,33 +389,25 @@ export default async function PropertyPage({
 
   return (
     <main className="bg-gradient-to-b from-white-50 to-gray-100 min-h-screen">
-      {/* Header Navigation */}
       <div className="bg-white border-b border-gray-300 sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4">
-          <Link
-            href="/"
-            className="inline-flex items-center text-anthracite-600 hover:text-anthracite-800 transition-colors font-medium"
-          >
+          <Link href="/kibris" className="inline-flex items-center text-anthracite-600 hover:text-anthracite-800 transition-colors font-medium">
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            Tüm İlanlara Geri Dön
+            Kıbrıs İlanlarına Geri Dön
           </Link>
         </div>
       </div>
 
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
-          {/* Ana İçerik - Sol Taraf */}
           <div className="xl:col-span-3 space-y-8">
-            {/* Galeri */}
             <div className="bg-white shadow-lg overflow-hidden">
               <PropertyGallery images={allMedia} />
             </div>
 
-            {/* İlan Bilgileri Grid */}
             <div className="grid grid-cols-1 gap-8">
-              {/* İlan Açıklaması */}
               <div className="bg-white border border-gray-300 shadow-lg p-6">
                 <div className="flex items-center mb-4 pb-4 border-b border-gray-300">
                   <svg className="w-6 h-6 mr-3 text-anthracite-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -471,14 +417,13 @@ export default async function PropertyPage({
                 </div>
                 {Array.isArray(property.description) && property.description.length > 0 ? (
                   <div className="prose prose-neutral max-w-none prose-headings:font-bold prose-headings:text-gray-900 prose-p:leading-relaxed">
-                    <PortableText value={property.description} components={portableTextComponents} />
+                    <PortableText value={property.description} />
                   </div>
                 ) : (
                   <p className="text-gray-700 leading-relaxed">{displayDescriptionFallback}</p>
                 )}
               </div>
 
-              {/* Özellikler */}
               <div className="bg-white border border-gray-300 shadow-lg p-6">
                 <div className="flex items-center mb-4 pb-4 border-b border-gray-300">
                   <svg className="w-6 h-6 mr-3 text-anthracite-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -498,7 +443,6 @@ export default async function PropertyPage({
               </div>
             </div>
 
-            {/* Özellikler Badges (Kategorili - tüm seçenekler gösterilir, seçilenler mavi) */}
             <details className="bg-white border border-gray-300 shadow-lg group" open>
               <summary className="flex items-center justify-between p-6 cursor-pointer select-none">
                 <div className="flex items-center">
@@ -514,13 +458,11 @@ export default async function PropertyPage({
 
               <div className="px-6 pb-6">
                 {(property.propertyType === 'arsa' ? [
-                  // Land-specific amenities
                   { title: 'Altyapı', options: ALTYAPI_OPTIONS, selected: property.altyapi || [] },
                   { title: 'Konum', options: KONUM_OPTIONS, selected: property.konum || [] },
                   { title: 'Genel Özellikler', options: GENEL_OZELLIKLER_OPTIONS, selected: property.genelOzellikler || [] },
                   { title: 'Manzara', options: MANZARA_ARSA_OPTIONS, selected: property.manzaraArsa || [] },
                 ].filter(cat => cat.options.length > 0) : property.propertyType === 'isyeri' ? [
-                  // Business-specific amenities summary badges (optional visual summary)
                   { title: 'İşyeri Türü', options: property.businessCategories || [], selected: property.businessCategories || [] },
                   { title: 'Genel Özellikler', options: property.businessGeneralFeatures || [], selected: property.businessGeneralFeatures || [] },
                   { title: 'Yakınlık', options: property.businessProximity || [], selected: property.businessProximity || [] },
@@ -528,7 +470,6 @@ export default async function PropertyPage({
                   { title: 'Cephe', options: property.businessOrientation || [], selected: property.businessOrientation || [] },
                   { title: 'Alt Yapı', options: property.businessInfrastructure || [], selected: property.businessInfrastructure || [] },
                 ].filter(cat => Array.isArray(cat.options) && cat.options.length > 0) : [
-                  // Non-land property amenities
                   { title: 'Cephe', options: ORIENTATION_OPTIONS, selected: property.orientation || [] },
                   { title: 'İç Özellikler', options: INDOOR_FEATURES_OPTIONS, selected: property.indoorFeatures || [] },
                   { title: 'Dış Özellikler', options: OUTDOOR_FEATURES_OPTIONS, selected: property.outdoorFeatures || [] },
@@ -544,10 +485,7 @@ export default async function PropertyPage({
                       {cat.options.map((opt) => {
                         const isSelected = cat.selected.includes(opt)
                         return (
-                          <span
-                            key={opt}
-                            className={`${isSelected ? 'bg-anthracite-50 text-anthracite-700 border-anthracite-200' : 'bg-gray-100 text-gray-700 border-gray-300'} px-3 py-1.5 text-xs font-medium border inline-flex items-center gap-1.5`}
-                          >
+                          <span key={opt} className={`${isSelected ? 'bg-anthracite-50 text-anthracite-700 border-anthracite-200' : 'bg-gray-100 text-gray-700 border-gray-300'} px-3 py-1.5 text-xs font-medium border inline-flex items-center gap-1.5`}>
                             {isSelected && (
                               <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -563,7 +501,6 @@ export default async function PropertyPage({
               </div>
             </details>
 
-            {/* Harita */}
             <div className="bg-white border border-gray-300 shadow-lg overflow-hidden relative z-0">
               <div className="p-6 border-b border-gray-300">
                 <div className="flex items-center">
@@ -577,27 +514,20 @@ export default async function PropertyPage({
               <div className="h-96 relative z-0">
                 {property.propertyType === 'arsa' && property.polygon && property.polygon.length > 0 ? (
                   <PropertyPolygonMapLoader coordinates={property.polygon} />
-                ) :
-                  property.locationMap ? (
-                    <MapLoader
-                      coordinates={property.locationMap}
-                      isApproximate={property.showApproximateLocation === true}
-                    />
-                  ) : (
-                    <div className="h-full flex items-center justify-center bg-gray-100">
-                      <p className="text-gray-500">Bu ilan için harita bilgisi mevcut değil.</p>
-                    </div>
-                  )}
+                ) : property.locationMap ? (
+                  <MapLoader coordinates={property.locationMap} isApproximate={property.showApproximateLocation === true} />
+                ) : (
+                  <div className="h-full flex items-center justify-center bg-gray-100">
+                    <p className="text-gray-500">Bu ilan için harita bilgisi mevcut değil.</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
-          {/* Sağ Sidebar */}
           <div className="xl:col-span-1">
             <div className="sticky top-24 space-y-6">
-              {/* Fiyat ve Temel Bilgiler */}
               <div className="relative overflow-hidden bg-white border border-gray-300 shadow-lg">
-                {/* Status Damgası */}
                 {(property.status === 'satildi' || property.status === 'kiralandi') && (
                   <div className="absolute top-6 right-[-60px] rotate-[45deg] w-52 py-2 text-sm font-bold uppercase text-white shadow-lg bg-red-600 text-center z-10">
                     {property.status === 'satildi' ? 'SATILDI' : 'KİRALANDI'}
@@ -605,62 +535,38 @@ export default async function PropertyPage({
                 )}
 
                 <div className="p-6">
-                  {/* İlan No ve Status */}
                   <div className="flex justify-between items-start mb-4">
-                    <span className="bg-gray-900 text-white px-3 py-1 text-xs font-bold">
-                      #{property.listingId}
-                    </span>
-                    <span className={`px-3 py-1 text-xs font-bold text-white ${property.status === 'satilik' ? 'bg-green-600' :
-                      property.status === 'kiralik' ? 'bg-anthracite-600' : 'bg-gray-600'
-                      }`}>
-                      {property.status === 'satilik' ? 'SATILIK' :
-                        property.status === 'kiralik' ? 'KİRALIK' :
-                          property.status === 'satildi' ? 'SATILDI' : 'KİRALANDI'}
+                    <span className="bg-gray-900 text-white px-3 py-1 text-xs font-bold">#{property.listingId}</span>
+                    <span className={`px-3 py-1 text-xs font-bold text-white ${property.status === 'satilik' ? 'bg-green-600' : property.status === 'kiralik' ? 'bg-anthracite-600' : 'bg-gray-600'}`}>
+                      {property.status === 'satilik' ? 'SATILIK' : property.status === 'kiralik' ? 'KİRALIK' : property.status === 'satildi' ? 'SATILDI' : 'KİRALANDI'}
                     </span>
                   </div>
 
-                  {/* Başlık */}
-                  <h1 className="text-2xl font-bold text-gray-900 mb-2 leading-tight">
-                    {property.title}
-                  </h1>
+                  <h1 className="text-2xl font-bold text-gray-900 mb-2 leading-tight">{property.title}</h1>
 
-                  {/* Konum */}
                   <div className="flex items-center text-gray-600 mb-4">
                     <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                     </svg>
-                    <span className="text-sm">
-                      {property.neighborhood}, {property.district} / {property.province}
-                    </span>
+                    <span className="text-sm">{property.neighborhood}, {property.district} / {property.province}</span>
                   </div>
 
-                  {/* Fiyat */}
                   {(property.status === 'satilik' || property.status === 'kiralik') && (
                     <div className="0 p-4 mb-6">
-                      <p className="text-3xl font-bold text-green-600 text-center">
-                        {property.price?.toLocaleString('tr-TR')} ₺
-                      </p>
-                      <p className="text-sm text-anthracite-600 text-center mt-1">
-                        {property.status === 'satilik' ? 'Satış Fiyatı' : 'Aylık Kira'}
-                      </p>
+                      <p className="text-3xl font-bold text-green-600 text-center">{property.price?.toLocaleString('tr-TR')} ₺</p>
+                      <p className="text-sm text-anthracite-600 text-center mt-1">{property.status === 'satilik' ? 'Satış Fiyatı' : 'Aylık Kira'}</p>
                     </div>
                   )}
 
-                  {/* Emlak Tipi */}
                   <div className="text-center">
                     <span className="bg-gray-100 text-gray-800 px-4 py-2 text-sm font-semibold">
-                      {property.status === 'satilik' ? 'SATILIK ' :
-                        property.status === 'kiralik' ? 'KİRALIK ' : ''}
-                      {property.propertyType === 'daire' ? 'DAİRE' :
-                        property.propertyType === 'villa' ? 'VİLLA' :
-                          property.propertyType === 'mustakil' ? 'MÜSTAKİL EV' :
-                            property.propertyType === 'isyeri' ? 'İŞYERİ' : 'ARSA'}
+                      {property.status === 'satilik' ? 'SATILIK ' : property.status === 'kiralik' ? 'KİRALIK ' : ''}
+                      {property.propertyType === 'daire' ? 'DAİRE' : property.propertyType === 'villa' ? 'VİLLA' : property.propertyType === 'mustakil' ? 'MÜSTAKİL EV' : property.propertyType === 'isyeri' ? 'İŞYERİ' : 'ARSA'}
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Danışman Bilgileri */}
               {property.agent && (
                 <div className="bg-white border border-gray-300 shadow-lg p-6">
                   <div className="flex items-center mb-4 pb-4 border-b border-gray-300">
@@ -672,27 +578,13 @@ export default async function PropertyPage({
                   <div className="text-center">
                     {property.agent.image && (
                       <div className="w-20 h-20 mx-auto mb-4 overflow-hidden border-2 border-gray-300">
-                        <Image
-                          src={urlFor(property.agent.image).width(80).height(80).url()}
-                          alt={`${property.agent.name} portre fotoğrafı`}
-                          width={80}
-                          height={80}
-                          className="w-full h-full object-cover"
-                        />
+                        <Image src={urlFor(property.agent.image).width(80).height(80).url()} alt={`${property.agent.name} portre fotoğrafı`} width={80} height={80} className="w-full h-full object-cover" />
                       </div>
                     )}
                     <h4 className="font-bold text-gray-900 mb-2">{property.agent.name}</h4>
                     <div className="space-y-2">
-                      <a
-                        href={`tel:${property.agent.phone}`}
-                        className="block bg-anthracite-600 text-white px-4 py-2 text-sm font-medium hover:bg-anthracite-700 transition-colors"
-                      >
-                        📞 {property.agent.phone}
-                      </a>
-                      <a
-                        href={`https://wa.me/${90}${property.agent.phone.replace(/ /g, '')}?text=Merhaba%20"*${property.title}*"%20ile%20ilgili%20bilgi%20alabilir%20miyim?`}
-                        className="bg-green-600 text-white px-4 py-2 text-sm font-medium hover:bg-green-700 transition-colors text-center flex items-center justify-center"
-                      >
+                      <a href={`tel:${property.agent.phone}`} className="block bg-anthracite-600 text-white px-4 py-2 text-sm font-medium hover:bg-anthracite-700 transition-colors">📞 {property.agent.phone}</a>
+                      <a href={`https://wa.me/${90}${property.agent.phone.replace(/ /g, '')}?text=Merhaba%20"*${property.title}*"%20ile%20ilgili%20bilgi%20alabilir%20miyim?`} className="bg-green-600 text-white px-4 py-2 text-sm font-medium hover:bg-green-700 transition-colors text-center flex items-center justify-center">
                         <span className="inline-flex items-center justify-center">
                           <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                             <path d="M20.52 3.48A11.8 11.8 0 0012 0C5.37 0 0 5.37 0 12c0 2.12.55 4.11 1.52 5.85L0 24l6.3-1.64A11.82 11.82 0 0012 24c6.63 0 12-5.37 12-12 0-3.19-1.25-6.18-3.48-8.52zM12 22a9.93 9.93 0 01-5.08-1.39l-.36-.21-3.76.98 1-3.67-.24-.38A9.96 9.96 0 1122 12c0 5.52-4.48 10-10 10zm5.49-7.36c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.95 1.17-.18.2-.35.22-.65.07-.3-.15-1.25-.46-2.38-1.47-.88-.78-1.47-1.73-1.64-2.02-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.08-.8.37-.27.3-1.05 1.03-1.05 2.5s1.08 2.9 1.23 3.1c.15.2 2.12 3.23 5.14 4.39.72.31 1.28.5 1.72.64.72.23 1.38.2 1.9.12.58-.09 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.08-.12-.27-.19-.57-.34z" />
@@ -701,34 +593,20 @@ export default async function PropertyPage({
                         </span>
                       </a>
                       {property.agent.email && (
-                        <a
-                          href={`mailto:${property.agent.email}`}
-                          className="block bg-gray-600 text-white px-4 py-2 text-sm font-medium hover:bg-gray-700 transition-colors"
-                        >
-                          ✉️ E-posta Gönder
-                        </a>
+                        <a href={`mailto:${property.agent.email}`} className="block bg-gray-600 text-white px-4 py-2 text-sm font-medium hover:bg-gray-700 transition-colors">✉️ E-posta Gönder</a>
                       )}
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* Sahibindene Git Butonu */}
               {property.sahibindenLink && (
                 <div className="bg-white border border-gray-300 shadow-lg p-6">
                   <div className="text-center">
-                    <a
-                      href={property.sahibindenLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center w-full px-6 py-3 text-lg font-medium font-semibold text-black hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors"
-                      style={{ backgroundColor: '#f7ec00' }}
-                    >
+                    <a href={property.sahibindenLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center w-full px-6 py-3 text-lg font-medium font-semibold text-black hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors" style={{ backgroundColor: '#f7ec00' }}>
                       sahibinden.com
                     </a>
-                    <p className="mt-2 text-xs text-gray-500">
-                      Bu ilanı sahibinden.com&apos;da görüntülemek için tıklayın
-                    </p>
+                    <p className="mt-2 text-xs text-gray-500">Bu ilanı sahibinden.com&apos;da görüntülemek için tıklayın</p>
                   </div>
                 </div>
               )}
@@ -741,3 +619,5 @@ export default async function PropertyPage({
 }
 
 export const revalidate = 10
+
+

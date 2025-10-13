@@ -8,6 +8,7 @@ import { usePathname } from 'next/navigation';
 const navLinks = [
     { href: "/", label: "Ana Sayfa" },
     { href: "/portfoy", label: "Portföy" },
+    { href: "/kibris", label: "Kıbrıs İlanları" },
     { href: "/isortaklarimiz", label: "İş Ortaklarımız" },
     { href: "/hakkimizda", label: "Hakkımızda" },
     { href: "/iletisim", label: "İletişim" }
@@ -46,22 +47,19 @@ const Header = () => {
     }, [isOpen]);
 
     // Dinamik olarak atanacak sınıflar
-    const headerClasses = `fixed top-0 w-full z-50 transition-all duration-500 ${
-        isTransparent
-            ? 'bg-gradient-to-b from-black/30 via-black/10 to-transparent text-white'
-            : 'bg-white/90 text-gray-900 shadow-lg backdrop-blur-md'
-    }`;
-    
-    const logoClasses = `text-2xl font-medium tracking-tight font-serif transition-colors duration-300 ${
-        isTransparent ? 'text-white' : 'text-gray-900'
-    }`;
+    const headerClasses = `fixed top-0 w-full z-50 transition-all duration-500 ${isTransparent
+        ? 'bg-gradient-to-b from-black/30 via-black/10 to-transparent text-white'
+        : 'bg-anthracite-900/90 text-white shadow-lg backdrop-blur-md'
+        }`;
 
-    const navLinkClasses = (transparent: boolean) => 
-        `relative font-light transition-colors duration-300 py-2 ${
-            transparent 
-                ? 'text-white hover:text-gray-200' 
-                : 'text-gray-600 hover:text-gray-900'
-        } after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-blue-600 after:transition-all after:duration-300 hover:after:w-full`;
+    const logoClasses = `text-2xl font-medium tracking-tight font-serif transition-colors duration-300 ${isTransparent ? 'text-white' : 'text-white'
+        }`;
+
+    const navLinkClasses = (transparent: boolean) =>
+        `relative font-light transition-colors duration-300 py-2 ${transparent
+            ? 'text-white-600 hover:text-white'
+            : 'text-white-600 hover:text-white'
+        } after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-white after:transition-all after:duration-300 hover:after:w-full`;
 
     return (
         <>
@@ -69,7 +67,7 @@ const Header = () => {
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-20">
                         <div className="flex-shrink-0 flex items-center gap-4">
-                            <Image src="/logo.png" alt="Hatice Özen Gayrimenkul logosu" width={50} height={50} className={logoClasses + 'filter transition-[filter] duration-300' + (isTransparent ? ' invert' : '') } />
+                            <Image src="/logo.png" alt="Hatice Özen Gayrimenkul logosu" width={50} height={50} className={logoClasses + 'filter transition-[filter] duration-300 invert'} />
                             <Link href="/" onClick={closeMenu} className={logoClasses} aria-label="Ana sayfa">
                                 Hatice Özen Gayrimenkul
                             </Link>
@@ -109,16 +107,16 @@ const Header = () => {
             </header>
 
             {/* Mobil Menü Overlay */}
-            <div 
+            <div
                 className={`fixed inset-0 bg-black/40 z-40 md:hidden transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                 onClick={closeMenu}
                 aria-hidden="true"
             ></div>
-            
+
             {/* Mobil Menü Panel */}
             <div id="mobile-menu" className={`fixed top-0 right-0 h-full w-72 bg-white z-50 transform shadow-xl ${isOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300 ease-in-out md:hidden`}>
                 <div className="p-8 flex flex-col h-full">
-                     <div className="flex-shrink-0 mb-10">
+                    <div className="flex-shrink-0 mb-10">
                         <Link href="/" onClick={closeMenu} className="text-2xl font-bold text-blue-600 font-roboto">
                             Hatice Özen Gayrimenkul
                         </Link>

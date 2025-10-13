@@ -95,6 +95,33 @@ export const myStructure = (S: StructureBuilder) =>
                     ])
                 ),
               S.listItem()
+                .title('Kıbrıs İlanları')
+                .child(
+                  S.list()
+                    .title('Kıbrıs İlanları')
+                    .items([
+                      S.listItem()
+                        .title('Aktif İlanlar')
+                        .child(
+                          S.documentList()
+                            .title('Aktif İlanlar')
+                            .filter('_type == "cyprusProperty" && coalesce(isActive, true) == true')
+                            .schemaType('cyprusProperty')
+                        ),
+                      S.listItem()
+                        .title('Pasif İlanlar')
+                        .child(
+                          S.documentList()
+                            .title('Pasif İlanlar')
+                            .filter('_type == "cyprusProperty" && isActive == false')
+                            .schemaType('cyprusProperty')
+                        ),
+                      S.listItem()
+                        .title('Tüm İlanlar')
+                        .child(S.documentTypeList('cyprusProperty')),
+                    ])
+                ),
+              S.listItem()
                 .title('İş Ortakları')
                 .child(S.documentTypeList('agent')),
             ])

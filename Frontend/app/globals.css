@@ -17,6 +17,16 @@ html {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-roboto: "Roboto Flex", sans-serif; 
+
+  --color-anthracite-100: #F2F3F4;
+  --color-anthracite-200: #D5D8DC;
+  --color-anthracite-300: #B8BDC4;
+  --color-anthracite-400: #2C302E;
+  --color-anthracite-500: #7E8794;
+  --color-anthracite-600: #646C78;
+  --color-anthracite-700: #4A515C;
+  --color-anthracite-800: #303640;
+  --color-anthracite-900: #161B24;
 }
 
 body {
