@@ -12,6 +12,11 @@ const builder = imageUrlBuilder(client);
 function urlFor(source: SanityImageSource) {
   return builder.image(source);
 }
+type ImageWithAsset = SanityImageSource & { asset?: { _ref?: string; _id?: string; url?: string } }
+function hasImageAsset(img?: unknown): img is ImageWithAsset {
+  const asset = (img as ImageWithAsset | undefined)?.asset;
+  return Boolean(asset && (asset._ref || asset._id || asset.url));
+}
 
 const query = `*[_type == "property" && coalesce(isActive, true) == true && (status == 'satilik' || status == 'kiralik')]{
   _id,
@@ -647,7 +652,7 @@ export default function HomePage() {
                   <div className="bg-white overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-300 h-full flex flex-col">
                     {/* Görsel Alanı */}
                     <div className="relative h-64 overflow-hidden flex-shrink-0">
-                      {property.mainImage ? (
+                      {hasImageAsset(property.mainImage) ? (
                         <Image
                           src={urlFor(property.mainImage).width(600).height(400).url()}
                           alt={`${property.title} ana görseli`}

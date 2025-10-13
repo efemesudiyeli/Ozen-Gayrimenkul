@@ -170,7 +170,7 @@ export default defineType({
       name: 'title',
       title: 'İlan Başlığı',
       type: 'string',
-      description: 'Örn: "Lara&apos;da Deniz Manzaralı Lüks 3+1 Daire"',
+      description: 'Örn: "Lara\'da Deniz Manzaralı Lüks 3+1 Daire"',
       group: 'basicInfo',
       fieldset: 'identityFields',
       validation: (Rule) => Rule.required(),

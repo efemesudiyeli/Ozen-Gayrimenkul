@@ -38,6 +38,11 @@ const builder = imageUrlBuilder(client)
 function urlFor(source: SanityImageSource) {
   return builder.image(source)
 }
+type ImageWithAsset = SanityImageSource & { asset?: { _ref?: string; _id?: string; url?: string } }
+function hasImageAsset(img?: unknown): img is ImageWithAsset {
+  const asset = (img as ImageWithAsset | undefined)?.asset
+  return Boolean(asset && (asset._ref || asset._id || asset.url))
+}
 
 const query = `*[_type == "agent"]{
   _id,
@@ -100,7 +105,7 @@ const AgentsPage = async () => {
           <div key={agent._id} className="text-center w-72">
             <div className="mx-auto h-48 w-48 rounded-full overflow-hidden relative shadow-lg">
               <Image
-                src={urlFor(agent.image).width(400).height(400).url()}
+                src={hasImageAsset(agent.image) ? urlFor(agent.image).width(400).height(400).url() : '/vercel.svg'}
                 alt={`${agent.name} portre fotoğrafı`}
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

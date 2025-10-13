@@ -59,6 +59,11 @@ const builder = imageUrlBuilder(client)
 function urlFor(source: SanityImageSource) {
   return builder.image(source)
 }
+type ImageWithAsset = SanityImageSource & { asset?: { _ref?: string; _id?: string; url?: string } }
+function hasImageAsset(img?: unknown): img is ImageWithAsset {
+  const asset = (img as ImageWithAsset | undefined)?.asset
+  return Boolean(asset && (asset._ref || asset._id || asset.url))
+}
 
 const propertyPageQuery = `*[_type == "property" && coalesce(isActive, true) == true && slug.current == $slug][0]{
   _id,
@@ -670,7 +675,7 @@ export default async function PropertyPage({
                     <h3 className="text-lg font-bold text-gray-900">İş Ortağımız</h3>
                   </div>
                   <div className="text-center">
-                    {property.agent.image && (
+                    {hasImageAsset(property.agent.image) && (
                       <div className="w-20 h-20 mx-auto mb-4 overflow-hidden border-2 border-gray-300">
                         <Image
                           src={urlFor(property.agent.image).width(80).height(80).url()}

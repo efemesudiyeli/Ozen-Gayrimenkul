@@ -22,6 +22,11 @@ const builder = imageUrlBuilder(client);
 function urlFor(source: SanityImageSource) {
   return builder.image(source);
 }
+type ImageWithAsset = SanityImageSource & { asset?: { _ref?: string; _id?: string; url?: string } }
+function hasImageAsset(img?: unknown): img is ImageWithAsset {
+  const asset = (img as ImageWithAsset | undefined)?.asset;
+  return Boolean(asset && (asset._ref || asset._id || asset.url));
+}
 
 // Sanity'den gelen resim objesinin, boyut bilgilerini de içerecek şekilde tipini güncelliyoruz.
 type SanityImageWithMeta = SanityImageSource & {
@@ -75,7 +80,7 @@ const PropertyGallery = ({ images }: PropertyGalleryProps) => {
           return (
             <SwiperSlide key={index}>
               <Image
-                src={urlFor(image as SanityImageWithMeta).url()}
+                src={hasImageAsset(image) ? urlFor(image as SanityImageWithMeta).url() : '/vercel.svg'}
                 alt={`İlan görseli ${index + 1}`}
                 fill
                 sizes="(max-width: 1024px) 100vw, 66vw"
@@ -108,7 +113,7 @@ const PropertyGallery = ({ images }: PropertyGalleryProps) => {
                 </div>
               ) : (
                 <Image
-                  src={urlFor(image as SanityImageWithMeta).url()}
+                  src={hasImageAsset(image) ? urlFor(image as SanityImageWithMeta).url() : '/vercel.svg'}
                   alt={`İlan küçük görseli ${index + 1}`}
                   fill
                   sizes="25vw"

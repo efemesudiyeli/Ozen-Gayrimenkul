@@ -9,6 +9,11 @@ const builder = imageUrlBuilder(client);
 function urlFor(source: SanityImageSource) {
   return builder.image(source);
 }
+type ImageWithAsset = SanityImageSource & { asset?: { _ref?: string; _id?: string; url?: string } }
+function hasImageAsset(img?: unknown): img is ImageWithAsset {
+  const asset = (img as ImageWithAsset | undefined)?.asset
+  return Boolean(asset && (asset._ref || asset._id || asset.url))
+}
 
 // Hero bileşeninin alacağı verilerin tip tanımı
 export interface HeroData {
@@ -37,7 +42,7 @@ const Hero = ({ data }: HeroProps) => {
       <div className="absolute inset-0">
         <Image
           className="w-full h-full object-cover"
-          src={urlFor(data.backgroundImage).url()}
+          src={hasImageAsset(data.backgroundImage) ? urlFor(data.backgroundImage).url() : '/vercel.svg'}
           alt="Modern bir evin dış cephesi"
           fill
           priority

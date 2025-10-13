@@ -44,6 +44,11 @@ const builder = imageUrlBuilder(client)
 function urlFor(source: SanityImageSource) {
   return builder.image(source)
 }
+type ImageWithAsset = SanityImageSource & { asset?: { _ref?: string; _id?: string; url?: string } }
+function hasImageAsset(img?: unknown): img is ImageWithAsset {
+  const asset = (img as ImageWithAsset | undefined)?.asset
+  return Boolean(asset && (asset._ref || asset._id || asset.url))
+}
 
 // Sorgu, tüm property bilgilerini çekecek şekilde güncellendi
 const query = `*[_type == "property" && coalesce(isActive, true) == true && (status == 'satildi' || status == 'kiralandi')] | order(_updatedAt desc){
@@ -158,7 +163,7 @@ const PortfolioPage = async () => {
               <div className="bg-white overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-200 h-full flex flex-col relative">
                 {/* Görsel Alanı */}
                 <div className="relative h-64 overflow-hidden flex-shrink-0">
-                  {property.mainImage ? (
+                  {hasImageAsset(property.mainImage) ? (
                     <Image
                       src={urlFor(property.mainImage).width(600).height(400).url()}
                       alt={`${property.title} ana görseli`}
