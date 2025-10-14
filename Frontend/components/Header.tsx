@@ -56,7 +56,7 @@ const Header = () => {
         }`;
 
     const navLinkClasses = (transparent: boolean) =>
-        `relative font-light transition-colors duration-300 py-2 ${transparent
+        `relative font-light transition-colors duration-300 py-2 xl:px-3 ${transparent
             ? 'text-white-600 hover:text-white'
             : 'text-white-600 hover:text-white'
         } after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-white after:transition-all after:duration-300 hover:after:w-full`;
@@ -65,15 +65,15 @@ const Header = () => {
         <>
             <header className={headerClasses} role="banner">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between h-20">
-                        <div className="flex-shrink-0 flex items-center gap-4">
+                    <div className="flex items-center justify-between h-20 md:h-auto md:flex-col md:gap-2 xl:flex xl:flex-row xl:items-center xl:justify-between">
+                        <div className="flex-shrink-0 flex items-center gap-4 md:justify-center md:w-full xl:justify-start xl:w-auto">
                             <Image src="/logo.png" alt="Hatice Özen Gayrimenkul logosu" width={50} height={50} className={logoClasses + 'filter transition-[filter] duration-300 invert'} />
-                            <Link href="/" onClick={closeMenu} className={logoClasses} aria-label="Ana sayfa">
+                            <Link href="/" onClick={closeMenu} className={logoClasses + ' md:text-xl'} aria-label="Ana sayfa">
                                 Hatice Özen Gayrimenkul
                             </Link>
                         </div>
 
-                        <nav className="hidden md:flex md:space-x-8" aria-label="Ana menü">
+                        <nav className="hidden md:flex md:w-full md:justify-center md:flex-nowrap md:items-center md:space-x-4 lg:space-x-8 md:whitespace-nowrap md:overflow-x-auto md:py-2 md:border-t md:border-white/10 xl:w-auto xl:justify-end xl:overflow-visible xl:py-2 xl:border-0" aria-label="Ana menü">
                             {navLinks.map((link) => (
                                 <Link
                                     key={link.href}
@@ -86,7 +86,7 @@ const Header = () => {
                             ))}
                         </nav>
 
-                        <div className="md:hidden">
+                        <div className="md:hidden xl:justify-self-end">
                             <button
                                 onClick={toggleMenu}
                                 className="inline-flex items-center justify-center p-2 rounded-md focus:outline-none"

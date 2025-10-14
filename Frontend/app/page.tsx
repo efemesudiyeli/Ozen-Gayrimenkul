@@ -78,6 +78,7 @@ export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [heroData, setHeroData] = useState<HeroData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [mobileView, setMobileView] = useState<'grid' | 'list'>('grid');
 
   // Advanced filters
   const [minPrice, setMinPrice] = useState<string>('');
@@ -433,59 +434,93 @@ export default function HomePage() {
           {/* Filter ve Sıralama */}
           <div className="flex flex-col lg:flex-row justify-center items-center gap-6">
             {/* Modern Filter Buttons */}
-            <div className="bg-white border border-gray-300 shadow-lg">
-              <div className="flex flex-wrap gap-1">
-                {filterOptions.map((option) => (
-                  <button
-                    key={option.key}
-                    onClick={() => handleFilter(option.key)}
-                    className={`px-6 py-3 text-sm font-medium transition-all duration-300 whitespace-nowrap ${activeFilter === option.key
-                      ? 'bg-anthracite-900 text-white shadow-md transform scale-105'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                      }`}
-                  >
-                    {option.label}
-                  </button>
-                ))}
+            <div className="bg-white border border-gray-300 shadow-lg w-full lg:w-auto lg:mx-auto lg:self-center">
+              <div className="p-3">
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                  {filterOptions.map((option) => (
+                    <button
+                      key={option.key}
+                      onClick={() => handleFilter(option.key)}
+                      className={`w-full text-center px-4 py-3 text-sm font-medium transition-colors duration-200 ${activeFilter === option.key
+                        ? 'bg-anthracite-900 text-white shadow-sm'
+                        : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                        }`}
+                      aria-pressed={activeFilter === option.key}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
-            {/* Sıralama Dropdown */}
-            <div className="relative">
-              <select
-                value={sortBy}
-                onChange={(e) => handleSort(e.target.value)}
-                className="bg-white border border-gray-300 shadow-lg px-6 py-3 pr-10 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-anthracite-500 focus:border-anthracite-500 appearance-none cursor-pointer"
+            {/* Sıralama ve Gelişmiş Filtreler - Mobilde yan yana */}
+            <div className="w-full lg:w-auto grid grid-cols-2 gap-3 sm:flex sm:items-center sm:gap-6 lg:self-center">
+              {/* Sıralama Dropdown */}
+              <div className="relative w-full sm:w-auto">
+                <select
+                  value={sortBy}
+                  onChange={(e) => handleSort(e.target.value)}
+                  className="w-full bg-white border border-gray-300 shadow-lg px-4 py-3 pr-10 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-anthracite-500 focus:border-anthracite-500 appearance-none cursor-pointer"
+                >
+                  {sortOptions.map((option) => (
+                    <option key={option.key} value={option.key}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+                {/* Custom Arrow */}
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Advanced Filters Toggle */}
+              <button
+                onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                className="w-full sm:w-auto bg-anthracite-900 text-white px-4 py-3 text-sm font-medium hover:bg-gray-700 transition-colors duration-300 shadow-lg inline-flex items-center justify-center gap-2"
+                aria-expanded={showAdvancedFilters}
+                aria-controls="advanced-filters-panel"
               >
-                {sortOptions.map((option) => (
-                  <option key={option.key} value={option.key}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              {/* Custom Arrow */}
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
                 </svg>
-              </div>
+                Gelişmiş Filtreler
+              </button>
             </div>
 
-            {/* Advanced Filters Toggle */}
-            <button
-              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-              className="bg-anthracite-900 text-white px-6 py-3 text-sm font-medium hover:bg-gray-700 transition-colors duration-300 shadow-lg flex items-center gap-2"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
-              </svg>
-              Gelişmiş Filtreler
-            </button>
+            {/* Görünüm Seçici (Mobil + Masaüstü) */}
+            <div className="w-full sm:w-auto">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-none sm:flex sm:gap-2">
+                <button
+                  onClick={() => setMobileView('list')}
+                  className={`w-full px-4 py-2 text-sm font-medium border ${mobileView === 'list' ? 'bg-anthracite-900 text-white' : 'bg-white text-gray-700 border-gray-300'}`}
+                  aria-pressed={mobileView === 'list'}
+                  aria-label="Liste görünümü"
+                >
+                  <svg className="mx-auto w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M4 6.75C4 6.336 4.336 6 4.75 6h14.5a.75.75 0 0 1 0 1.5H4.75A.75.75 0 0 1 4 6.75Zm0 4.5c0-.414.336-.75.75-.75h14.5a.75.75 0 0 1 0 1.5H4.75a.75.75 0 0 1-.75-.75Zm0 4.5c0-.414.336-.75.75-.75h14.5a.75.75 0 0 1 0 1.5H4.75a.75.75 0 0 1-.75-.75Z"/>
+                  </svg>
+                </button>
+                <button
+                  onClick={() => setMobileView('grid')}
+                  className={`w-full px-4 py-2 text-sm font-medium border ${mobileView === 'grid' ? 'bg-anthracite-900 text-white' : 'bg-white text-gray-700 border-gray-300'}`}
+                  aria-pressed={mobileView === 'grid'}
+                  aria-label="Kart görünümü"
+                >
+                  <svg className="mx-auto w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M4 5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5Zm9 0a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1V5ZM4 14a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-4Zm9 0a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1v-4Z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Advanced Filters Panel */}
           {showAdvancedFilters && (
-            <div className="mt-8 bg-white p-6 shadow-lg border border-gray-100">
+            <div id="advanced-filters-panel" className="mt-8 bg-white p-6 shadow-lg border border-gray-100">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {/* Price Range */}
                 <div className="space-y-2">
@@ -651,156 +686,195 @@ export default function HomePage() {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-              {currentProperties.map((property) => (
-                <Link
-                  key={property._id}
-                  href={`/ilan/${property.slug.current}`}
-                  className="group block"
-                >
-                  <div className="bg-white overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-300 h-full flex flex-col">
-                    {/* Görsel Alanı */}
-                    <div className="relative h-64 overflow-hidden flex-shrink-0">
-                      {hasImageAsset(property.mainImage) ? (
-                        <Image
-                          src={urlFor(property.mainImage).width(600).height(400).url()}
-                          alt={`${property.title} ana görseli`}
-                          fill
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                          className="object-cover transition-transform duration-700 group-hover:scale-110"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-                          <span className="text-gray-500 font-medium">Fotoğraf Yok</span>
-                        </div>
-                      )}
-
-                      {/* Overlay Gradient */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-
-                      {/* Status Badge */}
-                      <div className="absolute top-4 left-4">
-                        <span className={`px-3 py-1 text-xs font-bold text-white shadow-lg ${property.status === 'satilik' ? 'bg-anthracite-900' :
-                          property.status === 'kiralik' ? 'bg-anthracite-900' : 'bg-gray-600'
-                          }`}>
-                          {property.status === 'satilik' ? 'SATILIK' :
-                            property.status === 'kiralik' ? 'KİRALIK' : property.status?.toUpperCase()}
-                        </span>
-                      </div>
-
-                      {/* Property Type Badge */}
-                      <div className="absolute top-4 right-4">
-                        <span className="bg-white/95 backdrop-blur-sm text-gray-800 px-3 py-1 text-xs font-semibold shadow-sm">
-                          {property.propertyType === 'daire' ? 'DAİRE' :
-                            property.propertyType === 'villa' ? 'VİLLA' :
-                              property.propertyType === 'mustakil' ? 'MÜSTAKİL' :
-                                property.propertyType === 'isyeri' ? 'İŞYERİ' : 'ARSA'}
-                        </span>
-                      </div>
-
-                      {/* İlan No */}
-                      <div className="absolute bottom-4 left-4">
-                        <span className="bg-black/70 text-white px-2 py-1 text-xs font-medium">
-                          #{property.listingId}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* İçerik Alanı */}
-                    <div className="p-5 flex-grow flex flex-col">
-                      {/* Başlık */}
-                      <h3 className="text-lg font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-anthracite-600 transition-colors duration-300 min-h-[3rem]">
-                        {property.title}
-                      </h3>
-
-                      {/* Konum */}
-                      <div className="flex items-center text-gray-600 mb-3">
-                        <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                        </svg>
-                        <span className="text-sm">
-                          {property.neighborhood}, {property.district} / {property.province}
-                        </span>
-                      </div>
-
-                      {/* Özellikler Grid */}
-                      {property.propertyType !== 'arsa' && (
-                        <div className="grid grid-cols-2 gap-3 mb-4 text-xs">
-                          {property.bedrooms && (
-                            <div className="flex items-center text-gray-600">
-                              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 21v-4a2 2 0 012-2h2a2 2 0 012 2v4" />
-                              </svg>
-                              {property.bedrooms} Oda
-                            </div>
-                          )}
-                          {property.bathrooms && (
-                            <div className="flex items-center text-gray-600">
-                              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
-                              </svg>
-                              {property.bathrooms} Banyo
-                            </div>
-                          )}
-                          {property.floor !== undefined && (
-                            <div className="flex items-center text-gray-600">
-                              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                              </svg>
-                              {property.floor}. Kat
-                            </div>
-                          )}
-                          {property.buildingAge !== undefined && (
-                            <div className="flex items-center text-gray-600">
-                              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                              {property.buildingAge} Yaş
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Alan Bilgisi */}
-                      <div className="bg-gray-50 p-3 mb-4">
-                        <div className="flex justify-between items-center text-sm">
-                          <span className="text-gray-600">Net Alan:</span>
-                          <span className="font-semibold text-gray-900">{property.area} m²</span>
-                        </div>
-                        {property.grossArea && (
-                          <div className="flex justify-between items-center text-sm mt-1">
-                            <span className="text-gray-600">Brüt Alan:</span>
-                            <span className="font-semibold text-gray-900">{property.grossArea} m²</span>
+            <>
+              {/* GRID görünüm - toggle 'grid' iken */}
+              <div className={`${mobileView === 'grid' ? 'grid' : 'hidden'} grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8`}>
+                {currentProperties.map((property) => (
+                  <Link
+                    key={property._id}
+                    href={`/ilan/${property.slug.current}`}
+                    className="group block"
+                  >
+                    <div className="bg-white overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-300 h-full flex flex-col">
+                      {/* Görsel Alanı */}
+                      <div className="relative h-64 overflow-hidden flex-shrink-0">
+                        {hasImageAsset(property.mainImage) ? (
+                          <Image
+                            src={urlFor(property.mainImage).width(600).height(400).url()}
+                            alt={`${property.title} ana görseli`}
+                            fill
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            className="object-cover transition-transform duration-700 group-hover:scale-110"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                            <span className="text-gray-500 font-medium">Fotoğraf Yok</span>
                           </div>
                         )}
+
+                        {/* Overlay Gradient */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+                        {/* Status Badge */}
+                        <div className="absolute top-4 left-4">
+                          <span className={`px-3 py-1 text-xs font-bold text-white shadow-lg ${property.status === 'satilik' ? 'bg-anthracite-900' :
+                            property.status === 'kiralik' ? 'bg-anthracite-900' : 'bg-gray-600'
+                            }`}>
+                            {property.status === 'satilik' ? 'SATILIK' :
+                              property.status === 'kiralik' ? 'KİRALIK' : property.status?.toUpperCase()}
+                          </span>
+                        </div>
+
+                        {/* Property Type Badge */}
+                        <div className="absolute top-4 right-4">
+                          <span className="bg-white/95 backdrop-blur-sm text-gray-800 px-3 py-1 text-xs font-semibold shadow-sm">
+                            {property.propertyType === 'daire' ? 'DAİRE' :
+                              property.propertyType === 'villa' ? 'VİLLA' :
+                                property.propertyType === 'mustakil' ? 'MÜSTAKİL' :
+                                  property.propertyType === 'isyeri' ? 'İŞYERİ' : 'ARSA'}
+                          </span>
+                        </div>
+
+                        {/* İlan No */}
+                        <div className="absolute bottom-4 left-4">
+                          <span className="bg-black/70 text-white px-2 py-1 text-xs font-medium">
+                            #{property.listingId}
+                          </span>
+                        </div>
                       </div>
 
-                      {/* Fiyat ve Detaylar */}
-                      <div className="flex justify-between items-end mt-auto">
-                        <div>
-                          <div className="text-2xl font-bold text-green-600">
-                            ₺{parsePriceToNumber(property.price).toLocaleString('tr-TR')}
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            {property.status === 'kiralik' ? 'Kira Bedeli' : 'Satış Fiyatı'}
-                          </div>
+                      {/* İçerik Alanı */}
+                      <div className="p-5 flex-grow flex flex-col">
+                        {/* Başlık */}
+                        <h3 className="text-lg font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-anthracite-600 transition-colors duration-300 min-h-[3rem]">
+                          {property.title}
+                        </h3>
+
+                        {/* Konum */}
+                        <div className="flex items-center text-gray-600 mb-3">
+                          <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                          </svg>
+                          <span className="text-sm">
+                            {property.neighborhood}, {property.district} / {property.province}
+                          </span>
                         </div>
-                        {property.agent && (
-                          <div className="text-right">
-                            <div className="text-xs text-gray-500">Danışman</div>
-                            <div className="text-sm font-medium text-gray-900">{property.agent.name}</div>
-                            {property.agent.phone && (
-                              <div className="text-xs text-gray-500">{property.agent.phone}</div>
+
+                        {/* Özellikler Grid */}
+                        {property.propertyType !== 'arsa' && (
+                          <div className="grid grid-cols-2 gap-3 mb-4 text-xs">
+                            {property.bedrooms && (
+                              <div className="flex items-center text-gray-600">
+                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 21v-4a2 2 0 012-2h2a2 2 0 012 2v4" />
+                                </svg>
+                                {property.bedrooms} Oda
+                              </div>
+                            )}
+                            {property.bathrooms && (
+                              <div className="flex items-center text-gray-600">
+                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+                                </svg>
+                                {property.bathrooms} Banyo
+                              </div>
+                            )}
+                            {property.floor !== undefined && (
+                              <div className="flex items-center text-gray-600">
+                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                </svg>
+                                {property.floor}. Kat
+                              </div>
+                            )}
+                            {property.buildingAge !== undefined && (
+                              <div className="flex items-center text-gray-600">
+                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                {property.buildingAge} Yaş
+                              </div>
                             )}
                           </div>
                         )}
+
+                        {/* Alan Bilgisi */}
+                        <div className="bg-gray-50 p-3 mb-4">
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="text-gray-600">Net Alan:</span>
+                            <span className="font-semibold text-gray-900">{property.area} m²</span>
+                          </div>
+                          {property.grossArea && (
+                            <div className="flex justify-between items-center text-sm mt-1">
+                              <span className="text-gray-600">Brüt Alan:</span>
+                              <span className="font-semibold text-gray-900">{property.grossArea} m²</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Fiyat ve Detaylar */}
+                        <div className="flex justify-between items-end mt-auto">
+                          <div>
+                            <div className="text-2xl font-bold text-green-600">
+                              ₺{parsePriceToNumber(property.price).toLocaleString('tr-TR')}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {property.status === 'kiralik' ? 'Kira Bedeli' : 'Satış Fiyatı'}
+                            </div>
+                          </div>
+                          {property.agent && (
+                            <div className="text-right">
+                              <div className="text-xs text-gray-500">Danışman</div>
+                              <div className="text-sm font-medium text-gray-900">{property.agent.name}</div>
+                              {property.agent.phone && (
+                                <div className="text-xs text-gray-500">{property.agent.phone}</div>
+                              )}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
+                  </Link>
+                ))}
+              </div>
+
+              {/* LIST görünüm - toggle 'list' iken */}
+              <div className={`${mobileView === 'list' ? 'block' : 'hidden'} divide-y border border-gray-200 bg-white`}>
+                {currentProperties.map((property) => (
+                  <Link key={property._id} href={`/ilan/${property.slug.current}`} className="block">
+                    <div className="flex gap-3 p-3">
+                      <div className="relative w-24 h-24 flex-shrink-0 bg-gray-200">
+                        {hasImageAsset(property.mainImage) ? (
+                          <Image
+                            src={urlFor(property.mainImage).width(200).height(200).url()}
+                            alt={`${property.title} ana görseli`}
+                            fill
+                            sizes="96px"
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center text-xs text-gray-500">Fotoğraf Yok</div>
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 text-[10px]">
+                          <span className={`px-2 py-0.5 text-white ${property.status === 'satilik' ? 'bg-anthracite-900' : property.status === 'kiralik' ? 'bg-anthracite-900' : 'bg-gray-600'}`}>{property.status?.toUpperCase()}</span>
+                          <span className="px-2 py-0.5 bg-gray-100 text-gray-700">{property.propertyType.toUpperCase()}</span>
+                          <span className="px-2 py-0.5 bg-gray-100 text-gray-700">#{property.listingId}</span>
+                        </div>
+                        <h3 className="text-sm font-semibold text-gray-900 mt-1 line-clamp-2">{property.title}</h3>
+                        <div className="text-[12px] text-gray-600 mt-0.5">{property.neighborhood}, {property.district} / {property.province}</div>
+                        <div className="flex items-center justify-between mt-2">
+                          <div className="text-base font-bold text-green-600">₺{parsePriceToNumber(property.price).toLocaleString('tr-TR')}</div>
+                          {property.area ? (<div className="text-[12px] text-gray-600">{property.area} m²</div>) : null}
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </>
           )}
 
           {/* Pagination */}

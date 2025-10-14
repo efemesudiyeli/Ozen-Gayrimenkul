@@ -89,7 +89,7 @@ const AgentsPage = async () => {
     <main className="bg-white">
 
       {/* Hero Section */}
-      <div className="bg-anthracite-900 text-white py-20 mt-20">
+      <div className="bg-anthracite-900 text-white py-20 mb-20 mt-14">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-5xl md:text-6xl font-extrabold mb-6 font-inter">
             {teamData.heroTitle}
