@@ -86,7 +86,7 @@ interface KibrisProperty {
   location: string;
   status: 'satilik' | 'kiralik' | 'satildi' | 'kiralandi';
   propertyType: string;
-  price: number;
+  price: number | string;
   area: number;
   grossArea?: number;
   bedrooms?: number;
@@ -276,7 +276,7 @@ const KibrisPage = async () => {
                   <div className="flex justify-between items-end mt-auto">
                     <div>
                       <div className="text-2xl font-bold text-green-600">
-                        ₺{property.price.toLocaleString('tr-TR')}
+                        ₺{(typeof property.price === 'number' ? property.price : (() => { const n = parseInt((property.price || '').toString().replace(/[^\\d]/g, '')); return isNaN(n) ? 0 : n; })()).toLocaleString('tr-TR')}
                       </div>
                       <div className="text-xs text-gray-500">
                         {property.status === 'satilik' ? 'Satış Fiyatı' : 'Kira Bedeli'}

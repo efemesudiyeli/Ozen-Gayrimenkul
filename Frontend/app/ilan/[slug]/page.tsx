@@ -152,7 +152,7 @@ const propertyPageQuery = `*[_type == "property" && coalesce(isActive, true) == 
 interface PropertyDetail {
   _id: string
   title: string
-  price: number
+  price: number | string
   province: string
   district: string
   neighborhood: string
@@ -298,6 +298,15 @@ export default async function PropertyPage({
       default: return undefined
     }
   }
+  const parsePriceToNumber = (value: unknown): number => {
+    if (typeof value === 'number') return value;
+    if (typeof value === 'string') {
+      const numeric = parseInt(value.replace(/[^\d]/g, ''));
+      return isNaN(numeric) ? 0 : numeric;
+    }
+    return 0;
+  }
+
 
   const usageStatusLabel = (key?: PropertyDetail['usageStatus']) => {
     switch (key) {
@@ -643,7 +652,7 @@ export default async function PropertyPage({
                   {(property.status === 'satilik' || property.status === 'kiralik') && (
                     <div className="0 p-4 mb-6">
                       <p className="text-3xl font-bold text-green-600 text-center">
-                        {property.price?.toLocaleString('tr-TR')} ₺
+                        {parsePriceToNumber(property.price).toLocaleString('tr-TR')} ₺
                       </p>
                       <p className="text-sm text-anthracite-600 text-center mt-1">
                         {property.status === 'satilik' ? 'Satış Fiyatı' : 'Aylık Kira'}

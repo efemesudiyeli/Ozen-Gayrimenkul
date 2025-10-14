@@ -49,7 +49,7 @@ interface Property {
   _createdAt: string;
   title: string;
   slug: { current: string };
-  price: number;
+  price: number | string;
   mainImage: SanityImageSource;
   province: string;
   district: string;
@@ -94,6 +94,15 @@ export default function HomePage() {
   const itemsPerPage = 12; // Test için 3 ilan - normalde 12 olmalı
 
 
+  const parsePriceToNumber = (value: unknown): number => {
+    if (typeof value === 'number') return value;
+    if (typeof value === 'string') {
+      const numeric = parseInt(value.replace(/[^\d]/g, ''));
+      return isNaN(numeric) ? 0 : numeric;
+    }
+    return 0;
+  };
+
   const sortProperties = useCallback((properties: Property[], sortType: string): Property[] => {
     const sorted = [...properties];
 
@@ -103,9 +112,9 @@ export default function HomePage() {
       case 'oldest':
         return sorted.sort((a, b) => new Date(a._createdAt).getTime() - new Date(b._createdAt).getTime());
       case 'price-high':
-        return sorted.sort((a, b) => (b.price || 0) - (a.price || 0));
+        return sorted.sort((a, b) => parsePriceToNumber(b.price) - parsePriceToNumber(a.price));
       case 'price-low':
-        return sorted.sort((a, b) => (a.price || 0) - (b.price || 0));
+        return sorted.sort((a, b) => parsePriceToNumber(a.price) - parsePriceToNumber(b.price));
       case 'area-large':
         return sorted.sort((a, b) => (b.area || 0) - (a.area || 0));
       case 'area-small':
@@ -186,11 +195,11 @@ export default function HomePage() {
     // Price range filter
     if (minPrice) {
       const min = parseInt(minPrice.replace(/[^\d]/g, ''));
-      filtered = filtered.filter((property) => property.price >= min);
+      filtered = filtered.filter((property) => parsePriceToNumber(property.price) >= (isNaN(min) ? 0 : min));
     }
     if (maxPrice) {
       const max = parseInt(maxPrice.replace(/[^\d]/g, ''));
-      filtered = filtered.filter((property) => property.price <= max);
+      filtered = filtered.filter((property) => parsePriceToNumber(property.price) <= (isNaN(max) ? Number.MAX_SAFE_INTEGER : max));
     }
 
     // Room count filter
@@ -771,7 +780,7 @@ export default function HomePage() {
                       <div className="flex justify-between items-end mt-auto">
                         <div>
                           <div className="text-2xl font-bold text-green-600">
-                            ₺{property.price?.toLocaleString('tr-TR')}
+                            ₺{parsePriceToNumber(property.price).toLocaleString('tr-TR')}
                           </div>
                           <div className="text-xs text-gray-500">
                             {property.status === 'kiralik' ? 'Kira Bedeli' : 'Satış Fiyatı'}
