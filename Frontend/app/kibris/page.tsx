@@ -361,7 +361,7 @@ const KibrisPage = async () => {
                               const n = parseInt(
                                 (property.price || "")
                                   .toString()
-                                  .replace(/[^\\d]/g, "")
+                                  .replace(/[^\d]/g, "")
                               );
                               return isNaN(n) ? 0 : n;
                             })()
