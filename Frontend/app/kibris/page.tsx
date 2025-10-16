@@ -1,8 +1,8 @@
-import { client } from '@/sanity/client'
-import { SanityImageSource } from '@sanity/image-url/lib/types/types'
-import { Metadata } from 'next'
-import Link from 'next/link'
-import Image from 'next/image'
+import { client } from "@/sanity/client";
+import { SanityImageSource } from "@sanity/image-url/lib/types/types";
+import { Metadata } from "next";
+import Link from "next/link";
+import Image from "next/image";
 
 interface KibrisPageData {
   title: string;
@@ -18,15 +18,15 @@ interface KibrisPageData {
 
 // Hardcoded data for now, will be replaced with a query to Sanity later
 const kibrisPageData: KibrisPageData = {
-  title: 'Kıbrıs İlanları',
-  heroTitle: 'Kıbrıs İlanları',
+  title: "Kıbrıs Projeler",
+  heroTitle: "Kıbrıs Projeler",
   heroDescription: "Kıbrıs'ta yer alan satılık ve kiralık ilanlarımız.",
   metaDescription: "Kıbrıs'ta yer alan satılık ve kiralık ilanlarımız.",
   emptyStateMessage: {
-    title: 'Henüz İlan Yok',
-    description: 'Kıbrıs ilanlarımız burada görünecek.',
-    buttonText: 'Tüm İlanları Görüntüle'
-  }
+    title: "Henüz İlan Yok",
+    description: "Kıbrıs ilanlarımız burada görünecek.",
+    buttonText: "Tüm İlanları Görüntüle",
+  },
 };
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -36,15 +36,17 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-import imageUrlBuilder from '@sanity/image-url'
-const builder = imageUrlBuilder(client)
+import imageUrlBuilder from "@sanity/image-url";
+const builder = imageUrlBuilder(client);
 function urlFor(source: SanityImageSource) {
-  return builder.image(source)
+  return builder.image(source);
 }
-type ImageWithAsset = SanityImageSource & { asset?: { _ref?: string; _id?: string; url?: string } }
+type ImageWithAsset = SanityImageSource & {
+  asset?: { _ref?: string; _id?: string; url?: string };
+};
 function hasImageAsset(img?: unknown): img is ImageWithAsset {
-  const asset = (img as ImageWithAsset | undefined)?.asset
-  return Boolean(asset && (asset._ref || asset._id || asset.url))
+  const asset = (img as ImageWithAsset | undefined)?.asset;
+  return Boolean(asset && (asset._ref || asset._id || asset.url));
 }
 
 // Query to fetch all active cyprus properties
@@ -84,7 +86,7 @@ interface KibrisProperty {
   slug: { current: string };
   mainImage: SanityImageSource;
   location: string;
-  status: 'satilik' | 'kiralik' | 'satildi' | 'kiralandi';
+  status: "satilik" | "kiralik" | "satildi" | "kiralandi";
   propertyType: string;
   price: number | string;
   area: number;
@@ -139,7 +141,10 @@ const KibrisPage = async () => {
                 <div className="relative h-64 overflow-hidden flex-shrink-0">
                   {hasImageAsset(property.mainImage) ? (
                     <Image
-                      src={urlFor(property.mainImage).width(600).height(400).url()}
+                      src={urlFor(property.mainImage)
+                        .width(600)
+                        .height(400)
+                        .url()}
                       alt={`${property.title} ana görseli`}
                       fill
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -147,7 +152,9 @@ const KibrisPage = async () => {
                     />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-                      <span className="text-gray-500 font-medium">Fotoğraf Yok</span>
+                      <span className="text-gray-500 font-medium">
+                        Fotoğraf Yok
+                      </span>
                     </div>
                   )}
 
@@ -157,10 +164,15 @@ const KibrisPage = async () => {
                   {/* Property Type Badge */}
                   <div className="absolute top-4 right-4">
                     <span className="bg-white/95 backdrop-blur-sm text-gray-800 px-3 py-1 text-xs font-semibold shadow-sm">
-                      {property.propertyType === 'daire' ? 'DAİRE' :
-                        property.propertyType === 'villa' ? 'VİLLA' :
-                          property.propertyType === 'mustakil' ? 'MÜSTAKİL' :
-                            property.propertyType === 'isyeri' ? 'İŞYERİ' : 'ARSA'}
+                      {property.propertyType === "daire"
+                        ? "DAİRE"
+                        : property.propertyType === "villa"
+                          ? "VİLLA"
+                          : property.propertyType === "mustakil"
+                            ? "MÜSTAKİL"
+                            : property.propertyType === "isyeri"
+                              ? "İŞYERİ"
+                              : "ARSA"}
                     </span>
                   </div>
 
@@ -172,31 +184,39 @@ const KibrisPage = async () => {
                   </div>
 
                   {/* Satıldı/Kiralandı Rozeti */}
-                  {property.status === 'satildi' && (
+                  {property.status === "satildi" && (
                     <div className="absolute top-4 left-4 z-10">
                       <div className="inline-flex items-center px-3 py-1.5 text-white shadow-lg backdrop-blur-xl bg-red-600">
-                        <span className="text-xl font-bold tracking-wider">SATILDI</span>
+                        <span className="text-xl font-bold tracking-wider">
+                          SATILDI
+                        </span>
                       </div>
                     </div>
                   )}
-                  {property.status === 'kiralandi' && (
+                  {property.status === "kiralandi" && (
                     <div className="absolute top-4 left-4 z-10">
                       <div className="inline-flex items-center px-3 py-1.5 text-white shadow-lg backdrop-blur-xl bg-blue-600">
-                        <span className="text-xl font-bold tracking-wider">KİRALANDI</span>
+                        <span className="text-xl font-bold tracking-wider">
+                          KİRALANDI
+                        </span>
                       </div>
                     </div>
                   )}
-                  {property.status === 'satilik' && (
+                  {property.status === "satilik" && (
                     <div className="absolute top-4 left-4 z-10">
                       <div className="inline-flex items-center px-3 py-1.5 text-white shadow-lg backdrop-blur-xl bg-green-600">
-                        <span className="text-xl font-bold tracking-wider">SATILIK</span>
+                        <span className="text-xl font-bold tracking-wider">
+                          SATILIK
+                        </span>
                       </div>
                     </div>
                   )}
-                  {property.status === 'kiralik' && (
+                  {property.status === "kiralik" && (
                     <div className="absolute top-4 left-4 z-10">
                       <div className="inline-flex items-center px-3 py-1.5 text-white shadow-lg backdrop-blur-xl bg-yellow-500">
-                        <span className="text-xl font-bold tracking-wider">KİRALIK</span>
+                        <span className="text-xl font-bold tracking-wider">
+                          KİRALIK
+                        </span>
                       </div>
                     </div>
                   )}
@@ -211,46 +231,100 @@ const KibrisPage = async () => {
 
                   {/* Konum */}
                   <div className="flex items-center text-gray-600 mb-3">
-                    <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                    <svg
+                      className="w-4 h-4 mr-2 flex-shrink-0"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+                        clipRule="evenodd"
+                      />
                     </svg>
                     <span className="text-sm">
-                      {property.neighborhood}, {property.district} / {property.province}
+                      {property.neighborhood}, {property.district} /{" "}
+                      {property.province}
                     </span>
                   </div>
 
                   {/* Özellikler Grid */}
-                  {property.propertyType !== 'arsa' && (
+                  {property.propertyType !== "arsa" && (
                     <div className="grid grid-cols-2 gap-3 mb-4 text-xs">
                       {property.bedrooms && (
                         <div className="flex items-center text-gray-600">
-                          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 21v-4a2 2 0 012-2h2a2 2 0 012 2v4" />
+                          <svg
+                            className="w-4 h-4 mr-1"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M8 21v-4a2 2 0 012-2h2a2 2 0 012 2v4"
+                            />
                           </svg>
                           {property.bedrooms} Oda
                         </div>
                       )}
                       {property.bathrooms && (
                         <div className="flex items-center text-gray-600">
-                          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+                          <svg
+                            className="w-4 h-4 mr-1"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"
+                            />
                           </svg>
                           {property.bathrooms} Banyo
                         </div>
                       )}
                       {property.floor !== undefined && (
                         <div className="flex items-center text-gray-600">
-                          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                          <svg
+                            className="w-4 h-4 mr-1"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                            />
                           </svg>
                           {property.floor}. Kat
                         </div>
                       )}
                       {property.buildingAge !== undefined && (
                         <div className="flex items-center text-gray-600">
-                          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          <svg
+                            className="w-4 h-4 mr-1"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                            />
                           </svg>
                           {property.buildingAge} Yaş
                         </div>
@@ -262,12 +336,16 @@ const KibrisPage = async () => {
                   <div className="bg-gray-50 p-3 mb-4">
                     <div className="flex justify-between items-center text-sm">
                       <span className="text-gray-600">Net Alan:</span>
-                      <span className="font-semibold text-gray-900">{property.area} m²</span>
+                      <span className="font-semibold text-gray-900">
+                        {property.area} m²
+                      </span>
                     </div>
                     {property.grossArea && (
                       <div className="flex justify-between items-center text-sm mt-1">
                         <span className="text-gray-600">Brüt Alan:</span>
-                        <span className="font-semibold text-gray-900">{property.grossArea} m²</span>
+                        <span className="font-semibold text-gray-900">
+                          {property.grossArea} m²
+                        </span>
                       </div>
                     )}
                   </div>
@@ -276,16 +354,31 @@ const KibrisPage = async () => {
                   <div className="flex justify-between items-end mt-auto">
                     <div>
                       <div className="text-2xl font-bold text-green-600">
-                        ₺{(typeof property.price === 'number' ? property.price : (() => { const n = parseInt((property.price || '').toString().replace(/[^\\d]/g, '')); return isNaN(n) ? 0 : n; })()).toLocaleString('tr-TR')}
+                        ₺
+                        {(typeof property.price === "number"
+                          ? property.price
+                          : (() => {
+                              const n = parseInt(
+                                (property.price || "")
+                                  .toString()
+                                  .replace(/[^\\d]/g, "")
+                              );
+                              return isNaN(n) ? 0 : n;
+                            })()
+                        ).toLocaleString("tr-TR")}
                       </div>
                       <div className="text-xs text-gray-500">
-                        {property.status === 'satilik' ? 'Satış Fiyatı' : 'Kira Bedeli'}
+                        {property.status === "satilik"
+                          ? "Satış Fiyatı"
+                          : "Kira Bedeli"}
                       </div>
                     </div>
                     {property.agent && (
                       <div className="text-right">
                         <div className="text-xs text-gray-500">Danışman</div>
-                        <div className="text-sm font-medium text-gray-900">{property.agent.name}</div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {property.agent.name}
+                        </div>
                       </div>
                     )}
                   </div>

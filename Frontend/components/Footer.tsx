@@ -1,6 +1,6 @@
 // components/Footer.tsx
 
-import Link from 'next/link'
+import Link from "next/link";
 const Footer = () => {
   return (
     <footer className="bg-anthracite-900 text-white" role="contentinfo">
@@ -18,11 +18,48 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-bold">Hızlı Erişim</h3>
             <ul className="mt-2 space-y-1">
-              <li><Link href="/" className="text-gray-400 hover:text-white">Ana Sayfa</Link></li>
-              <li><Link href="/portfoy" className="text-gray-400 hover:text-white">Portföy</Link></li>
-              <li><Link href="/danismanlarimiz" className="text-gray-400 hover:text-white">Ekibimiz</Link></li>
-              <li><Link href="/hakkimizda" className="text-gray-400 hover:text-white">Hakkımızda</Link></li>
-              <li><Link href="/iletisim" className="text-gray-400 hover:text-white">İletişim</Link></li>
+              <li>
+                <Link href="/" className="text-gray-400 hover:text-white">
+                  Ana Sayfa
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/portfoy"
+                  className="text-gray-400 hover:text-white"
+                >
+                  Portföy
+                </Link>
+              </li>
+              <li>
+                <Link href="/kibris" className="text-gray-400 hover:text-white">
+                  Kıbrıs Projeler
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/isortaklarimiz"
+                  className="text-gray-400 hover:text-white"
+                >
+                  İş Ortaklarımız
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/hakkimizda"
+                  className="text-gray-400 hover:text-white"
+                >
+                  Hakkımızda
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/iletisim"
+                  className="text-gray-400 hover:text-white"
+                >
+                  İletişim
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -30,18 +67,25 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-bold">Bize Ulaşın</h3>
             <address className="mt-2 text-gray-400 not-italic">
-              Arapsuyu, 660. Sk. No:7 B blok D:2, 07070 Konyaaltı/Antalya<br />
-              <a href="tel:+905321202489" className="hover:text-white">0532 120 24 89</a><br />
+              Arapsuyu, 660. Sk. No:7 B blok D:2, 07070 Konyaaltı/Antalya
+              <br />
+              <a href="tel:+905321202489" className="hover:text-white">
+                0532 120 24 89
+              </a>
+              <br />
             </address>
           </div>
         </div>
 
         <div className="mt-8 border-t border-gray-700 pt-4 text-center text-gray-500">
-          <p>&copy; {new Date().getFullYear()} Hatice Özen Gayrimenkul. Tüm hakları saklıdır.</p>
+          <p>
+            &copy; {new Date().getFullYear()} Hatice Özen Gayrimenkul. Tüm
+            hakları saklıdır.
+          </p>
         </div>
       </div>
     </footer>
-  )
-}
+  );
+};
 
-export default Footer
+export default Footer;
