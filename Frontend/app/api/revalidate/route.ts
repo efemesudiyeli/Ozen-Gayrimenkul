@@ -1,37 +1,45 @@
 // app/api/revalidate/route.ts
-import { revalidatePath } from 'next/cache'
-import { type NextRequest, NextResponse } from 'next/server'
-import { parseBody } from 'next-sanity/webhook'
+import { revalidatePath } from "next/cache";
+import { type NextRequest, NextResponse } from "next/server";
+import { parseBody } from "next-sanity/webhook";
 
 // .env.local veya Vercel environment variables içine ekleyin
-const SANITY_WEBHOOK_SECRET = process.env.SANITY_WEBHOOK_SECRET!
+const SANITY_WEBHOOK_SECRET = process.env.SANITY_WEBHOOK_SECRET!;
 
 export async function POST(req: NextRequest) {
   try {
     const { body, isValidSignature } = await parseBody<{
-      _type: string
-      slug?: { current: string }
-    }>(req, SANITY_WEBHOOK_SECRET)
+      _type: string;
+      slug?: { current: string };
+    }>(req, SANITY_WEBHOOK_SECRET);
 
     if (!isValidSignature) {
-      const message = 'Invalid signature'
-      return new Response(JSON.stringify({ message, isValidSignature, body }), { status: 401 })
+      const message = "Invalid signature";
+      return new Response(JSON.stringify({ message, isValidSignature, body }), {
+        status: 401,
+      });
     }
 
     if (!body?._type) {
-      return new Response('Bad Request', { status: 400 })
+      return new Response("Bad Request", { status: 400 });
     }
 
     // İlgili sayfaların cache'ini temizle
     // Portföy sayfasını her zaman güncelle
-    revalidatePath('/portfoy')
+    revalidatePath("/portfoy");
 
     // Anasayfayı da güncelle, çünkü ilanlar orada da listeleniyor
-    revalidatePath('/')
+    revalidatePath("/");
+
+    // Kıbrıs sayfalarını güncelle
+    revalidatePath("/kibris");
 
     // Eğer bir ilan güncellendiyse, onun detay sayfasını da güncelle
     if (body.slug?.current) {
-      revalidatePath(`/ilan/${body.slug.current}`)
+      // Normal ilanlar için
+      revalidatePath(`/ilan/${body.slug.current}`);
+      // Kıbrıs ilanları için
+      revalidatePath(`/ilan/kibris/${body.slug.current}`);
     }
 
     return NextResponse.json({
@@ -39,13 +47,13 @@ export async function POST(req: NextRequest) {
       revalidated: true,
       now: Date.now(),
       body,
-    })
+    });
   } catch (err: unknown) {
-    console.error('Error in revalidate:', err)
+    console.error("Error in revalidate:", err);
     // Hatanın bir Error nesnesi olup olmadığını kontrol ederek .message özelliğine güvenle erişiyoruz.
     if (err instanceof Error) {
-      return new Response(err.message, { status: 500 })
+      return new Response(err.message, { status: 500 });
     }
-    return new Response('An unknown error occurred', { status: 500 })
+    return new Response("An unknown error occurred", { status: 500 });
   }
 }
