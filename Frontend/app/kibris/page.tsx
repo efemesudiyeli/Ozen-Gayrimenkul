@@ -412,3 +412,5 @@ const KibrisPage = async () => {
 };
 
 export default KibrisPage;
+
+export const revalidate = 10;

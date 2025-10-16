@@ -11,6 +11,7 @@ export async function POST(req: NextRequest) {
     const { body, isValidSignature } = await parseBody<{
       _type: string;
       slug?: { current: string };
+      _id?: string;
     }>(req, SANITY_WEBHOOK_SECRET);
 
     if (!isValidSignature) {
@@ -34,12 +35,20 @@ export async function POST(req: NextRequest) {
     // Kıbrıs sayfalarını güncelle
     revalidatePath("/kibris");
 
-    // Eğer bir ilan güncellendiyse, onun detay sayfasını da güncelle
+    // Eğer bir ilan güncellendiyse veya silindiyse, onun detay sayfasını da güncelle
     if (body.slug?.current) {
       // Normal ilanlar için
       revalidatePath(`/ilan/${body.slug.current}`);
       // Kıbrıs ilanları için
       revalidatePath(`/ilan/kibris/${body.slug.current}`);
+    }
+
+    // Silme işlemi için tüm ilgili sayfaları yenile
+    if (body._type === "cyprusProperty") {
+      // Kıbrıs ilanları için tüm sayfaları yenile
+      revalidatePath("/kibris", "page");
+      revalidatePath("/", "page");
+      revalidatePath("/portfoy", "page");
     }
 
     return NextResponse.json({
