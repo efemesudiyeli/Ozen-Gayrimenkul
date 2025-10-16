@@ -1,5 +1,3 @@
-
-
 import {defineConfig, defineLocale, defineLocaleResourceBundle} from 'sanity'
 import {structureTool, StructureBuilder} from 'sanity/structure'
 import {visionTool} from '@sanity/vision'
@@ -7,7 +5,6 @@ import {schemaTypes} from './schemaTypes'
 import {colorInput} from '@sanity/color-input'
 import {media} from 'sanity-plugin-media'
 import {trTRLocale} from '@sanity/locale-tr-tr'
-
 
 export const myStructure = (S: StructureBuilder) =>
   S.list()
@@ -22,44 +19,24 @@ export const myStructure = (S: StructureBuilder) =>
             .items([
               S.listItem()
                 .title('Ana Sayfa')
-                .child(
-                  S.document()
-                    .schemaType('hero')
-                    .documentId('hero')
-                ),
+                .child(S.document().schemaType('hero').documentId('hero')),
               S.listItem()
                 .title('Hakkımızda')
-                .child(
-                  S.document()
-                    .schemaType('aboutPage')
-                    .documentId('aboutPage')
-                ),
+                .child(S.document().schemaType('aboutPage').documentId('aboutPage')),
               S.listItem()
                 .title('İş Ortaklarımız')
-                .child(
-                  S.document()
-                    .schemaType('teamPage')
-                    .documentId('teamPage')
-                ),
+                .child(S.document().schemaType('teamPage').documentId('teamPage')),
               S.listItem()
                 .title('İletişim')
-                .child(
-                  S.document()
-                    .schemaType('contactPage')
-                    .documentId('contactPage')
-                ),
+                .child(S.document().schemaType('contactPage').documentId('contactPage')),
               S.listItem()
                 .title('Portföy')
-                .child(
-                  S.document()
-                    .schemaType('portfolioPage')
-                    .documentId('portfolioPage')
-                ),
-            ])
+                .child(S.document().schemaType('portfolioPage').documentId('portfolioPage')),
+            ]),
         ),
-      
+
       S.divider(),
-      
+
       // Emlak İçerikleri Grubu
       S.listItem()
         .title('İlanlar, İş Ortakları')
@@ -79,7 +56,7 @@ export const myStructure = (S: StructureBuilder) =>
                           S.documentList()
                             .title('Aktif İlanlar')
                             .filter('_type == "property" && coalesce(isActive, true) == true')
-                            .schemaType('property')
+                            .schemaType('property'),
                         ),
                       S.listItem()
                         .title('Pasif İlanlar')
@@ -87,18 +64,16 @@ export const myStructure = (S: StructureBuilder) =>
                           S.documentList()
                             .title('Pasif İlanlar')
                             .filter('_type == "property" && isActive == false')
-                            .schemaType('property')
+                            .schemaType('property'),
                         ),
-                      S.listItem()
-                        .title('Tüm İlanlar')
-                        .child(S.documentTypeList('property')),
-                    ])
+                      S.listItem().title('Tüm İlanlar').child(S.documentTypeList('property')),
+                    ]),
                 ),
               S.listItem()
-                .title('Kıbrıs İlanları')
+                .title('Kıbrıs Projeler')
                 .child(
                   S.list()
-                    .title('Kıbrıs İlanları')
+                    .title('Kıbrıs Projelerindeki İlanlar')
                     .items([
                       S.listItem()
                         .title('Aktif İlanlar')
@@ -106,7 +81,7 @@ export const myStructure = (S: StructureBuilder) =>
                           S.documentList()
                             .title('Aktif İlanlar')
                             .filter('_type == "cyprusProperty" && coalesce(isActive, true) == true')
-                            .schemaType('cyprusProperty')
+                            .schemaType('cyprusProperty'),
                         ),
                       S.listItem()
                         .title('Pasif İlanlar')
@@ -114,17 +89,13 @@ export const myStructure = (S: StructureBuilder) =>
                           S.documentList()
                             .title('Pasif İlanlar')
                             .filter('_type == "cyprusProperty" && isActive == false')
-                            .schemaType('cyprusProperty')
+                            .schemaType('cyprusProperty'),
                         ),
-                      S.listItem()
-                        .title('Tüm İlanlar')
-                        .child(S.documentTypeList('cyprusProperty')),
-                    ])
+                      S.listItem().title('Tüm İlanlar').child(S.documentTypeList('cyprusProperty')),
+                    ]),
                 ),
-              S.listItem()
-                .title('İş Ortakları')
-                .child(S.documentTypeList('agent')),
-            ])
+              S.listItem().title('İş Ortakları').child(S.documentTypeList('agent')),
+            ]),
         ),
     ])
 
@@ -140,7 +111,7 @@ export default defineConfig({
     visionTool(),
     colorInput(),
     media(),
-    trTRLocale()
+    trTRLocale(),
   ],
   i18n: {
     locales: [
@@ -167,15 +138,16 @@ export default defineConfig({
           'inputs.date.placeholder': 'Tarih seçin...',
           'inputs.date.invalid': 'Geçersiz tarih',
           'inputs.date.required': 'Tarih gerekli',
-          
+
           // Publish/Draft durumları
           'pane.document-status-published': 'Yayınlandı',
           'pane.document-status-draft': 'Taslak',
           'pane.document-status-published-draft': 'Yayınlandı (Taslak)',
-          'pane.document-status-published-draft-tooltip': 'Bu belge yayınlandı ancak yayınlanmamış değişiklikler var',
+          'pane.document-status-published-draft-tooltip':
+            'Bu belge yayınlandı ancak yayınlanmamış değişiklikler var',
           'pane.document-status-published-tooltip': 'Bu belge yayınlandı',
           'pane.document-status-draft-tooltip': 'Bu belge henüz yayınlanmadı',
-          
+
           // Eylemler
           'action.publish': 'Yayınla',
           'action.unpublish': 'Yayından Kaldır',
@@ -194,7 +166,7 @@ export default defineConfig({
           'action.download': 'İndir',
           'action.export': 'Dışa Aktar',
           'action.import': 'İçe Aktar',
-          
+
           // Form metinleri
           'form.required': 'Gerekli',
           'form.optional': 'İsteğe bağlı',
@@ -206,25 +178,25 @@ export default defineConfig({
           'form.validation.pattern': 'Geçerli bir format girin',
           'form.validation.email': 'Geçerli bir e-posta adresi girin',
           'form.validation.url': 'Geçerli bir URL girin',
-          
+
           // Dosya yükleme
           'inputs.files.common.upload': 'Dosya Yükle',
           'inputs.files.common.drag-paste': 'Dosyaları buraya sürükleyin veya yapıştırın',
           'inputs.files.common.invalid-type': 'Geçersiz dosya tipi',
           'inputs.files.common.too-large': 'Dosya çok büyük',
           'inputs.files.common.unknown-error': 'Bilinmeyen hata',
-          
+
           // Arama
           'search.no-results': 'Sonuç bulunamadı',
           'search.placeholder': 'Ara...',
           'search.clear': 'Temizle',
-          
+
           // Hata mesajları
           'error.document-not-found': 'Belge bulunamadı',
           'error.unauthorized': 'Bu işlem için yetkiniz yok',
           'error.network': 'Ağ hatası',
           'error.unknown': 'Bilinmeyen hata oluştu',
-          
+
           // Başarı mesajları
           'success.published': 'Başarıyla yayınlandı',
           'success.unpublished': 'Başarıyla yayından kaldırıldı',
@@ -232,19 +204,20 @@ export default defineConfig({
           'success.deleted': 'Başarıyla silindi',
           'success.duplicated': 'Başarıyla kopyalandı',
           'success.restored': 'Başarıyla geri yüklendi',
-          
+
           // Uyarı mesajları
           'warning.unsaved-changes': 'Kaydedilmemiş değişiklikler var',
           'warning.delete-document': 'Bu belgeyi silmek istediğinizden emin misiniz?',
-          'warning.unpublish-document': 'Bu belgeyi yayından kaldırmak istediğinizden emin misiniz?',
-          
+          'warning.unpublish-document':
+            'Bu belgeyi yayından kaldırmak istediğinizden emin misiniz?',
+
           // Onay metinleri
           'confirm.delete': 'Sil',
           'confirm.cancel': 'İptal',
           'confirm.yes': 'Evet',
           'confirm.no': 'Hayır',
           'confirm.ok': 'Tamam',
-          
+
           // Zaman damgaları
           'time.ago': '{time} önce',
           'time.just-now': 'Az önce',
@@ -254,7 +227,7 @@ export default defineConfig({
           'time.weeks-ago': '{count} hafta önce',
           'time.months-ago': '{count} ay önce',
           'time.years-ago': '{count} yıl önce',
-          
+
           // Zaman formatları
           'time.published': 'Yayınlandı',
           'time.created': 'Oluşturuldu',
@@ -263,13 +236,13 @@ export default defineConfig({
           'time.published-ago': '{time} önce yayınlandı',
           'time.created-ago': '{time} önce oluşturuldu',
           'time.updated-ago': '{time} önce güncellendi',
-          
+
           // Tarih formatları
           'date.format.short': 'DD/MM/YYYY',
           'date.format.long': 'DD MMMM YYYY',
           'date.format.time': 'HH:mm',
           'date.format.datetime': 'DD/MM/YYYY HH:mm',
-          
+
           // Hafta günleri
           'date.weekday.monday': 'Pazartesi',
           'date.weekday.tuesday': 'Salı',
@@ -278,7 +251,7 @@ export default defineConfig({
           'date.weekday.friday': 'Cuma',
           'date.weekday.saturday': 'Cumartesi',
           'date.weekday.sunday': 'Pazar',
-          
+
           // Aylar
           'date.month.january': 'Ocak',
           'date.month.february': 'Şubat',
