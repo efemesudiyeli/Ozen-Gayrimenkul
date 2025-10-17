@@ -1,5 +1,5 @@
 // app/api/revalidate/route.ts
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { type NextRequest, NextResponse } from "next/server";
 import { parseBody } from "next-sanity/webhook";
 
@@ -34,6 +34,44 @@ export async function POST(req: NextRequest) {
 
     // Kıbrıs sayfalarını güncelle
     revalidatePath("/kibris");
+
+    // Sayfa içerikleri için revalidation (tag + path)
+    if (body._type === "aboutPage") {
+      revalidateTag("aboutPage");
+      revalidatePath("/hakkimizda");
+    }
+
+    if (body._type === "contactPage") {
+      revalidateTag("contactPage");
+      revalidatePath("/iletisim");
+    }
+
+    if (body._type === "portfolioPage") {
+      revalidateTag("portfolioPage");
+      revalidatePath("/portfoy");
+    }
+
+    if (body._type === "teamPage") {
+      revalidateTag("teamPage");
+      revalidateTag("teamAgents");
+      revalidatePath("/isortaklarimiz");
+    }
+
+    if (body._type === "agent") {
+      revalidateTag("teamAgents");
+      revalidatePath("/isortaklarimiz");
+      revalidatePath("/");
+    }
+
+    if (body._type === "hero") {
+      revalidateTag("hero");
+      revalidatePath("/");
+    }
+
+    if (body._type === "kibrisPage") {
+      revalidateTag("kibrisPage");
+      revalidatePath("/kibris");
+    }
 
     // Eğer bir ilan güncellendiyse veya silindiyse, onun detay sayfasını da güncelle
     if (body.slug?.current) {

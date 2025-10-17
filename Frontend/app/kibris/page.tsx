@@ -16,23 +16,26 @@ interface KibrisPageData {
   };
 }
 
-// Hardcoded data for now, will be replaced with a query to Sanity later
-const kibrisPageData: KibrisPageData = {
-  title: "Kıbrıs Projeler",
-  heroTitle: "Kıbrıs Projeler",
-  heroDescription: "Kıbrıs'ta yer alan satılık ve kiralık ilanlarımız.",
-  metaDescription: "Kıbrıs'ta yer alan satılık ve kiralık ilanlarımız.",
-  emptyStateMessage: {
-    title: "Henüz İlan Yok",
-    description: "Kıbrıs ilanlarımız burada görünecek.",
-    buttonText: "Tüm İlanları Görüntüle",
-  },
-};
+const kibrisPageQuery = `*[_type == "kibrisPage"] | order(_updatedAt desc)[0]{
+  title,
+  heroTitle,
+  heroDescription,
+  metaDescription,
+  emptyStateMessage
+}`;
 
 export async function generateMetadata(): Promise<Metadata> {
+  const kibrisClient = client.withConfig({ useCdn: false });
+  const kibrisData = await kibrisClient.fetch<KibrisPageData>(
+    kibrisPageQuery,
+    {},
+    { next: { tags: ["kibrisPage"] } }
+  );
   return {
-    title: `${kibrisPageData.title} | Hatice Özen Gayrimenkul`,
-    description: kibrisPageData.metaDescription,
+    title: `${kibrisData?.title || "Kıbrıs Projeler"} | Hatice Özen Gayrimenkul`,
+    description:
+      kibrisData?.metaDescription ||
+      "Kıbrıs'ta yer alan satılık ve kiralık ilanlarımız.",
   };
 }
 
@@ -111,7 +114,17 @@ interface KibrisProperty {
 }
 
 const KibrisPage = async () => {
-  const properties: KibrisProperty[] = await client.fetch(query);
+  const kibrisClient = client.withConfig({ useCdn: false });
+  const properties: KibrisProperty[] = await kibrisClient.fetch(
+    query,
+    {},
+    { next: { revalidate: 0, tags: ["kibrisProperties"] } }
+  );
+  const kibrisData = await kibrisClient.fetch<KibrisPageData>(
+    kibrisPageQuery,
+    {},
+    { next: { revalidate: 0, tags: ["kibrisPage"] } }
+  );
 
   return (
     <main className="bg-gray-50 min-h-screen">
@@ -119,11 +132,13 @@ const KibrisPage = async () => {
       <div className="bg-anthracite-900 text-white py-20 mb-20 mt-14">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-5xl md:text-6xl font-extrabold mb-6 font-inter">
-            {kibrisPageData.heroTitle}
+            {kibrisData?.heroTitle || "Kıbrıs Projeler"}
           </h1>
-          <p className="text-xl md:text-2xl text-white max-w-4xl mx-auto leading-relaxed font-inter">
-            {kibrisPageData.heroDescription}
-          </p>
+          {kibrisData?.heroDescription ? (
+            <p className="text-xl md:text-2xl text-white max-w-4xl mx-auto leading-relaxed font-inter">
+              {kibrisData.heroDescription}
+            </p>
+          ) : null}
         </div>
       </div>
 
@@ -393,16 +408,18 @@ const KibrisPage = async () => {
           <div className="text-center py-20">
             <div className="text-6xl mb-6">🏝️</div>
             <h3 className="text-2xl font-bold text-gray-900 mb-4">
-              {kibrisPageData.emptyStateMessage.title}
+              {kibrisData?.emptyStateMessage?.title || "Henüz İlan Yok"}
             </h3>
             <p className="text-gray-600 mb-8 max-w-md mx-auto">
-              {kibrisPageData.emptyStateMessage.description}
+              {kibrisData?.emptyStateMessage?.description ||
+                "Kıbrıs ilanlarımız burada görünecek."}
             </p>
             <Link
               href="/"
               className="inline-flex items-center px-6 py-3 bg-anthracite-800 text-white font-semibold hover:bg-anthracite-900 transition-colors duration-300"
             >
-              {kibrisPageData.emptyStateMessage.buttonText}
+              {kibrisData?.emptyStateMessage?.buttonText ||
+                "Tüm İlanları Görüntüle"}
             </Link>
           </div>
         )}

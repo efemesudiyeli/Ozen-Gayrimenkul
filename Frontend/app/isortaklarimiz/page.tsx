@@ -1,9 +1,8 @@
-
-import { client } from '@/sanity/client'
-import imageUrlBuilder from '@sanity/image-url'
-import { SanityImageSource } from '@sanity/image-url/lib/types/types'
-import { Metadata } from 'next'
-import Image from 'next/image'
+import { client } from "@/sanity/client";
+import imageUrlBuilder from "@sanity/image-url";
+import { SanityImageSource } from "@sanity/image-url/lib/types/types";
+import { Metadata } from "next";
+import Image from "next/image";
 
 interface TeamPageData {
   title: string;
@@ -12,7 +11,7 @@ interface TeamPageData {
   metaDescription: string;
 }
 
-const teamPageQuery = `*[_type == "teamPage" && _id == "teamPage"][0]{
+const teamPageQuery = `*[_type == "teamPage"] | order(_updatedAt desc)[0]{
   title,
   heroTitle,
   heroDescription,
@@ -21,27 +20,36 @@ const teamPageQuery = `*[_type == "teamPage" && _id == "teamPage"][0]{
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
-    const teamData = await client.fetch<TeamPageData>(teamPageQuery, {}, { next: { revalidate: 10 } });
+    const teamData = await client.fetch<TeamPageData>(
+      teamPageQuery,
+      {},
+      { next: { revalidate: 10 } }
+    );
     return {
-      title: `${teamData.title || 'İş Ortaklarımız'} | Hatice Özen Gayrimenkul`,
-      description: teamData.metaDescription || 'Alanında uzman, profesyonel gayrimenkul iş ortaklarımızla tanışın.',
+      title: `${teamData.title || "İş Ortaklarımız"} | Hatice Özen Gayrimenkul`,
+      description:
+        teamData.metaDescription ||
+        "Alanında uzman, profesyonel gayrimenkul iş ortaklarımızla tanışın.",
     };
   } catch {
     return {
-      title: 'İş Ortaklarımız | Hatice Özen Gayrimenkul',
-      description: 'Alanında uzman, profesyonel gayrimenkul iş ortaklarımızla tanışın.',
+      title: "İş Ortaklarımız | Hatice Özen Gayrimenkul",
+      description:
+        "Alanında uzman, profesyonel gayrimenkul iş ortaklarımızla tanışın.",
     };
   }
 }
 
-const builder = imageUrlBuilder(client)
+const builder = imageUrlBuilder(client);
 function urlFor(source: SanityImageSource) {
-  return builder.image(source)
+  return builder.image(source);
 }
-type ImageWithAsset = SanityImageSource & { asset?: { _ref?: string; _id?: string; url?: string } }
+type ImageWithAsset = SanityImageSource & {
+  asset?: { _ref?: string; _id?: string; url?: string };
+};
 function hasImageAsset(img?: unknown): img is ImageWithAsset {
-  const asset = (img as ImageWithAsset | undefined)?.asset
-  return Boolean(asset && (asset._ref || asset._id || asset.url))
+  const asset = (img as ImageWithAsset | undefined)?.asset;
+  return Boolean(asset && (asset._ref || asset._id || asset.url));
 }
 
 const query = `*[_type == "agent"]{
@@ -52,42 +60,52 @@ const query = `*[_type == "agent"]{
   position,
   phone,
   email
-}`
+}`;
 
 interface Agent {
-  _id: string
-  name: string
-  slug: { current: string }
-  image: SanityImageSource
-  position: string
-  phone: string
-  email: string
+  _id: string;
+  name: string;
+  slug: { current: string };
+  image: SanityImageSource;
+  position: string;
+  phone: string;
+  email: string;
 }
 
 const AgentsPage = async () => {
-  const agents: Agent[] = await client.fetch(query, {}, { next: { revalidate: 10 } });
+  const teamClient = client.withConfig({ useCdn: false });
+  const agents: Agent[] = await teamClient.fetch(
+    query,
+    {},
+    { next: { revalidate: 0, tags: ["teamAgents"] } }
+  );
 
   const defaultTeamData: TeamPageData = {
-    title: 'İş Ortaklarımız',
-    heroTitle: 'İş Ortaklarımız',
-    heroDescription: 'Alanında uzman, güvenilir ve dinamik iş ortaklarımızla tanışın.',
-    metaDescription: 'Alanında uzman, profesyonel gayrimenkul iş ortaklarımızla tanışın.'
+    title: "İş Ortaklarımız",
+    heroTitle: "İş Ortaklarımız",
+    heroDescription:
+      "Alanında uzman, güvenilir ve dinamik iş ortaklarımızla tanışın.",
+    metaDescription:
+      "Alanında uzman, profesyonel gayrimenkul iş ortaklarımızla tanışın.",
   };
 
   let teamData = defaultTeamData;
 
   try {
-    const fetchedTeamData = await client.fetch<TeamPageData>(teamPageQuery, {}, { next: { revalidate: 10 } });
+    const fetchedTeamData = await teamClient.fetch<TeamPageData>(
+      teamPageQuery,
+      {},
+      { next: { revalidate: 0, tags: ["teamPage"] } }
+    );
     if (fetchedTeamData) {
       teamData = fetchedTeamData;
     }
   } catch (error) {
-    console.error('Team page data fetch error:', error);
+    console.error("Team page data fetch error:", error);
   }
 
   return (
     <main className="bg-white">
-
       {/* Hero Section */}
       <div className="bg-anthracite-900 text-white py-20 mb-20 mt-14">
         <div className="container mx-auto px-4 text-center">
@@ -105,7 +123,11 @@ const AgentsPage = async () => {
           <div key={agent._id} className="text-center w-72">
             <div className="mx-auto h-48 w-48 rounded-full overflow-hidden relative shadow-lg">
               <Image
-                src={hasImageAsset(agent.image) ? urlFor(agent.image).width(400).height(400).url() : '/vercel.svg'}
+                src={
+                  hasImageAsset(agent.image)
+                    ? urlFor(agent.image).width(400).height(400).url()
+                    : "/vercel.svg"
+                }
                 alt={`${agent.name} portre fotoğrafı`}
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -113,18 +135,26 @@ const AgentsPage = async () => {
               />
             </div>
             <div className="mt-6">
-              <h3 className="text-xl font-semibold text-gray-900">{agent.name}</h3>
+              <h3 className="text-xl font-semibold text-gray-900">
+                {agent.name}
+              </h3>
               <p className="text-atnhracite-400">{agent.position}</p>
               <div className="mt-4 text-gray-600 space-y-1">
-                {agent.email && <a href={`mailto:${agent.email}`} className="hover:text-blue-700">{agent.email}</a>}
+                {agent.email && (
+                  <a
+                    href={`mailto:${agent.email}`}
+                    className="hover:text-blue-700"
+                  >
+                    {agent.email}
+                  </a>
+                )}
               </div>
             </div>
           </div>
         ))}
       </div>
     </main>
+  );
+};
 
-  )
-}
-
-export default AgentsPage
+export default AgentsPage;

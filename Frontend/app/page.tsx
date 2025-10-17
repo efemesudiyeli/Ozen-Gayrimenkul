@@ -1,18 +1,20 @@
 "use client";
 
-import Link from 'next/link';
-import { client } from '@/sanity/client';
-import imageUrlBuilder from '@sanity/image-url';
-import { SanityImageSource } from '@sanity/image-url/lib/types/types';
-import { useState, useEffect, useCallback } from 'react';
-import Image from 'next/image';
-import Hero, { HeroData } from '@/components/Hero';
+import Link from "next/link";
+import { client } from "@/sanity/client";
+import imageUrlBuilder from "@sanity/image-url";
+import { SanityImageSource } from "@sanity/image-url/lib/types/types";
+import { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
+import Hero, { HeroData } from "@/components/Hero";
 
 const builder = imageUrlBuilder(client);
 function urlFor(source: SanityImageSource) {
   return builder.image(source);
 }
-type ImageWithAsset = SanityImageSource & { asset?: { _ref?: string; _id?: string; url?: string } }
+type ImageWithAsset = SanityImageSource & {
+  asset?: { _ref?: string; _id?: string; url?: string };
+};
 function hasImageAsset(img?: unknown): img is ImageWithAsset {
   const asset = (img as ImageWithAsset | undefined)?.asset;
   return Boolean(asset && (asset._ref || asset._id || asset.url));
@@ -41,8 +43,8 @@ const query = `*[_type == "property" && coalesce(isActive, true) == true && (sta
   agent->{name, phone}
 }`;
 
-// Hero alanı için yeni Sanity sorgusu
-const heroQuery = `*[_type == "hero"][0]`;
+// Hero alanı için en güncel dökümanı al
+const heroQuery = `*[_type == "hero"] | order(_updatedAt desc)[0]`;
 
 interface Property {
   _id: string;
@@ -56,8 +58,8 @@ interface Property {
   neighborhood: string;
   area: number;
   grossArea?: number;
-  propertyType: 'daire' | 'villa' | 'mustakil' | 'isyeri' | 'arsa';
-  status: 'satilik' | 'kiralik' | 'satildi' | 'kiralandi';
+  propertyType: "daire" | "villa" | "mustakil" | "isyeri" | "arsa";
+  status: "satilik" | "kiralik" | "satildi" | "kiralandi";
   bedrooms?: string;
   bathrooms?: number;
   buildingAge?: number;
@@ -73,86 +75,104 @@ interface Property {
 export default function HomePage() {
   const [allProperties, setAllProperties] = useState<Property[]>([]);
   const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
-  const [activeFilter, setActiveFilter] = useState<string>('tumu');
-  const [sortBy, setSortBy] = useState<string>('newest');
-  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [activeFilter, setActiveFilter] = useState<string>("tumu");
+  const [sortBy, setSortBy] = useState<string>("newest");
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const [heroData, setHeroData] = useState<HeroData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [mobileView, setMobileView] = useState<'grid' | 'list'>('grid');
+  const [mobileView, setMobileView] = useState<"grid" | "list">("grid");
 
   // Advanced filters
-  const [minPrice, setMinPrice] = useState<string>('');
-  const [maxPrice, setMaxPrice] = useState<string>('');
-  const [roomCount, setRoomCount] = useState<string>('');
-  const [statusFilter, setStatusFilter] = useState<string>('');
-  const [provinceFilter, setProvinceFilter] = useState<string>('Antalya');
-  const [districtFilter, setDistrictFilter] = useState<string>('');
-  const [neighborhoodFilter, setNeighborhoodFilter] = useState<string>('');
-  const [showAdvancedFilters, setShowAdvancedFilters] = useState<boolean>(false);
+  const [minPrice, setMinPrice] = useState<string>("");
+  const [maxPrice, setMaxPrice] = useState<string>("");
+  const [roomCount, setRoomCount] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [provinceFilter, setProvinceFilter] = useState<string>("Antalya");
+  const [districtFilter, setDistrictFilter] = useState<string>("");
+  const [neighborhoodFilter, setNeighborhoodFilter] = useState<string>("");
+  const [showAdvancedFilters, setShowAdvancedFilters] =
+    useState<boolean>(false);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState<number>(1);
   const itemsPerPage = 12; // Test için 3 ilan - normalde 12 olmalı
 
-
   const parsePriceToNumber = (value: unknown): number => {
-    if (typeof value === 'number') return value;
-    if (typeof value === 'string') {
-      const numeric = parseInt(value.replace(/[^\d]/g, ''));
+    if (typeof value === "number") return value;
+    if (typeof value === "string") {
+      const numeric = parseInt(value.replace(/[^\d]/g, ""));
       return isNaN(numeric) ? 0 : numeric;
     }
     return 0;
   };
 
-  const sortProperties = useCallback((properties: Property[], sortType: string): Property[] => {
-    const sorted = [...properties];
+  const sortProperties = useCallback(
+    (properties: Property[], sortType: string): Property[] => {
+      const sorted = [...properties];
 
-    switch (sortType) {
-      case 'newest':
-        return sorted.sort((a, b) => new Date(b._createdAt).getTime() - new Date(a._createdAt).getTime());
-      case 'oldest':
-        return sorted.sort((a, b) => new Date(a._createdAt).getTime() - new Date(b._createdAt).getTime());
-      case 'price-high':
-        return sorted.sort((a, b) => parsePriceToNumber(b.price) - parsePriceToNumber(a.price));
-      case 'price-low':
-        return sorted.sort((a, b) => parsePriceToNumber(a.price) - parsePriceToNumber(b.price));
-      case 'area-large':
-        return sorted.sort((a, b) => (b.area || 0) - (a.area || 0));
-      case 'area-small':
-        return sorted.sort((a, b) => (a.area || 0) - (b.area || 0));
-      case 'province':
-        return sorted.sort((a, b) => {
-          const provinceA = a.province || '';
-          const provinceB = b.province || '';
-          return provinceA.localeCompare(provinceB, 'tr-TR', {
-            sensitivity: 'base',
-            numeric: true,
-            ignorePunctuation: true
+      switch (sortType) {
+        case "newest":
+          return sorted.sort(
+            (a, b) =>
+              new Date(b._createdAt).getTime() -
+              new Date(a._createdAt).getTime()
+          );
+        case "oldest":
+          return sorted.sort(
+            (a, b) =>
+              new Date(a._createdAt).getTime() -
+              new Date(b._createdAt).getTime()
+          );
+        case "price-high":
+          return sorted.sort(
+            (a, b) => parsePriceToNumber(b.price) - parsePriceToNumber(a.price)
+          );
+        case "price-low":
+          return sorted.sort(
+            (a, b) => parsePriceToNumber(a.price) - parsePriceToNumber(b.price)
+          );
+        case "area-large":
+          return sorted.sort((a, b) => (b.area || 0) - (a.area || 0));
+        case "area-small":
+          return sorted.sort((a, b) => (a.area || 0) - (b.area || 0));
+        case "province":
+          return sorted.sort((a, b) => {
+            const provinceA = a.province || "";
+            const provinceB = b.province || "";
+            return provinceA.localeCompare(provinceB, "tr-TR", {
+              sensitivity: "base",
+              numeric: true,
+              ignorePunctuation: true,
+            });
           });
-        });
-      case 'district':
-        return sorted.sort((a, b) => {
-          const districtA = a.district || '';
-          const districtB = b.district || '';
-          return districtA.localeCompare(districtB, 'tr-TR', {
-            sensitivity: 'base',
-            numeric: true,
-            ignorePunctuation: true
+        case "district":
+          return sorted.sort((a, b) => {
+            const districtA = a.district || "";
+            const districtB = b.district || "";
+            return districtA.localeCompare(districtB, "tr-TR", {
+              sensitivity: "base",
+              numeric: true,
+              ignorePunctuation: true,
+            });
           });
-        });
-      default:
-        return sorted;
-    }
-  }, []);
+        default:
+          return sorted;
+      }
+    },
+    []
+  );
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
         // İlan ve hero verilerini aynı anda çekerek performansı artırıyoruz
+        // Hero için CDN'siz direkt fetch
+        const heroClient = client.withConfig({ useCdn: false });
+
         const [properties, hero]: [Property[], HeroData] = await Promise.all([
-          client.fetch(query, {}, { next: { revalidate: 10 } }),
-          client.fetch(heroQuery, {}, { next: { revalidate: 10 } })
+          client.fetch(query),
+          heroClient.fetch(heroQuery),
         ]);
 
         setAllProperties(properties);
@@ -161,7 +181,7 @@ export default function HomePage() {
         const sortedProperties = sortProperties(properties, sortBy);
         setFilteredProperties(sortedProperties);
       } catch (error) {
-        console.error('Veri yükleme hatası:', error);
+        console.error("Veri yükleme hatası:", error);
       } finally {
         setIsLoading(false);
       }
@@ -169,82 +189,130 @@ export default function HomePage() {
     fetchData();
   }, [sortBy, sortProperties]);
 
-  const applyFilters = useCallback((filter: string = activeFilter, search: string = searchTerm) => {
-    let filtered: Property[] = allProperties;
+  const applyFilters = useCallback(
+    (filter: string = activeFilter, search: string = searchTerm) => {
+      let filtered: Property[] = allProperties;
 
-    // Property type filter
-    if (filter !== 'tumu') {
-      filtered = filtered.filter(
-        (property) => property.propertyType === filter
-      );
-    }
+      // Property type filter
+      if (filter !== "tumu") {
+        filtered = filtered.filter(
+          (property) => property.propertyType === filter
+        );
+      }
 
-    // Search filter
-    if (search.trim() !== '') {
-      const searchLower = search.toLowerCase().trim();
-      filtered = filtered.filter((property) => {
-        const title = property.title?.toLowerCase() || '';
-        const province = property.province?.toLowerCase() || '';
-        const district = property.district?.toLowerCase() || '';
-        const neighborhood = property.neighborhood?.toLowerCase() || '';
-        const fullAddress = `${neighborhood} ${district} ${province}`.toLowerCase();
+      // Search filter
+      if (search.trim() !== "") {
+        const searchLower = search.toLowerCase().trim();
+        filtered = filtered.filter((property) => {
+          const title = property.title?.toLowerCase() || "";
+          const province = property.province?.toLowerCase() || "";
+          const district = property.district?.toLowerCase() || "";
+          const neighborhood = property.neighborhood?.toLowerCase() || "";
+          const fullAddress =
+            `${neighborhood} ${district} ${province}`.toLowerCase();
 
-        return title.includes(searchLower) || fullAddress.includes(searchLower);
-      });
-    }
+          return (
+            title.includes(searchLower) || fullAddress.includes(searchLower)
+          );
+        });
+      }
 
-    // Price range filter
-    if (minPrice) {
-      const min = parseInt(minPrice.replace(/[^\d]/g, ''));
-      filtered = filtered.filter((property) => parsePriceToNumber(property.price) >= (isNaN(min) ? 0 : min));
-    }
-    if (maxPrice) {
-      const max = parseInt(maxPrice.replace(/[^\d]/g, ''));
-      filtered = filtered.filter((property) => parsePriceToNumber(property.price) <= (isNaN(max) ? Number.MAX_SAFE_INTEGER : max));
-    }
+      // Price range filter
+      if (minPrice) {
+        const min = parseInt(minPrice.replace(/[^\d]/g, ""));
+        filtered = filtered.filter(
+          (property) =>
+            parsePriceToNumber(property.price) >= (isNaN(min) ? 0 : min)
+        );
+      }
+      if (maxPrice) {
+        const max = parseInt(maxPrice.replace(/[^\d]/g, ""));
+        filtered = filtered.filter(
+          (property) =>
+            parsePriceToNumber(property.price) <=
+            (isNaN(max) ? Number.MAX_SAFE_INTEGER : max)
+        );
+      }
 
-    // Room count filter
-    if (roomCount) {
-      filtered = filtered.filter((property) => property.bedrooms === roomCount);
-    }
+      // Room count filter
+      if (roomCount) {
+        filtered = filtered.filter(
+          (property) => property.bedrooms === roomCount
+        );
+      }
 
-    // Status filter
-    if (statusFilter) {
-      filtered = filtered.filter((property) => property.status === statusFilter);
-    }
+      // Status filter
+      if (statusFilter) {
+        filtered = filtered.filter(
+          (property) => property.status === statusFilter
+        );
+      }
 
-    // Location filters
-    if (provinceFilter) {
-      filtered = filtered.filter((property) => property.province === provinceFilter);
-    }
-    if (districtFilter) {
-      filtered = filtered.filter((property) => property.district === districtFilter);
-    }
-    if (neighborhoodFilter) {
-      filtered = filtered.filter((property) => property.neighborhood === neighborhoodFilter);
-    }
+      // Location filters
+      if (provinceFilter) {
+        filtered = filtered.filter(
+          (property) => property.province === provinceFilter
+        );
+      }
+      if (districtFilter) {
+        filtered = filtered.filter(
+          (property) => property.district === districtFilter
+        );
+      }
+      if (neighborhoodFilter) {
+        filtered = filtered.filter(
+          (property) => property.neighborhood === neighborhoodFilter
+        );
+      }
 
-    const sortedFiltered = sortProperties(filtered, sortBy);
-    setFilteredProperties(sortedFiltered);
-  }, [allProperties, activeFilter, searchTerm, minPrice, maxPrice, roomCount, statusFilter, provinceFilter, districtFilter, neighborhoodFilter, sortBy, sortProperties]);
+      const sortedFiltered = sortProperties(filtered, sortBy);
+      setFilteredProperties(sortedFiltered);
+    },
+    [
+      allProperties,
+      activeFilter,
+      searchTerm,
+      minPrice,
+      maxPrice,
+      roomCount,
+      statusFilter,
+      provinceFilter,
+      districtFilter,
+      neighborhoodFilter,
+      sortBy,
+      sortProperties,
+    ]
+  );
 
   // Apply filters when advanced filter values change
   useEffect(() => {
     if (allProperties.length > 0) {
       applyFilters(activeFilter, searchTerm);
     }
-  }, [minPrice, maxPrice, roomCount, statusFilter, provinceFilter, districtFilter, neighborhoodFilter, activeFilter, allProperties.length, applyFilters, searchTerm]);
+  }, [
+    minPrice,
+    maxPrice,
+    roomCount,
+    statusFilter,
+    provinceFilter,
+    districtFilter,
+    neighborhoodFilter,
+    activeFilter,
+    allProperties.length,
+    applyFilters,
+    searchTerm,
+  ]);
 
   // Hash ile gelen yönlendirmelerde (/#ilanlar) veri yüklendikten sonra ilgili bölüme kaydır
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
     if (isLoading) return;
-    if (window.location.hash === '#ilanlar') {
-      const el = document.getElementById('ilanlar');
+    if (window.location.hash === "#ilanlar") {
+      const el = document.getElementById("ilanlar");
       if (el) {
         // İçerik render sonrası güvenli kaydırma
         setTimeout(() => {
-          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
         }, 50);
       }
     }
@@ -270,70 +338,76 @@ export default function HomePage() {
 
   // Helper functions to get unique values for dropdowns
   const getUniqueProvinces = () => {
-    return [...new Set(allProperties.map(p => p.province).filter(Boolean))].sort();
+    return [
+      ...new Set(allProperties.map((p) => p.province).filter(Boolean)),
+    ].sort();
   };
 
   const getUniqueDistricts = () => {
     const filtered = provinceFilter
-      ? allProperties.filter(p => p.province === provinceFilter)
+      ? allProperties.filter((p) => p.province === provinceFilter)
       : allProperties;
-    return [...new Set(filtered.map(p => p.district).filter(Boolean))].sort();
+    return [...new Set(filtered.map((p) => p.district).filter(Boolean))].sort();
   };
 
   const getUniqueNeighborhoods = () => {
     const filtered = districtFilter
-      ? allProperties.filter(p => p.district === districtFilter)
+      ? allProperties.filter((p) => p.district === districtFilter)
       : allProperties;
-    return [...new Set(filtered.map(p => p.neighborhood).filter(Boolean))].sort();
+    return [
+      ...new Set(filtered.map((p) => p.neighborhood).filter(Boolean)),
+    ].sort();
   };
 
   const getUniqueRoomCounts = () => {
-    return [...new Set(allProperties.map(p => p.bedrooms).filter(Boolean))].sort();
+    return [
+      ...new Set(allProperties.map((p) => p.bedrooms).filter(Boolean)),
+    ].sort();
   };
 
   // Advanced filter handlers
   const handleAdvancedFilter = (filterType: string, value: string) => {
     setCurrentPage(1);
     switch (filterType) {
-      case 'minPrice':
+      case "minPrice":
         setMinPrice(value);
         break;
-      case 'maxPrice':
+      case "maxPrice":
         setMaxPrice(value);
         break;
-      case 'roomCount':
+      case "roomCount":
         setRoomCount(value);
         break;
-      case 'status':
+      case "status":
         setStatusFilter(value);
         break;
-      case 'province':
+      case "province":
         setProvinceFilter(value);
-        setDistrictFilter('');
-        setNeighborhoodFilter('');
+        setDistrictFilter("");
+        setNeighborhoodFilter("");
         break;
-      case 'district':
+      case "district":
         setDistrictFilter(value);
-        setNeighborhoodFilter('');
+        setNeighborhoodFilter("");
         break;
-      case 'neighborhood':
+      case "neighborhood":
         setNeighborhoodFilter(value);
         break;
     }
   };
 
   const clearAllFilters = () => {
-    setMinPrice('');
-    setMaxPrice('');
-    setRoomCount('');
-    setStatusFilter('');
-    setProvinceFilter('Antalya');
-    setDistrictFilter('');
-    setNeighborhoodFilter('');
-    setSearchTerm('');
-    setActiveFilter('tumu');
+    setMinPrice("");
+    setMaxPrice("");
+    setRoomCount("");
+    setStatusFilter("");
+    setProvinceFilter("Antalya");
+    setDistrictFilter("");
+    setNeighborhoodFilter("");
+    setSearchTerm("");
+    setActiveFilter("tumu");
     setCurrentPage(1);
-    applyFilters('tumu', '');
+    applyFilters("tumu", "");
   };
 
   // Pagination calculations
@@ -359,38 +433,43 @@ export default function HomePage() {
     }
   };
 
-
   const filterOptions = [
-    { key: 'tumu', label: 'Tümü' },
-    { key: 'daire', label: 'Daire' },
-    { key: 'villa', label: 'Villa' },
-    { key: 'mustakil', label: 'Müstakil' },
-    { key: 'isyeri', label: 'İş Yeri' },
-    { key: 'arsa', label: 'Arsa' },
+    { key: "tumu", label: "Tümü" },
+    { key: "daire", label: "Daire" },
+    { key: "villa", label: "Villa" },
+    { key: "mustakil", label: "Müstakil" },
+    { key: "isyeri", label: "İş Yeri" },
+    { key: "arsa", label: "Arsa" },
   ];
 
   const sortOptions = [
-    { key: 'newest', label: 'En Yeni' },
-    { key: 'oldest', label: 'En Eski' },
-    { key: 'price-high', label: 'Fiyat (Yüksek → Düşük)' },
-    { key: 'price-low', label: 'Fiyat (Düşük → Yüksek)' },
-    { key: 'area-large', label: 'Alan (Büyük → Küçük)' },
-    { key: 'area-small', label: 'Alan (Küçük → Büyük)' },
-    { key: 'province', label: 'İl (A → Z)' },
-    { key: 'district', label: 'İlçe (A → Z)' },
+    { key: "newest", label: "En Yeni" },
+    { key: "oldest", label: "En Eski" },
+    { key: "price-high", label: "Fiyat (Yüksek → Düşük)" },
+    { key: "price-low", label: "Fiyat (Düşük → Yüksek)" },
+    { key: "area-large", label: "Alan (Büyük → Küçük)" },
+    { key: "area-small", label: "Alan (Küçük → Büyük)" },
+    { key: "province", label: "İl (A → Z)" },
+    { key: "district", label: "İlçe (A → Z)" },
   ];
 
   return (
     <>
       {heroData && <Hero data={heroData} />}
 
-
       {/* İlanlar Bölümü - Modern Tasarım */}
-      <section id="ilanlar" aria-labelledby="ilanlar-heading" className="bg-gradient-to-b from-gray-50 to-white min-h-screen">
+      <section
+        id="ilanlar"
+        aria-labelledby="ilanlar-heading"
+        className="bg-gradient-to-b from-gray-50 to-white min-h-screen"
+      >
         {/* Header Section */}
         <div className="container mx-auto px-4 pt-12 pb-12">
           <div className="text-center mb-8">
-            <h2 id="ilanlar-heading" className="text-4xl md:text-6xl font-bold mb-2 text-gray-900 tracking-tight">
+            <h2
+              id="ilanlar-heading"
+              className="text-4xl md:text-6xl font-bold mb-2 text-gray-900 tracking-tight"
+            >
               Güncel İlanlar
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
@@ -398,7 +477,8 @@ export default function HomePage() {
             </p>
             {searchTerm && (
               <p className="text-lg text-anthracite-600 mt-4 font-medium">
-                &quot;{searchTerm}&quot; için {filteredProperties.length} sonuç bulundu
+                &quot;{searchTerm}&quot; için {filteredProperties.length} sonuç
+                bulundu
               </p>
             )}
           </div>
@@ -414,17 +494,37 @@ export default function HomePage() {
                 className="w-full px-6 py-4 pl-12 text-lg border border-gray-300 shadow-lg focus:outline-none focus:ring-2 focus:ring-anthracite-500 focus:border-anthracite-500 bg-white"
               />
               <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
-                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                <svg
+                  className="w-5 h-5 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
                 </svg>
               </div>
               {searchTerm && (
                 <button
-                  onClick={() => handleSearch('')}
+                  onClick={() => handleSearch("")}
                   className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-gray-600"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
               )}
@@ -441,10 +541,11 @@ export default function HomePage() {
                     <button
                       key={option.key}
                       onClick={() => handleFilter(option.key)}
-                      className={`w-full text-center px-4 py-3 text-sm font-medium transition-colors duration-200 ${activeFilter === option.key
-                        ? 'bg-anthracite-900 text-white shadow-sm'
-                        : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
-                        }`}
+                      className={`w-full text-center px-4 py-3 text-sm font-medium transition-colors duration-200 ${
+                        activeFilter === option.key
+                          ? "bg-anthracite-900 text-white shadow-sm"
+                          : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
+                      }`}
                       aria-pressed={activeFilter === option.key}
                     >
                       {option.label}
@@ -471,8 +572,18 @@ export default function HomePage() {
                 </select>
                 {/* Custom Arrow */}
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  <svg
+                    className="w-4 h-4 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
                   </svg>
                 </div>
               </div>
@@ -484,8 +595,18 @@ export default function HomePage() {
                 aria-expanded={showAdvancedFilters}
                 aria-controls="advanced-filters-panel"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"
+                  />
                 </svg>
                 Gelişmiş Filtreler
               </button>
@@ -495,23 +616,33 @@ export default function HomePage() {
             <div className="w-full sm:w-auto">
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-none sm:flex sm:gap-2">
                 <button
-                  onClick={() => setMobileView('list')}
-                  className={`w-full px-4 py-2 text-sm font-medium border ${mobileView === 'list' ? 'bg-anthracite-900 text-white' : 'bg-white text-gray-700 border-gray-300'}`}
-                  aria-pressed={mobileView === 'list'}
+                  onClick={() => setMobileView("list")}
+                  className={`w-full px-4 py-2 text-sm font-medium border ${mobileView === "list" ? "bg-anthracite-900 text-white" : "bg-white text-gray-700 border-gray-300"}`}
+                  aria-pressed={mobileView === "list"}
                   aria-label="Liste görünümü"
                 >
-                  <svg className="mx-auto w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                    <path d="M4 6.75C4 6.336 4.336 6 4.75 6h14.5a.75.75 0 0 1 0 1.5H4.75A.75.75 0 0 1 4 6.75Zm0 4.5c0-.414.336-.75.75-.75h14.5a.75.75 0 0 1 0 1.5H4.75a.75.75 0 0 1-.75-.75Zm0 4.5c0-.414.336-.75.75-.75h14.5a.75.75 0 0 1 0 1.5H4.75a.75.75 0 0 1-.75-.75Z"/>
+                  <svg
+                    className="mx-auto w-5 h-5"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path d="M4 6.75C4 6.336 4.336 6 4.75 6h14.5a.75.75 0 0 1 0 1.5H4.75A.75.75 0 0 1 4 6.75Zm0 4.5c0-.414.336-.75.75-.75h14.5a.75.75 0 0 1 0 1.5H4.75a.75.75 0 0 1-.75-.75Zm0 4.5c0-.414.336-.75.75-.75h14.5a.75.75 0 0 1 0 1.5H4.75a.75.75 0 0 1-.75-.75Z" />
                   </svg>
                 </button>
                 <button
-                  onClick={() => setMobileView('grid')}
-                  className={`w-full px-4 py-2 text-sm font-medium border ${mobileView === 'grid' ? 'bg-anthracite-900 text-white' : 'bg-white text-gray-700 border-gray-300'}`}
-                  aria-pressed={mobileView === 'grid'}
+                  onClick={() => setMobileView("grid")}
+                  className={`w-full px-4 py-2 text-sm font-medium border ${mobileView === "grid" ? "bg-anthracite-900 text-white" : "bg-white text-gray-700 border-gray-300"}`}
+                  aria-pressed={mobileView === "grid"}
                   aria-label="Kart görünümü"
                 >
-                  <svg className="mx-auto w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                    <path d="M4 5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5Zm9 0a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1V5ZM4 14a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-4Zm9 0a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1v-4Z"/>
+                  <svg
+                    className="mx-auto w-5 h-5"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path d="M4 5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5Zm9 0a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1V5ZM4 14a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-4Zm9 0a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1v-4Z" />
                   </svg>
                 </button>
               </div>
@@ -520,24 +651,33 @@ export default function HomePage() {
 
           {/* Advanced Filters Panel */}
           {showAdvancedFilters && (
-            <div id="advanced-filters-panel" className="mt-8 bg-white p-6 shadow-lg border border-gray-100">
+            <div
+              id="advanced-filters-panel"
+              className="mt-8 bg-white p-6 shadow-lg border border-gray-100"
+            >
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {/* Price Range */}
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">Fiyat Aralığı</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Fiyat Aralığı
+                  </label>
                   <div className="flex gap-2">
                     <input
                       type="text"
                       placeholder="Min TL"
                       value={minPrice}
-                      onChange={(e) => handleAdvancedFilter('minPrice', e.target.value)}
+                      onChange={(e) =>
+                        handleAdvancedFilter("minPrice", e.target.value)
+                      }
                       className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-anthracite-500"
                     />
                     <input
                       type="text"
                       placeholder="Max TL"
                       value={maxPrice}
-                      onChange={(e) => handleAdvancedFilter('maxPrice', e.target.value)}
+                      onChange={(e) =>
+                        handleAdvancedFilter("maxPrice", e.target.value)
+                      }
                       className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-anthracite-500"
                     />
                   </div>
@@ -545,10 +685,14 @@ export default function HomePage() {
 
                 {/* Room Count */}
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">Oda Sayısı</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Oda Sayısı
+                  </label>
                   <select
                     value={roomCount}
-                    onChange={(e) => handleAdvancedFilter('roomCount', e.target.value)}
+                    onChange={(e) =>
+                      handleAdvancedFilter("roomCount", e.target.value)
+                    }
                     className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-anthracite-500"
                   >
                     <option value="">Tümü</option>
@@ -562,10 +706,14 @@ export default function HomePage() {
 
                 {/* Status */}
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">Kategori</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Kategori
+                  </label>
                   <select
                     value={statusFilter}
-                    onChange={(e) => handleAdvancedFilter('status', e.target.value)}
+                    onChange={(e) =>
+                      handleAdvancedFilter("status", e.target.value)
+                    }
                     className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-anthracite-500"
                   >
                     <option value="">Tümü</option>
@@ -576,10 +724,14 @@ export default function HomePage() {
 
                 {/* Province */}
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">İl</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    İl
+                  </label>
                   <select
                     value={provinceFilter}
-                    onChange={(e) => handleAdvancedFilter('province', e.target.value)}
+                    onChange={(e) =>
+                      handleAdvancedFilter("province", e.target.value)
+                    }
                     className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-anthracite-500"
                   >
                     <option value="">Tümü</option>
@@ -593,10 +745,14 @@ export default function HomePage() {
 
                 {/* District */}
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">İlçe</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    İlçe
+                  </label>
                   <select
                     value={districtFilter}
-                    onChange={(e) => handleAdvancedFilter('district', e.target.value)}
+                    onChange={(e) =>
+                      handleAdvancedFilter("district", e.target.value)
+                    }
                     className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-anthracite-500"
                   >
                     <option value="">Tümü</option>
@@ -610,10 +766,14 @@ export default function HomePage() {
 
                 {/* Neighborhood */}
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">Mahalle</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Mahalle
+                  </label>
                   <select
                     value={neighborhoodFilter}
-                    onChange={(e) => handleAdvancedFilter('neighborhood', e.target.value)}
+                    onChange={(e) =>
+                      handleAdvancedFilter("neighborhood", e.target.value)
+                    }
                     className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-anthracite-500"
                   >
                     <option value="">Tümü</option>
@@ -644,7 +804,10 @@ export default function HomePage() {
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
               {[...Array(6)].map((_, index) => (
-                <div key={index} className="bg-white overflow-hidden shadow-lg border border-gray-300 animate-pulse h-full flex flex-col">
+                <div
+                  key={index}
+                  className="bg-white overflow-hidden shadow-lg border border-gray-300 animate-pulse h-full flex flex-col"
+                >
                   {/* Görsel Skeleton */}
                   <div className="relative h-64 bg-gray-200 flex-shrink-0">
                     {/* Badge Skeletons */}
@@ -688,7 +851,9 @@ export default function HomePage() {
           ) : (
             <>
               {/* GRID görünüm - toggle 'grid' iken */}
-              <div className={`${mobileView === 'grid' ? 'grid' : 'hidden'} grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8`}>
+              <div
+                className={`${mobileView === "grid" ? "grid" : "hidden"} grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8`}
+              >
                 {currentProperties.map((property) => (
                   <Link
                     key={property._id}
@@ -700,7 +865,10 @@ export default function HomePage() {
                       <div className="relative h-64 overflow-hidden flex-shrink-0">
                         {hasImageAsset(property.mainImage) ? (
                           <Image
-                            src={urlFor(property.mainImage).width(600).height(400).url()}
+                            src={urlFor(property.mainImage)
+                              .width(600)
+                              .height(400)
+                              .url()}
                             alt={`${property.title} ana görseli`}
                             fill
                             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -708,7 +876,9 @@ export default function HomePage() {
                           />
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-                            <span className="text-gray-500 font-medium">Fotoğraf Yok</span>
+                            <span className="text-gray-500 font-medium">
+                              Fotoğraf Yok
+                            </span>
                           </div>
                         )}
 
@@ -717,21 +887,35 @@ export default function HomePage() {
 
                         {/* Status Badge */}
                         <div className="absolute top-4 left-4">
-                          <span className={`px-3 py-1 text-xs font-bold text-white shadow-lg ${property.status === 'satilik' ? 'bg-anthracite-900' :
-                            property.status === 'kiralik' ? 'bg-anthracite-900' : 'bg-gray-600'
-                            }`}>
-                            {property.status === 'satilik' ? 'SATILIK' :
-                              property.status === 'kiralik' ? 'KİRALIK' : property.status?.toUpperCase()}
+                          <span
+                            className={`px-3 py-1 text-xs font-bold text-white shadow-lg ${
+                              property.status === "satilik"
+                                ? "bg-anthracite-900"
+                                : property.status === "kiralik"
+                                  ? "bg-anthracite-900"
+                                  : "bg-gray-600"
+                            }`}
+                          >
+                            {property.status === "satilik"
+                              ? "SATILIK"
+                              : property.status === "kiralik"
+                                ? "KİRALIK"
+                                : property.status?.toUpperCase()}
                           </span>
                         </div>
 
                         {/* Property Type Badge */}
                         <div className="absolute top-4 right-4">
                           <span className="bg-white/95 backdrop-blur-sm text-gray-800 px-3 py-1 text-xs font-semibold shadow-sm">
-                            {property.propertyType === 'daire' ? 'DAİRE' :
-                              property.propertyType === 'villa' ? 'VİLLA' :
-                                property.propertyType === 'mustakil' ? 'MÜSTAKİL' :
-                                  property.propertyType === 'isyeri' ? 'İŞYERİ' : 'ARSA'}
+                            {property.propertyType === "daire"
+                              ? "DAİRE"
+                              : property.propertyType === "villa"
+                                ? "VİLLA"
+                                : property.propertyType === "mustakil"
+                                  ? "MÜSTAKİL"
+                                  : property.propertyType === "isyeri"
+                                    ? "İŞYERİ"
+                                    : "ARSA"}
                           </span>
                         </div>
 
@@ -752,46 +936,100 @@ export default function HomePage() {
 
                         {/* Konum */}
                         <div className="flex items-center text-gray-600 mb-3">
-                          <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                          <svg
+                            className="w-4 h-4 mr-2 flex-shrink-0"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+                              clipRule="evenodd"
+                            />
                           </svg>
                           <span className="text-sm">
-                            {property.neighborhood}, {property.district} / {property.province}
+                            {property.neighborhood}, {property.district} /{" "}
+                            {property.province}
                           </span>
                         </div>
 
                         {/* Özellikler Grid */}
-                        {property.propertyType !== 'arsa' && (
+                        {property.propertyType !== "arsa" && (
                           <div className="grid grid-cols-2 gap-3 mb-4 text-xs">
                             {property.bedrooms && (
                               <div className="flex items-center text-gray-600">
-                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 21v-4a2 2 0 012-2h2a2 2 0 012 2v4" />
+                                <svg
+                                  className="w-4 h-4 mr-1"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"
+                                  />
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M8 21v-4a2 2 0 012-2h2a2 2 0 012 2v4"
+                                  />
                                 </svg>
                                 {property.bedrooms} Oda
                               </div>
                             )}
                             {property.bathrooms && (
                               <div className="flex items-center text-gray-600">
-                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+                                <svg
+                                  className="w-4 h-4 mr-1"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"
+                                  />
                                 </svg>
                                 {property.bathrooms} Banyo
                               </div>
                             )}
                             {property.floor !== undefined && (
                               <div className="flex items-center text-gray-600">
-                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                <svg
+                                  className="w-4 h-4 mr-1"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                                  />
                                 </svg>
                                 {property.floor}. Kat
                               </div>
                             )}
                             {property.buildingAge !== undefined && (
                               <div className="flex items-center text-gray-600">
-                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                <svg
+                                  className="w-4 h-4 mr-1"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                  />
                                 </svg>
                                 {property.buildingAge} Yaş
                               </div>
@@ -803,12 +1041,16 @@ export default function HomePage() {
                         <div className="bg-gray-50 p-3 mb-4">
                           <div className="flex justify-between items-center text-sm">
                             <span className="text-gray-600">Net Alan:</span>
-                            <span className="font-semibold text-gray-900">{property.area} m²</span>
+                            <span className="font-semibold text-gray-900">
+                              {property.area} m²
+                            </span>
                           </div>
                           {property.grossArea && (
                             <div className="flex justify-between items-center text-sm mt-1">
                               <span className="text-gray-600">Brüt Alan:</span>
-                              <span className="font-semibold text-gray-900">{property.grossArea} m²</span>
+                              <span className="font-semibold text-gray-900">
+                                {property.grossArea} m²
+                              </span>
                             </div>
                           )}
                         </div>
@@ -817,18 +1059,29 @@ export default function HomePage() {
                         <div className="flex justify-between items-end mt-auto">
                           <div>
                             <div className="text-2xl font-bold text-green-600">
-                              ₺{parsePriceToNumber(property.price).toLocaleString('tr-TR')}
+                              ₺
+                              {parsePriceToNumber(
+                                property.price
+                              ).toLocaleString("tr-TR")}
                             </div>
                             <div className="text-xs text-gray-500">
-                              {property.status === 'kiralik' ? 'Kira Bedeli' : 'Satış Fiyatı'}
+                              {property.status === "kiralik"
+                                ? "Kira Bedeli"
+                                : "Satış Fiyatı"}
                             </div>
                           </div>
                           {property.agent && (
                             <div className="text-right">
-                              <div className="text-xs text-gray-500">Danışman</div>
-                              <div className="text-sm font-medium text-gray-900">{property.agent.name}</div>
+                              <div className="text-xs text-gray-500">
+                                Danışman
+                              </div>
+                              <div className="text-sm font-medium text-gray-900">
+                                {property.agent.name}
+                              </div>
                               {property.agent.phone && (
-                                <div className="text-xs text-gray-500">{property.agent.phone}</div>
+                                <div className="text-xs text-gray-500">
+                                  {property.agent.phone}
+                                </div>
                               )}
                             </div>
                           )}
@@ -840,34 +1093,67 @@ export default function HomePage() {
               </div>
 
               {/* LIST görünüm - toggle 'list' iken */}
-              <div className={`${mobileView === 'list' ? 'block' : 'hidden'} divide-y border border-gray-200 bg-white`}>
+              <div
+                className={`${mobileView === "list" ? "block" : "hidden"} divide-y border border-gray-200 bg-white`}
+              >
                 {currentProperties.map((property) => (
-                  <Link key={property._id} href={`/ilan/${property.slug.current}`} className="block">
+                  <Link
+                    key={property._id}
+                    href={`/ilan/${property.slug.current}`}
+                    className="block"
+                  >
                     <div className="flex gap-3 p-3">
                       <div className="relative w-24 h-24 flex-shrink-0 bg-gray-200">
                         {hasImageAsset(property.mainImage) ? (
                           <Image
-                            src={urlFor(property.mainImage).width(200).height(200).url()}
+                            src={urlFor(property.mainImage)
+                              .width(200)
+                              .height(200)
+                              .url()}
                             alt={`${property.title} ana görseli`}
                             fill
                             sizes="96px"
                             className="object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center text-xs text-gray-500">Fotoğraf Yok</div>
+                          <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center text-xs text-gray-500">
+                            Fotoğraf Yok
+                          </div>
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 text-[10px]">
-                          <span className={`px-2 py-0.5 text-white ${property.status === 'satilik' ? 'bg-anthracite-900' : property.status === 'kiralik' ? 'bg-anthracite-900' : 'bg-gray-600'}`}>{property.status?.toUpperCase()}</span>
-                          <span className="px-2 py-0.5 bg-gray-100 text-gray-700">{property.propertyType.toUpperCase()}</span>
-                          <span className="px-2 py-0.5 bg-gray-100 text-gray-700">#{property.listingId}</span>
+                          <span
+                            className={`px-2 py-0.5 text-white ${property.status === "satilik" ? "bg-anthracite-900" : property.status === "kiralik" ? "bg-anthracite-900" : "bg-gray-600"}`}
+                          >
+                            {property.status?.toUpperCase()}
+                          </span>
+                          <span className="px-2 py-0.5 bg-gray-100 text-gray-700">
+                            {property.propertyType.toUpperCase()}
+                          </span>
+                          <span className="px-2 py-0.5 bg-gray-100 text-gray-700">
+                            #{property.listingId}
+                          </span>
                         </div>
-                        <h3 className="text-sm font-semibold text-gray-900 mt-1 line-clamp-2">{property.title}</h3>
-                        <div className="text-[12px] text-gray-600 mt-0.5">{property.neighborhood}, {property.district} / {property.province}</div>
+                        <h3 className="text-sm font-semibold text-gray-900 mt-1 line-clamp-2">
+                          {property.title}
+                        </h3>
+                        <div className="text-[12px] text-gray-600 mt-0.5">
+                          {property.neighborhood}, {property.district} /{" "}
+                          {property.province}
+                        </div>
                         <div className="flex items-center justify-between mt-2">
-                          <div className="text-base font-bold text-green-600">₺{parsePriceToNumber(property.price).toLocaleString('tr-TR')}</div>
-                          {property.area ? (<div className="text-[12px] text-gray-600">{property.area} m²</div>) : null}
+                          <div className="text-base font-bold text-green-600">
+                            ₺
+                            {parsePriceToNumber(property.price).toLocaleString(
+                              "tr-TR"
+                            )}
+                          </div>
+                          {property.area ? (
+                            <div className="text-[12px] text-gray-600">
+                              {property.area} m²
+                            </div>
+                          ) : null}
                         </div>
                       </div>
                     </div>
@@ -885,65 +1171,79 @@ export default function HomePage() {
                 <button
                   onClick={handlePreviousPage}
                   disabled={currentPage === 1}
-                  className={`px-4 py-2 text-sm font-medium rounded-md ${currentPage === 1
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                    }`}
+                  className={`px-4 py-2 text-sm font-medium rounded-md ${
+                    currentPage === 1
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                      : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                  }`}
                 >
                   Önceki
                 </button>
 
                 {/* Page Numbers */}
                 <div className="flex space-x-1">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-                    // Show first page, last page, current page, and pages around current page
-                    const shouldShow =
-                      page === 1 ||
-                      page === totalPages ||
-                      (page >= currentPage - 1 && page <= currentPage + 1);
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (page) => {
+                      // Show first page, last page, current page, and pages around current page
+                      const shouldShow =
+                        page === 1 ||
+                        page === totalPages ||
+                        (page >= currentPage - 1 && page <= currentPage + 1);
 
-                    if (!shouldShow) {
-                      // Show ellipsis for gaps
-                      if (page === 2 && currentPage > 4) {
-                        return (
-                          <span key={`ellipsis-${page}`} className="px-3 py-2 text-gray-500">
-                            ...
-                          </span>
-                        );
+                      if (!shouldShow) {
+                        // Show ellipsis for gaps
+                        if (page === 2 && currentPage > 4) {
+                          return (
+                            <span
+                              key={`ellipsis-${page}`}
+                              className="px-3 py-2 text-gray-500"
+                            >
+                              ...
+                            </span>
+                          );
+                        }
+                        if (
+                          page === totalPages - 1 &&
+                          currentPage < totalPages - 3
+                        ) {
+                          return (
+                            <span
+                              key={`ellipsis-${page}`}
+                              className="px-3 py-2 text-gray-500"
+                            >
+                              ...
+                            </span>
+                          );
+                        }
+                        return null;
                       }
-                      if (page === totalPages - 1 && currentPage < totalPages - 3) {
-                        return (
-                          <span key={`ellipsis-${page}`} className="px-3 py-2 text-gray-500">
-                            ...
-                          </span>
-                        );
-                      }
-                      return null;
-                    }
 
-                    return (
-                      <button
-                        key={page}
-                        onClick={() => handlePageChange(page)}
-                        className={`px-4 py-2 text-sm font-medium rounded-md ${currentPage === page
-                          ? 'bg-anthracite-600 text-white'
-                          : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                      return (
+                        <button
+                          key={page}
+                          onClick={() => handlePageChange(page)}
+                          className={`px-4 py-2 text-sm font-medium rounded-md ${
+                            currentPage === page
+                              ? "bg-anthracite-600 text-white"
+                              : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
                           }`}
-                      >
-                        {page}
-                      </button>
-                    );
-                  })}
+                        >
+                          {page}
+                        </button>
+                      );
+                    }
+                  )}
                 </div>
 
                 {/* Next Button */}
                 <button
                   onClick={handleNextPage}
                   disabled={currentPage === totalPages}
-                  className={`px-4 py-2 text-sm font-medium rounded-md ${currentPage === totalPages
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                    }`}
+                  className={`px-4 py-2 text-sm font-medium rounded-md ${
+                    currentPage === totalPages
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                      : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                  }`}
                 >
                   Sonraki
                 </button>
@@ -957,23 +1257,34 @@ export default function HomePage() {
           <div className="container mx-auto px-4 pb-20">
             <div className="text-center py-20">
               <div className="mb-8">
-                <svg className="w-24 h-24 mx-auto text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                <svg
+                  className="w-24 h-24 mx-auto text-gray-300"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1}
+                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                  />
                 </svg>
               </div>
               <h2 className="text-3xl font-bold text-gray-800 mb-4">
-                {searchTerm ? 'Arama Sonucu Bulunamadı' : 'Aradığınız Kriterlere Uygun İlan Bulunamadı'}
+                {searchTerm
+                  ? "Arama Sonucu Bulunamadı"
+                  : "Aradığınız Kriterlere Uygun İlan Bulunamadı"}
               </h2>
               <p className="text-xl text-gray-600 mb-8 max-w-md mx-auto">
                 {searchTerm
                   ? `"${searchTerm}" araması için sonuç bulunamadı. Lütfen farklı bir arama terimi deneyin.`
-                  : 'Lütfen farklı bir filtre seçeneği deneyin veya tüm ilanları görüntüleyin.'
-                }
+                  : "Lütfen farklı bir filtre seçeneği deneyin veya tüm ilanları görüntüleyin."}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 {searchTerm && (
                   <button
-                    onClick={() => handleSearch('')}
+                    onClick={() => handleSearch("")}
                     className="bg-gray-600 text-white px-8 py-3 font-medium hover:bg-gray-700 transition-colors duration-300 shadow-lg hover:shadow-xl"
                   >
                     Aramayı Temizle
@@ -981,8 +1292,8 @@ export default function HomePage() {
                 )}
                 <button
                   onClick={() => {
-                    handleFilter('tumu');
-                    handleSearch('');
+                    handleFilter("tumu");
+                    handleSearch("");
                   }}
                   className="bg-anthracite-600 text-white px-8 py-3 font-medium hover:bg-anthracite-700 transition-colors duration-300 shadow-lg hover:shadow-xl"
                 >
